@@ -128,6 +128,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint16_t fuelServoPreAngle = 105;
         const uint16_t oxServoPreAngle = 70;
 
+        const uint16_t fuelMaxOpen = 150;
+        const uint16_t oxMaxOpen = 150;
+
         uint64_t lastTimeThrustUpdate;
         uint64_t lastTimeChamberPUpdate;
 
@@ -135,6 +138,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_firstNominalTime = 5000;
         const uint32_t m_throttledDownTime = 4100;
         const uint32_t m_secondNominalTime = 3000;
+        const uint32_t m_cutoffTime = 2500;
 
         uint8_t _ignitionCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;

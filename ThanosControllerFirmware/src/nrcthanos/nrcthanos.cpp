@@ -37,7 +37,7 @@ void NRCThanos::update()
     }
 
     // Close valves after a flat 14 seconds
-    if ((millis() - ignitionTime > 14000) && _ignitionCalls > 0)
+    if ((millis() - ignitionTime > m_cutoffTime) && _ignitionCalls > 0)
     {
         currentEngineState = EngineState::ShutDown;
         _ignitionCalls = 0;
@@ -84,86 +84,11 @@ void NRCThanos::update()
         break;
     }
 
-    case EngineState::ThrottledT:
-    {
-
-        if ((millis() - m_throttledEntry > m_throttledDownTime))
-        {
-            currentEngineState = EngineState::NominalT;
-            resetVars();
-            break;
-        }
-
-        if (!nominalEngineOp())
-        {
-            gotoWithSpeed(fuelServo, 180, m_servoSlow, m_fuelServoPrevAngle, m_fuelServoCurrAngle, m_fuelServoPrevUpdate);
-            gotoWithSpeed(oxServo, 180, m_servoSlow, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
-            break;
-        }
-
-        if (_thrust < 400)
-        {
-
-            oxServo.goto_Angle(90);
-
-            m_oxPercent = (float)(90 - oxServoPreAngle) / (float)(m_oxThrottleRange);
-            
-            m_fuelPercent = m_oxPercent + m_fuelExtra;
-            float fuelAngle = (float)(m_fuelPercent * m_fuelThrottleRange) + fuelServoPreAngle;
-
-            if (fuelAngle < fuelServoPreAngle)
-            {
-                fuelServo.goto_AngleHighRes(fuelServoPreAngle);
-            }
-            else
-            {
-                fuelServo.goto_AngleHighRes(fuelAngle);
-            }
-
-            break;
-        }
-
-        gotoThrust(m_targetThrottled, m_servoFast, 0);
-
-        break;
-    }
-
     case EngineState::NominalT:
     {
-
-        if ((millis() - m_nominalEntry > m_firstNominalTime) && m_firstNominal)
-        {
-            currentEngineState = EngineState::ThrottledT;
-            resetVars();
-            m_throttledEntry = millis();
-            m_firstNominal = false;
-            break;
-        }
-
-        // if (!nominalEngineOp())
-        // {
-        //     gotoWithSpeed(fuelServo, 180, m_servoSlow, m_fuelServoPrevAngle, m_fuelServoCurrAngle, m_fuelServoPrevUpdate);
-        //     gotoWithSpeed(oxServo, 180, m_servoSlow, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
-        //     break;
-        // }
-        if (m_firstNominal){
-            gotoThrust(m_nominal, 0, m_firstNominalSpeed);
-        }
-        else{
-            gotoThrust(m_nominal, 0, m_servoFast);
-        }
-
-        break;
+        fuelServo.goto_Angle(150);
+        oxServo.goto_Angle(150);
     }
-
-        // case EngineState::Fullbore:
-        // {
-
-        //     fuelServo.goto_Angle(180);
-        //     oxServo.goto_Angle(180);
-
-        //     break;
-        // }
 
     case EngineState::ShutDown:
     {
