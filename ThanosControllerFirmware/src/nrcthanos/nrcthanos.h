@@ -138,7 +138,8 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_firstNominalTime = 5000;
         const uint32_t m_throttledDownTime = 4100;
         const uint32_t m_secondNominalTime = 3000;
-        const uint32_t m_cutoffTime = 2500;
+        const uint32_t m_cutoffTime = 3000;
+        const uint32_t m_oxDelay = 100;
 
         uint8_t _ignitionCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;

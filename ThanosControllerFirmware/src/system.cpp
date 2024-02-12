@@ -66,20 +66,20 @@ void System::systemSetup(){
 void System::systemUpdate(){
     Buck.update();
 
-    if(Thanos.getPollingStatus()){  
-        chamberPTapPoller.update();
-        thrustGaugePoller.update();
-    }
+    // if(Thanos.getPollingStatus()){  
+    //     chamberPTapPoller.update();
+    //     thrustGaugePoller.update();
+    // }
     
-    if(chamberPTapPoller.newdata)
-    {
-        Thanos.updateChamberP(chamberPTapPoller.getVal());
-    }
+    // if(chamberPTapPoller.newdata)
+    // {
+    //     Thanos.updateChamberP(chamberPTapPoller.getVal());
+    // }
 
-    if(thrustGaugePoller.newdata)
-    {
-        Thanos.updateThrust(thrustGaugePoller.getVal());
-    }
+    // if(thrustGaugePoller.newdata)
+    // {
+    //     Thanos.updateThrust(thrustGaugePoller.getVal());
+    // }
 
     Thanos.update();
 };

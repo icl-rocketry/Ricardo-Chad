@@ -65,21 +65,21 @@ void NRCThanos::update()
 
         else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))
         {
-            fuelServo.goto_Angle(fuelServoPreAngle);
-        }
-
-        else if (timeFrameCheck(oxValvePreposition, endOfIgnitionSeq))
-        {
-            oxServo.goto_Angle(oxServoPreAngle);
-        }
-
-        else if (timeFrameCheck(endOfIgnitionSeq))
-        {
             currentEngineState = EngineState::NominalT;
             m_nominalEntry = millis();
             m_firstNominal = true;
             resetVars();
         }
+
+        // else if (timeFrameCheck(oxValvePreposition, endOfIgnitionSeq))
+        // {
+        //     oxServo.goto_Angle(oxServoPreAngle);
+        // }
+
+        // else if (timeFrameCheck(endOfIgnitionSeq))
+        // {
+            
+        // }
 
         break;
     }
@@ -87,7 +87,11 @@ void NRCThanos::update()
     case EngineState::NominalT:
     {
         fuelServo.goto_Angle(150);
-        oxServo.goto_Angle(150);
+        if(millis() - m_nominalEntry > m_oxDelay){
+        oxServo.goto_Angle(140);
+        }
+        _ignitionCalls = 1;
+        break;
     }
 
     case EngineState::ShutDown:
