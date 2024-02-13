@@ -19,6 +19,9 @@ void NRCThanos::setup()
     m_fuelThrottleRange = 175 - fuelServoPreAngle;
 
     pinMode(_overrideGPIO, INPUT_PULLUP);
+    pinMode(_tvcpin0, INPUT_PULLDOWN);
+    pinMode(_tvcpin1, INPUT_PULLDOWN);
+    pinMode(_tvcpin2, INPUT_PULLDOWN);
 }
 
 void NRCThanos::update()
@@ -50,6 +53,7 @@ void NRCThanos::update()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
+        motorsOff();
         _polling = false;
         break;
     }
@@ -58,6 +62,11 @@ void NRCThanos::update()
 
     { // ignition sequence
         // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Ignition state");
+        if (timeFrameCheck(motorsLock, pyroFires))
+        {
+            motorsLocked();
+        }
+
         if (timeFrameCheck(pyroFires, fuelValvePreposition))
         {
             firePyro(fuelValvePreposition - pyroFires);
@@ -78,7 +87,7 @@ void NRCThanos::update()
 
         // else if (timeFrameCheck(endOfIgnitionSeq))
         // {
-            
+
         // }
 
         break;
@@ -87,10 +96,41 @@ void NRCThanos::update()
     case EngineState::NominalT:
     {
         fuelServo.goto_Angle(150);
-        if(millis() - m_nominalEntry > m_oxDelay){
-        oxServo.goto_Angle(140);
+        if (millis() - m_nominalEntry > m_oxDelay)
+        {
+            oxServo.goto_Angle(140);
         }
-        _ignitionCalls = 1;
+
+        motorsLocked();
+
+        if ((millis() - m_nominalEntry > m_firstNominal) && m_firstNominal)
+        {
+            currentEngineState = EngineState::TVCCircle;
+            m_tvcEntry = millis();
+        }
+        break;
+    }
+
+    case EngineState::Calibration:
+    {
+        motorsCalibrate();
+        if(millis() - m_calibrationStart > m_calibrationTime){
+            currentEngineState = EngineState::Default;
+            m_calibrationDone = 1;
+        }
+
+        break;
+    }
+
+    case EngineState::TVCCircle:
+    {
+        fuelServo.goto_Angle(150);
+        oxServo.goto_Angle(140);
+        motorsCircle();
+
+        if(millis() - m_tvcEntry > m_tvctime){
+            EngineState::NominalT;
+        }
         break;
     }
 
@@ -98,6 +138,7 @@ void NRCThanos::update()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
+        motorsLocked();
         _polling = false;
 
         break;
@@ -142,7 +183,7 @@ void NRCThanos::execute_impl(packetptr_t packetptr)
     {
     case 1:
     {
-        if (currentEngineState != EngineState::Default)
+        if (currentEngineState != EngineState::Default || !m_calibrationDone)
         {
             break;
         }
@@ -171,6 +212,17 @@ void NRCThanos::execute_impl(packetptr_t packetptr)
         _polling = false;
         currentEngineState = EngineState::Debug;
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Entered debug");
+        break;
+    }
+    case 4:
+    {
+        if (currentEngineState != EngineState::Default)
+        {
+            break;
+        }
+        _polling = false;
+        currentEngineState = EngineState::Calibration;
+        RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Started calibration");
         break;
     }
     }
@@ -204,6 +256,53 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
             break;
         }
     }
+    case 8:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            motorsOff();
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 9:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            motorsCalibrate();
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 10:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            motorsLocked();
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 11:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            motorsDebug();
+        }
+        else
+        {
+            break;
+        }
+    }
+
     default:
     {
         NRCRemoteActuatorBase::extendedCommandHandler_impl(commandID, std::move(packetptr));

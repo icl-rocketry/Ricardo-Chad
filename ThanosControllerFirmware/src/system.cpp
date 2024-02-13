@@ -26,7 +26,7 @@ chamberPTap(1, GeneralConfig::Kermitaddr, static_cast<uint8_t>(Services::ID::cha
 thrustGauge(2, GeneralConfig::Kermitaddr, static_cast<uint8_t>(Services::ID::thrustGauge), static_cast<uint8_t>(Services::ID::thrustGauge), networkmanager, [](const std::string& msg){RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(msg);}),
 chamberPTapPoller(50, &chamberPTap),
 thrustGaugePoller(20, &thrustGauge),
-Thanos(networkmanager,PinMap::ServoPWM1,0,PinMap::ServoPWM2,1,PinMap::EngineOverride,networkmanager.getAddress(),Buck)
+Thanos(networkmanager,PinMap::ServoPWM1,0,PinMap::ServoPWM2,1,PinMap::EngineOverride,PinMap::TVCPIN0,PinMap::TVCPIN1,PinMap::TVCPIN2,networkmanager.getAddress(),Buck)
 {};
 
 

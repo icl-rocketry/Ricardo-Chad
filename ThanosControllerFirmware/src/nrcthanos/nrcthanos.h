@@ -20,6 +20,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
                     uint8_t oxServoGPIO,
                     uint8_t oxServoChannel,
                     uint8_t overrideGPIO,
+                    uint8_t tvc0,
+                    uint8_t tvc1,
+                    uint8_t tvc2,
                     uint8_t address,
                     SiC43x& Buck
                     ):
@@ -30,6 +33,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             _oxServoGPIO(oxServoGPIO),
             _oxServoChannel(oxServoChannel),
             _overrideGPIO(overrideGPIO),
+            _tvcpin0(tvc0),
+            _tvcpin1(tvc1),
+            _tvcpin2(tvc2),
             _address(address),
             fuelServo(fuelServoGPIO,fuelServoChannel,networkmanager,0,0,180,0,175),
             oxServo(oxServoGPIO,oxServoChannel,networkmanager,0,0,180,10,160),
@@ -53,6 +59,10 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint8_t _oxServoGPIO;
         const uint8_t _oxServoChannel;
         const uint8_t _overrideGPIO;
+        const uint8_t _tvcpin0;
+        const uint8_t _tvcpin1;
+        const uint8_t _tvcpin2;
+
         const uint8_t _address;
 
         NRCRemoteServo fuelServo;
@@ -86,7 +96,8 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             Ignition = 1<<1,
             ShutDown = 1<<2,
             NominalT = 1<<3,
-            ThrottledT = 1<<4,
+            TVCCircle = 1<<4,
+            Calibration = 1<<5,
             // Fullbore = 4,
             Debug = 1<<5
         };
@@ -120,10 +131,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         };
 
         // Ignition sequence timings from moment ignition command received
-        const uint64_t pyroFires = 0;
-        const uint64_t fuelValvePreposition = 500;
-        const uint64_t oxValvePreposition = 550;
-        const uint64_t endOfIgnitionSeq = 1050;
+        const uint32_t motorsLock = 0;
+        const uint64_t pyroFires = 1000;
+        const uint64_t fuelValvePreposition = 1500;
+        const uint64_t oxValvePreposition = 1550;
+        const uint64_t endOfIgnitionSeq = 2050;
 
         const uint16_t fuelServoPreAngle = 105;
         const uint16_t oxServoPreAngle = 70;
@@ -135,10 +147,12 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint64_t lastTimeChamberPUpdate;
 
         const uint64_t pressureUpdateTimeLim = 1000;
-        const uint32_t m_firstNominalTime = 5000;
-        const uint32_t m_throttledDownTime = 4100;
+        const uint32_t m_firstNominalTime = 2000;
+        const uint32_t m_tvctime = 2000;
         const uint32_t m_secondNominalTime = 3000;
-        const uint32_t m_cutoffTime = 3000;
+        const uint32_t m_cutoffTime = 12500;
+        const uint32_t m_calibrationTime = 30000;
+        const uint32_t m_motorsLockTime = 1000;
         const uint32_t m_oxDelay = 100;
 
         uint8_t _ignitionCalls = 0;
@@ -151,9 +165,6 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         //
         uint8_t m_ingitionService = 12;
         uint8_t m_ignitionNode = 107;
-
-        float m_nominal = 2400;
-        float m_targetThrottled = 792;
 
         float m_fuelServoCurrAngle = 0;
         float m_oxServoCurrAngle = 0;
@@ -172,7 +183,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         bool m_thrustreached = false;
         uint32_t m_throttledEntry;
         uint32_t m_nominalEntry;
+        uint32_t m_tvcEntry;
+        uint32_t m_calibrationStart;
         bool m_firstNominal = false;
+
+        bool m_calibrationDone = false;
 
         //
         float m_oxPercent = 0;
@@ -181,4 +196,36 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint16_t m_fuelThrottleRange = 0;
 
         float m_fuelExtra = 0.05;
+
+        void motorsOff(){
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,LOW);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsCalibrate(){
+            digitalWrite(_tvcpin0,HIGH);
+            digitalWrite(_tvcpin1,LOW);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsLocked(){
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,HIGH);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsCircle(){
+            digitalWrite(_tvcpin0,HIGH);
+            digitalWrite(_tvcpin1,HIGH);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsDebug(){
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,LOW);
+            digitalWrite(_tvcpin2,HIGH);
+        };
+
+        
 };
