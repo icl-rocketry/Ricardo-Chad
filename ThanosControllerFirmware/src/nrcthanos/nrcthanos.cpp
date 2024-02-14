@@ -19,9 +19,9 @@ void NRCThanos::setup()
     m_fuelThrottleRange = 175 - fuelServoPreAngle;
 
     pinMode(_overrideGPIO, INPUT_PULLUP);
-    pinMode(_tvcpin0, INPUT_PULLDOWN);
-    pinMode(_tvcpin1, INPUT_PULLDOWN);
-    pinMode(_tvcpin2, INPUT_PULLDOWN);
+    pinMode(_tvcpin0, OUTPUT);
+    pinMode(_tvcpin1, OUTPUT);
+    pinMode(_tvcpin2, OUTPUT);
 }
 
 void NRCThanos::update()
@@ -34,10 +34,10 @@ void NRCThanos::update()
     }
 
     // Close valves if abort is used
-    if (digitalRead(_overrideGPIO) == 1)
-    {
-        currentEngineState = EngineState::ShutDown;
-    }
+    // if (digitalRead(_overrideGPIO) == 1)
+    // {
+    //     currentEngineState = EngineState::ShutDown;
+    // }
 
     // Close valves after a flat 14 seconds
     if ((millis() - ignitionTime > m_cutoffTime) && _ignitionCalls > 0)
@@ -107,6 +107,7 @@ void NRCThanos::update()
         {
             currentEngineState = EngineState::TVCCircle;
             m_tvcEntry = millis();
+            m_firstNominal = 0;
         }
         break;
     }
@@ -129,7 +130,7 @@ void NRCThanos::update()
         motorsCircle();
 
         if(millis() - m_tvcEntry > m_tvctime){
-            EngineState::NominalT;
+            currentEngineState = EngineState::NominalT;
         }
         break;
     }
@@ -261,6 +262,7 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
         if (currentEngineState == EngineState::Debug)
         {
             motorsOff();
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors off");
             break;
         }
         else
@@ -273,6 +275,8 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
         if (currentEngineState == EngineState::Debug)
         {
             motorsCalibrate();
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Started calibration");
+            break;
         }
         else
         {
@@ -284,6 +288,7 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
         if (currentEngineState == EngineState::Debug)
         {
             motorsLocked();
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors locked");
             break;
         }
         else
@@ -296,6 +301,21 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
         if (currentEngineState == EngineState::Debug)
         {
             motorsDebug();
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors debug");
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 12:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            motorsCircle();
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors circle");
+            break;
         }
         else
         {

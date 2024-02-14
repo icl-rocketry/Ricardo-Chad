@@ -99,7 +99,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             TVCCircle = 1<<4,
             Calibration = 1<<5,
             // Fullbore = 4,
-            Debug = 1<<5
+            Debug = 1<<6
         };
 
 
