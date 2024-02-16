@@ -17,6 +17,7 @@ class ChadTelemPacket : public RnpPacket{
                 &ChadTelemPacket::fuelAngle,
                 &ChadTelemPacket::oxAngle,
                 &ChadTelemPacket::thanosState,
+                &ChadTelemPacket::oDrvState,
                 &ChadTelemPacket::system_status,
                 &ChadTelemPacket::system_time
             );
@@ -46,6 +47,7 @@ class ChadTelemPacket : public RnpPacket{
         uint16_t fuelAngle;
         uint16_t oxAngle;
         uint8_t thanosState;
+        uint8_t oDrvState;
         uint32_t system_status;
         uint64_t system_time;
 

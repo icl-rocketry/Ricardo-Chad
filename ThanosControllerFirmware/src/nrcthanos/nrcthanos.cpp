@@ -46,6 +46,11 @@ void NRCThanos::update()
         _ignitionCalls = 0;
     }
 
+    thanosStateMachine();
+}
+
+void NRCThanos::thanosStateMachine()
+{
     switch (currentEngineState)
     {
 
@@ -115,7 +120,8 @@ void NRCThanos::update()
     case EngineState::Calibration:
     {
         motorsCalibrate();
-        if(millis() - m_calibrationStart > m_calibrationTime){
+        if (millis() - m_calibrationStart > m_calibrationTime)
+        {
             currentEngineState = EngineState::Default;
             m_calibrationDone = 1;
         }
@@ -129,7 +135,8 @@ void NRCThanos::update()
         oxServo.goto_Angle(140);
         motorsCircle();
 
-        if(millis() - m_tvcEntry > m_tvctime){
+        if (millis() - m_tvcEntry > m_tvctime)
+        {
             currentEngineState = EngineState::NominalT;
         }
         break;
@@ -149,6 +156,35 @@ void NRCThanos::update()
     {
         break;
     }
+    }
+}
+
+void NRCThanos::odriveStateMachine(){
+    switch(currOdriveState){
+        case oDriveState::Idle:{
+            motorsOff();
+            break;
+        }
+        case oDriveState::LockedZero:{
+            motorsLocked();
+            break;
+        }
+        case oDriveState::LockedCurrent:{
+            motorsLocked();
+            break;
+        }
+        case oDriveState::HotfireProfile:{
+            motorsCircle();
+            break;
+        }
+        case oDriveState::Calibration:{
+            motorsCalibrate();
+            break;
+        }
+        case oDriveState::Debug:{
+            motorsDebug();
+            break;
+        }
     }
 }
 
@@ -261,7 +297,7 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            motorsOff();
+            currOdriveState = oDriveState::Idle;
             RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors off");
             break;
         }
@@ -274,7 +310,7 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            motorsCalibrate();
+            currOdriveState = oDriveState::Calibration;
             RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Started calibration");
             break;
         }
@@ -287,8 +323,8 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            motorsLocked();
-            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors locked");
+            currOdriveState = oDriveState::LockedCurrent;
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors locked in current position");
             break;
         }
         else
@@ -300,7 +336,7 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            motorsDebug();
+            currOdriveState = oDriveState::Debug;
             RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors debug");
             break;
         }
@@ -313,8 +349,21 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            motorsCircle();
+            currOdriveState = oDriveState::HotfireProfile;
             RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors circle");
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 13:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            currOdriveState = oDriveState::LockedZero;
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors locked in zero position");
             break;
         }
         else

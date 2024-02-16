@@ -45,12 +45,15 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void setup();
         void update();
         void updateThrust(float thrust);
+        void thanosStateMachine();
+        void odriveStateMachine();
         void updateChamberP(float chamberP);
         bool getPollingStatus() { return _polling; };
 
         uint16_t getFuelAngle() { return fuelServo.getAngle(); };
         uint16_t getOxAngle() { return oxServo.getAngle(); };
         uint8_t getStatus(){return static_cast<uint8_t>(currentEngineState);};
+        uint8_t getoDrvStatus(){return static_cast<uint8_t>(currOdriveState);};
 
     protected:
         RnpNetworkManager &_networkmanager;
@@ -100,6 +103,17 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             Calibration = 1<<5,
             // Fullbore = 4,
             Debug = 1<<6
+            //last states of this enum are odrive states
+        };
+
+        enum class oDriveState : uint8_t
+        {
+            Idle = 1<<0,
+            LockedZero = 1<<1,
+            LockedCurrent = 1<<2,
+            HotfireProfile = 1<<3,
+            Calibration = 1<<4,
+            Debug = 1<<5
         };
 
 
@@ -107,6 +121,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         bool shutdown_called = false;
 
         EngineState currentEngineState = EngineState::Default;
+        oDriveState currOdriveState = oDriveState::Idle;
 
         uint64_t ignitionTime;
 
