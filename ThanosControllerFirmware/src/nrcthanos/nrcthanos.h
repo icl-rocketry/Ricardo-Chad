@@ -109,7 +109,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         enum class oDriveState : uint8_t
         {
             Idle = 1<<0,
-            LockedZero = 1<<1,
+            Armed = 1<<1,
             LockedCurrent = 1<<2,
             HotfireProfile = 1<<3,
             Calibration = 1<<4,
@@ -239,6 +239,12 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void motorsDebug(){
             digitalWrite(_tvcpin0,LOW);
             digitalWrite(_tvcpin1,LOW);
+            digitalWrite(_tvcpin2,HIGH);
+        };
+
+        void motorsArmed(){
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,HIGH);
             digitalWrite(_tvcpin2,HIGH);
         };
 

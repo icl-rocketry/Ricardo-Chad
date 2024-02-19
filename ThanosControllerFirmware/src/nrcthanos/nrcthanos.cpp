@@ -165,8 +165,8 @@ void NRCThanos::odriveStateMachine(){
             motorsOff();
             break;
         }
-        case oDriveState::LockedZero:{
-            motorsLocked();
+        case oDriveState::Armed:{
+            motorsArmed();
             break;
         }
         case oDriveState::LockedCurrent:{
@@ -362,8 +362,8 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     {
         if (currentEngineState == EngineState::Debug)
         {
-            currOdriveState = oDriveState::LockedZero;
-            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors locked in zero position");
+            currOdriveState = oDriveState::Armed;
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors armed");
             break;
         }
         else
