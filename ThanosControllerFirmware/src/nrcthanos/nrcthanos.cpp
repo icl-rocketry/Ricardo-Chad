@@ -47,6 +47,7 @@ void NRCThanos::update()
     }
 
     thanosStateMachine();
+    odriveStateMachine();
 }
 
 void NRCThanos::thanosStateMachine()
