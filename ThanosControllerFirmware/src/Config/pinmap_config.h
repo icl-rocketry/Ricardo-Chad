@@ -20,9 +20,9 @@ namespace PinMap{
 
     static constexpr uint8_t EngineOverride = 11;
 
-    static constexpr uint8_t TVCPIN0 = 8; //odrive 6
-    static constexpr uint8_t TVCPIN1 = 9; //odrive 7
-    static constexpr uint8_t TVCPIN2 = 10; //odrive 8
+    static constexpr uint8_t TVCPIN0 = 7; //odrive 6
+    static constexpr uint8_t TVCPIN1 = 6; //odrive 7
+    static constexpr uint8_t TVCPIN2 = 9; //odrive 8 
 
 };
 
