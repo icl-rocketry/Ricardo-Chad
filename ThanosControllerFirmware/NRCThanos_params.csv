@@ -1,0 +1,28 @@
+Parameter,                                      Value,  Unit,       Notes
+
+Fuel preposition angle,                         105,    deg,
+Ox preposition angle,                           70,     deg,
+
+Fuel max open angle,                            150,    deg,
+Ox max open angle,                              150,    deg,
+
+Fuel nominal angle,                             150,    deg,
+Ox nominal angle,                               140,    deg,
+
+Throttle down speed,                            75,     deg/sec,
+Throttle up speed,                              75,     deg/sec,
+
+Fuel valve pre time,                            500,    ms,
+Ox valve pre time,                              550,    ms,
+Ignition sequence time total,                   1.05,   s,
+Delay: fuel & ox servo actuation,               100,    ms,         This is for throttle up to nominal level
+
+Low chamber pressure,                           5,      bar,
+Nominal chamber pressure,                       30,     bar,
+
+Fuel valve leads ox valve by,                   5,      %,
+
+Delay: motors lock & pyro fires,                1000,   ms,
+TVC circling time,                              2000,   ms,
+Delay: valves in nominal & TVC starts circling, 1000,   ms,
+Max test duration,                              14,     s,
