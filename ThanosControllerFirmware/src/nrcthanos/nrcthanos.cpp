@@ -34,10 +34,10 @@ void NRCThanos::update()
     }
 
     // Close valves if abort is used
-    // if (digitalRead(_overrideGPIO) == 1)
-    // {
-    //     currentEngineState = EngineState::ShutDown;
-    // }
+    if (digitalRead(_overrideGPIO) == 1)
+    {
+        currentEngineState = EngineState::ShutDown;
+    }
 
     // Close valves after a flat 14 seconds
     if ((millis() - ignitionTime > m_cutoffTime) && _ignitionCalls > 0)
@@ -78,7 +78,7 @@ void NRCThanos::thanosStateMachine()
             firePyro(fuelValvePreposition - pyroFires);
         }
 
-        else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))
+        else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))  // sending it
         {
             currentEngineState = EngineState::NominalT;
             m_nominalEntry = millis();
@@ -101,15 +101,15 @@ void NRCThanos::thanosStateMachine()
 
     case EngineState::NominalT:
     {
-        fuelServo.goto_Angle(150);
+        fuelServo.goto_Angle(fuelNominalAngle);
         if (millis() - m_nominalEntry > m_oxDelay)
         {
-            oxServo.goto_Angle(140);
+            oxServo.goto_Angle(oxNominalAngle);
         }
 
         motorsLocked();
 
-        if ((millis() - m_nominalEntry > m_firstNominal) && m_firstNominal)
+        if (millis() - m_nominalEntry > m_startTVCCircle)   // delay before transitioning to TVC sequence
         {
             currentEngineState = EngineState::TVCCircle;
             m_tvcEntry = millis();
@@ -132,13 +132,15 @@ void NRCThanos::thanosStateMachine()
 
     case EngineState::TVCCircle:
     {
-        fuelServo.goto_Angle(150);
-        oxServo.goto_Angle(140);
+        // fuelServo.goto_Angle(fuelNominalAngle);
+        // oxServo.goto_Angle(oxNominalAngle);
+        gotoChamberP(m_targetChamberP, m_servoFast, m_servoFast);   // throttling based on chamber pressure value
         motorsCircle();
 
-        if (millis() - m_tvcEntry > m_tvctime)
+        if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
         {
-            currentEngineState = EngineState::NominalT;
+            //currentEngineState = EngineState::NominalT;
+            motorsLocked();
         }
         break;
     }
@@ -147,7 +149,7 @@ void NRCThanos::thanosStateMachine()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
-        motorsLocked();
+        motorsArmed();          // lock in neutral position
         _polling = false;
 
         break;
@@ -221,7 +223,7 @@ void NRCThanos::execute_impl(packetptr_t packetptr)
     {
     case 1:
     {
-        if (currentEngineState != EngineState::Default || !m_calibrationDone)
+        if (currentEngineState != EngineState::Default && !m_calibrationDone)
         {
             break;
         }
@@ -472,6 +474,36 @@ void NRCThanos::gotoThrust(float target, float closespeed, float openspeed)
     {
         fuelServo.goto_AngleHighRes(fuelAngle);
     }
+}
+
+void NRCThanos::gotoChamberP(float target, float closespeed, float openspeed){
+    
+    if (target * (1.0f + m_targetBuffer) < _chamberP)
+    {
+        gotoWithSpeed(oxServo, 70, closespeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
+    }
+    else if (_chamberP < target * (1.0f - m_targetBuffer))
+    {
+        gotoWithSpeed(oxServo, 180, openspeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
+    }
+    else
+    {
+        oxServo.goto_Angle(m_oxServoCurrAngle);
+    }
+
+    m_oxPercent = (float)(m_oxServoCurrAngle - oxServoPreAngle) / (float)(m_oxThrottleRange);
+    m_fuelPercent = m_oxPercent + m_fuelExtra;
+    float fuelAngle = (float)(m_fuelPercent * m_fuelThrottleRange) + fuelServoPreAngle;
+
+    if (fuelAngle < fuelServoPreAngle)
+    {
+        fuelServo.goto_AngleHighRes(fuelServoPreAngle);
+    }
+    else
+    {
+        fuelServo.goto_AngleHighRes(fuelAngle);
+    }
+
 }
 
 void NRCThanos::firePyro(uint32_t duration)

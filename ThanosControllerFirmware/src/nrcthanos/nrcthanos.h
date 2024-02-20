@@ -135,6 +135,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void gotoWithSpeed(NRCRemoteServo &Servo, uint16_t demandAngle, float speed, float &prevAngle, float &currAngle, uint32_t &prevUpdateT);
 
         void gotoThrust(float target, float closespeed, float openspeed);
+        void gotoChamberP(float target, float closespeed, float openspeed);
         void firePyro(uint32_t duration);
 
         void resetVars(){
@@ -152,11 +153,17 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint64_t oxValvePreposition = 1550;
         const uint64_t endOfIgnitionSeq = 2050;
 
+        const float m_targetChamberP = 30;
+        const float m_targetBuffer = 0.02;
+
         const uint16_t fuelServoPreAngle = 105;
         const uint16_t oxServoPreAngle = 70;
 
         const uint16_t fuelMaxOpen = 150;
         const uint16_t oxMaxOpen = 150;
+
+        const uint16_t fuelNominalAngle = 150;
+        const uint16_t oxNominalAngle = 140;
 
         uint64_t lastTimeThrustUpdate;
         uint64_t lastTimeChamberPUpdate;
@@ -169,6 +176,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_calibrationTime = 30000;
         const uint32_t m_motorsLockTime = 1000;
         const uint32_t m_oxDelay = 100;
+        const uint32_t m_startTVCCircle = 1000;
 
         uint8_t _ignitionCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;
