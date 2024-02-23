@@ -187,6 +187,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         bool _polling = false;
 
+        bool oxFillClosed = false;
+        uint8_t closeOxFillCalls = 0;
+
         //
         const uint8_t m_ingitionService = 12;
         const uint8_t m_ignitionNode = 107;

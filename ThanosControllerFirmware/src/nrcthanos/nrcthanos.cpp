@@ -536,18 +536,30 @@ void NRCThanos::openOxFill()
     openOxFillCmd.header.destination = m_oxFillNode;
     openOxFillCmd.header.uid = 0;
     _networkmanager.sendPacket(openOxFillCmd);
+    oxFillClosed = false;
 }
 
 void NRCThanos::closeOxFill()
 {
-    SimpleCommandPacket closeOxFillCmd(2, 0);
-    closeOxFillCmd.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
-    closeOxFillCmd.header.destination_service = m_oxFillService;
-    closeOxFillCmd.header.source = _address;
-    closeOxFillCmd.header.destination = m_oxFillNode;
-    closeOxFillCmd.header.uid = 0;
-    _networkmanager.sendPacket(closeOxFillCmd);
+    if (!oxFillClosed){
+        SimpleCommandPacket closeOxFillCmd(2, 0);
+        closeOxFillCmd.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+        closeOxFillCmd.header.destination_service = m_oxFillService;
+        closeOxFillCmd.header.source = _address;
+        closeOxFillCmd.header.destination = m_oxFillNode;
+        closeOxFillCmd.header.uid = 0;
+        _networkmanager.sendPacket(closeOxFillCmd);
+
+        if (closeOxFillCalls >= 2){     // this is clapped i know
+            oxFillClosed = true;
+            closeOxFillCalls = 0;
+        }
+        else{
+            closeOxFillCalls++;
+        }
+    }
 }
+
 
 bool NRCThanos::pValUpdated()
 {
