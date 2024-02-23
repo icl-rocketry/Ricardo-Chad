@@ -74,49 +74,45 @@ void NRCThanos::thanosStateMachine()
 
     { // ignition sequence
         // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Ignition state");
-        if (timeFrameCheck(pyroFires, fuelValvePreposition))
+        if (timeFrameCheck(pyroFires, fuelValveNominal))
         {
-            firePyro(fuelValvePreposition - pyroFires);
+            firePyro(fuelValveNominal - pyroFires);
         }
-
-        else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))  // sending it
+        else if (timeFrameCheck(fuelValveNominal, oxValveNominal))
         {
             openOxFill();
-            currentEngineState = EngineState::NominalT;
+            fuelServo.goto_Angle(fuelNominalAngle);
             m_nominalEntry = millis();
+        }
+        else if (timeFrameCheck(oxValveNominal, -1))
+        {
+            oxServo.goto_Angle(oxNominalAngle);
+            m_latestAngleUpdate = millis();
+            currentEngineState = EngineState::NominalT;
+            currOdriveState = oDriveState::Armed;
             m_firstNominal = true;
             resetVars();
         }
-
-        // else if (timeFrameCheck(oxValvePreposition, endOfIgnitionSeq))
-        // {
-        //     oxServo.goto_Angle(oxServoPreAngle);
-        // }
-
-        // else if (timeFrameCheck(endOfIgnitionSeq))
-        // {
-
-        // }
 
         break;
     }
 
     case EngineState::NominalT:
     {
-        fuelServo.goto_Angle(fuelNominalAngle);
-        if (millis() - m_nominalEntry > m_oxDelay)
-        {
-            oxServo.goto_Angle(oxNominalAngle);
-        }
-
-        currOdriveState = oDriveState::Armed;
+        gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
 
         if (millis() - m_nominalEntry > m_startTVCCircle)   // delay before transitioning to TVC sequence
         {
-            currentEngineState = EngineState::TVCCircle;
+            currOdriveState = oDriveState::HotfireProfile;
             m_tvcEntry = millis();
             m_firstNominal = 0;
         }
+
+        if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
+        {
+            currOdriveState = oDriveState::Armed;  
+        }
+
         break;
     }
 
@@ -132,27 +128,27 @@ void NRCThanos::thanosStateMachine()
         break;
     }
 
-    case EngineState::TVCCircle:
-    {
-        // fuelServo.goto_Angle(fuelNominalAngle);
-        // oxServo.goto_Angle(oxNominalAngle);
-        gotoChamberP(m_targetChamberP, m_servoFast, m_servoFast);   // throttling based on chamber pressure value
-        currOdriveState = oDriveState::HotfireProfile;
+    // case EngineState::TVCCircle:
+    // {
+    //     // fuelServo.goto_Angle(fuelNominalAngle);
+    //     // oxServo.goto_Angle(oxNominalAngle);
+    //     gotoChamberP(m_targetChamberP, m_servoFast, m_servoFast);   // throttling based on chamber pressure value
+    //     currOdriveState = oDriveState::HotfireProfile;
 
-        if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
-        {
-            //currentEngineState = EngineState::NominalT;
-            currOdriveState = oDriveState::Armed;  
-        }
-        break;
-    }
+    //     if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
+    //     {
+    //         //currentEngineState = EngineState::NominalT;
+    //         currOdriveState = oDriveState::Armed;  
+    //     }
+    //     break;
+    // }
 
     case EngineState::ShutDown:
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
         closeOxFill();
-        currOdriveState = oDriveState::Armed;      // lock in neutral position
+        //currOdriveState = oDriveState::Armed;      // lock in neutral position
         _polling = false;
         break;
     }
@@ -225,7 +221,7 @@ void NRCThanos::execute_impl(packetptr_t packetptr)
     {
     case 1:
     {
-        if (currentEngineState != EngineState::Default && !m_calibrationDone)
+        if (currentEngineState != EngineState::Default || !m_calibrationDone) 
         {
             break;
         }
@@ -264,6 +260,7 @@ void NRCThanos::execute_impl(packetptr_t packetptr)
         }
         _polling = false;
         currentEngineState = EngineState::Calibration;
+        m_calibrationStart = millis();
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Started calibration");
         break;
     }
@@ -478,33 +475,35 @@ void NRCThanos::gotoThrust(float target, float closespeed, float openspeed)
     }
 }
 
-void NRCThanos::gotoChamberP(float target, float closespeed, float openspeed){
-    
-    if (target * (1.0f + m_targetBuffer) < _chamberP)
+void NRCThanos::gotoChamberP(float target){
+    m_oxServoCurrAngle = static_cast<float>(getOxAngle());
+    // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("cp " + std::to_string(_chamberP));
+
+    if ((_chamberP < target) && (millis() - m_latestAngleUpdate > m_edgingDelay))
     {
-        gotoWithSpeed(oxServo, 70, closespeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
+        m_oxServoDemandAngle = m_oxServoCurrAngle + 5.0;
+        oxServo.goto_AngleHighRes(m_oxServoDemandAngle);
+        m_latestAngleUpdate = millis();
     }
-    else if (_chamberP < target * (1.0f - m_targetBuffer))
+    else if (_chamberP > target)
     {
-        gotoWithSpeed(oxServo, 180, openspeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
-    }
-    else
-    {
-        oxServo.goto_Angle(m_oxServoCurrAngle);
+        oxServo.goto_AngleHighRes(m_oxServoCurrAngle);
     }
 
-    m_oxPercent = (float)(m_oxServoCurrAngle - oxServoPreAngle) / (float)(m_oxThrottleRange);
+    m_oxPercent = (float)(m_oxServoCurrAngle - (float)oxServoPreAngle) / (float)(m_oxThrottleRange);
     m_fuelPercent = m_oxPercent + m_fuelExtra;
-    float fuelAngle = (float)(m_fuelPercent * m_fuelThrottleRange) + fuelServoPreAngle;
+    float fuelAngle = (float)(m_fuelPercent * (float)m_fuelThrottleRange) + (float)fuelServoPreAngle;
 
-    if (fuelAngle < fuelServoPreAngle)
+    if (fuelAngle < (float)fuelServoPreAngle)
     {
-        fuelServo.goto_AngleHighRes(fuelServoPreAngle);
+        fuelServo.goto_AngleHighRes((float)fuelServoPreAngle);
     }
     else
     {
         fuelServo.goto_AngleHighRes(fuelAngle);
     }
+
+    
 
 }
 

@@ -135,7 +135,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void gotoWithSpeed(NRCRemoteServo &Servo, uint16_t demandAngle, float speed, float &prevAngle, float &currAngle, uint32_t &prevUpdateT);
 
         void gotoThrust(float target, float closespeed, float openspeed);
-        void gotoChamberP(float target, float closespeed, float openspeed);
+        void gotoChamberP(float target);
         void firePyro(uint32_t duration);
         void openOxFill();
         void closeOxFill();
@@ -150,11 +150,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         // Ignition sequence timings from moment ignition command received
         const uint64_t pyroFires = 0;
-        const uint64_t fuelValvePreposition = 500;
-        const uint64_t oxValvePreposition = 550;
+        const uint64_t fuelValveNominal = 500;
+        const uint64_t oxValveNominal = 550;
         const uint64_t endOfIgnitionSeq = 1050;
 
-        const float m_targetChamberP = 30;
+        const float m_targetChamberP = 13;
         const float m_targetBuffer = 0.02;
 
         const uint16_t fuelServoPreAngle = 105;
@@ -168,6 +168,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         uint64_t lastTimeThrustUpdate;
         uint64_t lastTimeChamberPUpdate;
+        uint64_t m_latestAngleUpdate;
 
         const uint64_t pressureUpdateTimeLim = 1000;
         const uint32_t m_firstNominalTime = 2000;
@@ -179,6 +180,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_oxDelay = 100;
         const uint32_t m_startTVCCircle = 1000;
         const uint32_t m_oxFillCloseTime = 10500;
+        const uint32_t m_edgingDelay = 300;
 
         uint8_t _ignitionCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;
@@ -202,6 +204,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         float m_fuelServoPrevAngle = 0;
         float m_oxServoPrevAngle = 0;
+
+        float m_fuelServoDemandAngle = 0;
+        float m_oxServoDemandAngle = 0;
 
         uint32_t m_fuelServoPrevUpdate = 0;
         uint32_t m_oxServoPrevUpdate = 0;

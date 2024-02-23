@@ -12,18 +12,18 @@ Ox nominal angle,                               140,    deg,
 Throttle down speed,                            75,     deg/sec,
 Throttle up speed,                              75,     deg/sec,
 
-Fuel valve pre time,                            500,    ms,
-Ox valve pre time,                              550,    ms,
-Ignition sequence time total,                   1.05,   s,
-Delay: fuel & ox servo actuation,               100,    ms,         This is for throttle up to nominal level
+Fuel valve nominal time,                        500,    ms,         since ignition
+Ox valve nominal time,                          550,    ms,         since ignition
+Ignition sequence time total,                   550,    ms,
 
 Low chamber pressure,                           5,      bar,
 Nominal chamber pressure,                       30,     bar,
 
 Fuel valve leads ox valve by,                   5,      %,
 
-Delay: motors lock & pyro fires,                1000,   ms,
 TVC circling time,                              2000,   ms,
 Delay: valves in nominal & TVC starts circling, 1000,   ms,
 Max test duration,                              14,     s,
 Ox fill open duration,                          10.5,   s,          Since time of ignition
+Calibration time,                               30,     s,
+Edging delay,                                   300,    ms,
