@@ -147,11 +147,10 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         };
 
         // Ignition sequence timings from moment ignition command received
-        const uint32_t motorsLock = 0;
-        const uint64_t pyroFires = 1000;
-        const uint64_t fuelValvePreposition = 1500;
-        const uint64_t oxValvePreposition = 1550;
-        const uint64_t endOfIgnitionSeq = 2050;
+        const uint64_t pyroFires = 0;
+        const uint64_t fuelValvePreposition = 500;
+        const uint64_t oxValvePreposition = 550;
+        const uint64_t endOfIgnitionSeq = 1050;
 
         const float m_targetChamberP = 30;
         const float m_targetBuffer = 0.02;

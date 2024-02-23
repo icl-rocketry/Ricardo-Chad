@@ -59,7 +59,7 @@ void NRCThanos::thanosStateMachine()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
-        motorsOff();
+        currOdriveState = oDriveState::Idle;
         _polling = false;
         break;
     }
@@ -68,11 +68,6 @@ void NRCThanos::thanosStateMachine()
 
     { // ignition sequence
         // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Ignition state");
-        if (timeFrameCheck(motorsLock, pyroFires))
-        {
-            motorsLocked();
-        }
-
         if (timeFrameCheck(pyroFires, fuelValvePreposition))
         {
             firePyro(fuelValvePreposition - pyroFires);
@@ -107,7 +102,7 @@ void NRCThanos::thanosStateMachine()
             oxServo.goto_Angle(oxNominalAngle);
         }
 
-        motorsLocked();
+        currOdriveState = oDriveState::Armed;
 
         if (millis() - m_nominalEntry > m_startTVCCircle)   // delay before transitioning to TVC sequence
         {
@@ -120,7 +115,7 @@ void NRCThanos::thanosStateMachine()
 
     case EngineState::Calibration:
     {
-        motorsCalibrate();
+        currOdriveState = oDriveState::Calibration;
         if (millis() - m_calibrationStart > m_calibrationTime)
         {
             currentEngineState = EngineState::Default;
@@ -135,12 +130,12 @@ void NRCThanos::thanosStateMachine()
         // fuelServo.goto_Angle(fuelNominalAngle);
         // oxServo.goto_Angle(oxNominalAngle);
         gotoChamberP(m_targetChamberP, m_servoFast, m_servoFast);   // throttling based on chamber pressure value
-        motorsCircle();
+        currOdriveState = oDriveState::HotfireProfile;
 
         if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
         {
             //currentEngineState = EngineState::NominalT;
-            motorsLocked();
+            currOdriveState = oDriveState::Armed;  
         }
         break;
     }
@@ -149,7 +144,7 @@ void NRCThanos::thanosStateMachine()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
-        motorsArmed();          // lock in neutral position
+        currOdriveState = oDriveState::Armed;      // lock in neutral position
         _polling = false;
 
         break;
