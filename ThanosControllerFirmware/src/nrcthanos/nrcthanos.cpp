@@ -46,6 +46,12 @@ void NRCThanos::update()
         _ignitionCalls = 0;
     }
 
+    // Close ox fill 10.5s after ignition
+    if ((millis() - ignitionTime > m_oxFillCloseTime) && _ignitionCalls > 0)
+    {
+        closeOxFill();
+    }
+
     thanosStateMachine();
     odriveStateMachine();
 }
@@ -75,6 +81,7 @@ void NRCThanos::thanosStateMachine()
 
         else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))  // sending it
         {
+            openOxFill();
             currentEngineState = EngineState::NominalT;
             m_nominalEntry = millis();
             m_firstNominal = true;
@@ -144,9 +151,9 @@ void NRCThanos::thanosStateMachine()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
+        closeOxFill();
         currOdriveState = oDriveState::Armed;      // lock in neutral position
         _polling = false;
-
         break;
     }
 
@@ -518,6 +525,28 @@ void NRCThanos::firePyro(uint32_t duration)
             _ignitionCalls++;
         }
     }
+}
+
+void NRCThanos::openOxFill()
+{
+    SimpleCommandPacket openOxFillCmd(2, 180);
+    openOxFillCmd.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+    openOxFillCmd.header.destination_service = m_oxFillService;
+    openOxFillCmd.header.source = _address;
+    openOxFillCmd.header.destination = m_oxFillNode;
+    openOxFillCmd.header.uid = 0;
+    _networkmanager.sendPacket(openOxFillCmd);
+}
+
+void NRCThanos::closeOxFill()
+{
+    SimpleCommandPacket closeOxFillCmd(2, 0);
+    closeOxFillCmd.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+    closeOxFillCmd.header.destination_service = m_oxFillService;
+    closeOxFillCmd.header.source = _address;
+    closeOxFillCmd.header.destination = m_oxFillNode;
+    closeOxFillCmd.header.uid = 0;
+    _networkmanager.sendPacket(closeOxFillCmd);
 }
 
 bool NRCThanos::pValUpdated()

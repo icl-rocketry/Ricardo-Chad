@@ -26,3 +26,4 @@ Delay: motors lock & pyro fires,                1000,   ms,
 TVC circling time,                              2000,   ms,
 Delay: valves in nominal & TVC starts circling, 1000,   ms,
 Max test duration,                              14,     s,
+Ox fill open duration,                          10.5,   s,          Since time of ignition

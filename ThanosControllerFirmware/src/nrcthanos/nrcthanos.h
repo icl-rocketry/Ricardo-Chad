@@ -123,7 +123,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         EngineState currentEngineState = EngineState::Default;
         oDriveState currOdriveState = oDriveState::Idle;
 
-        uint64_t ignitionTime;
+        uint64_t ignitionTime = 0;
 
         float _chamberP;
         float _thrust;
@@ -137,6 +137,8 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void gotoThrust(float target, float closespeed, float openspeed);
         void gotoChamberP(float target, float closespeed, float openspeed);
         void firePyro(uint32_t duration);
+        void openOxFill();
+        void closeOxFill();
 
         void resetVars(){
             m_fuelServoPrevUpdate = 0;
@@ -176,6 +178,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_motorsLockTime = 1000;
         const uint32_t m_oxDelay = 100;
         const uint32_t m_startTVCCircle = 1000;
+        const uint32_t m_oxFillCloseTime = 10500;
 
         uint8_t _ignitionCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;
@@ -185,8 +188,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         bool _polling = false;
 
         //
-        uint8_t m_ingitionService = 12;
-        uint8_t m_ignitionNode = 107;
+        const uint8_t m_ingitionService = 12;
+        const uint8_t m_ignitionNode = 107;
+
+        const uint8_t m_oxFillService = 10;
+        const uint8_t m_oxFillNode = 103;
 
         float m_fuelServoCurrAngle = 0;
         float m_oxServoCurrAngle = 0;

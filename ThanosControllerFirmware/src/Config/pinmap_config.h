@@ -18,7 +18,7 @@ namespace PinMap{
     static constexpr uint8_t BuckPGOOD = 37;
     static constexpr uint8_t BuckOutputV = 4;
 
-    static constexpr uint8_t EngineOverride = 11;
+    static constexpr uint8_t EngineOverride = 8;
 
     static constexpr uint8_t TVCPIN0 = 7; //odrive 6
     static constexpr uint8_t TVCPIN1 = 6; //odrive 7
