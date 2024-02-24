@@ -67,7 +67,7 @@ void NRCThanos::thanosStateMachine()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
-        if (this->_state.flagSet(COMPONENT_STATUS_FLAGS::NOMINAL))
+        if (this->_state.flagSet(COMPONENT_STATUS_FLAGS::NOMINAL) && m_calibrationDone)
         {
             currOdriveState = oDriveState::Armed;
             // _Buck.restart(5); // abuse restart command to prevent servos from getting too hot when in disarmed state
