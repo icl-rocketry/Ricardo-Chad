@@ -33,6 +33,12 @@ void NRCThanos::update()
         // _Buck.restart(5); // abuse restart command to prevent servos from getting too hot when in disarmed state
     }
 
+    if (this->_state.flagSet(COMPONENT_STATUS_FLAGS::NOMINAL))
+    {
+        currOdriveState = oDriveState::Armed;
+        // _Buck.restart(5); // abuse restart command to prevent servos from getting too hot when in disarmed state
+    }
+
     // Close valves if abort is used
     if (digitalRead(_overrideGPIO) == 1)
     {
@@ -150,7 +156,7 @@ void NRCThanos::thanosStateMachine()
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
         closeOxFill();
-        currOdriveState = oDriveState::Armed;      // lock in neutral position
+        //currOdriveState = oDriveState::Armed;      // lock in neutral position
         _polling = false;
         break;
     }

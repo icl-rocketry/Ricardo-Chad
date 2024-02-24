@@ -158,7 +158,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint64_t oxValveNominal = 550;
         const uint64_t endOfIgnitionSeq = 1050;
 
-        const float m_targetChamberP = 13;
+        const float m_targetChamberP = 12;
         const float m_targetFuelP = 8;
         const float m_targetBuffer = 0.02;
 
