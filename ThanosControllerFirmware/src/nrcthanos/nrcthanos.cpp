@@ -102,17 +102,18 @@ void NRCThanos::thanosStateMachine()
         //gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
         gotoFuelP(m_targetFuelP);
 
-        if (millis() - m_nominalEntry > m_startTVCCircle)   // delay before transitioning to TVC sequence
+        if (millis() - m_nominalEntry > m_startTVCCircle && !m_tvcEntered)   // delay before transitioning to TVC sequence
         {
             currOdriveState = oDriveState::HotfireProfile;
             m_tvcEntry = millis();
             m_firstNominal = 0;
+            m_tvcEntered = true;
         }
 
-        if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
-        {
-            currOdriveState = oDriveState::Armed;  
-        }
+        // if (millis() - m_tvcEntry > m_tvctime)  // tvc sequence timeout
+        // {
+        //     currOdriveState = oDriveState::Armed;  
+        // }
 
         break;
     }
@@ -392,11 +393,11 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
 
 void NRCThanos::arm_impl(packetptr_t packetptr){
 
-    NRCRemoteActuatorBase::arm_impl(std::move(packetptr));
-
     if (m_calibrationDone){
         currOdriveState = oDriveState::Armed;
     }
+
+    NRCRemoteActuatorBase::arm_impl(std::move(packetptr));
 
 }
 

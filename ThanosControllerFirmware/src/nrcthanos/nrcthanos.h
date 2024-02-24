@@ -149,6 +149,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             m_fuelServoPrevAngle = fuelServo.getValue();
             m_oxServoPrevAngle = oxServo.getValue();
             m_thrustreached = false;
+            m_tvcEntered = false;
         };
 
         // Ignition sequence timings from moment ignition command received
@@ -225,6 +226,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint32_t m_throttledEntry;
         uint32_t m_nominalEntry;
         uint32_t m_tvcEntry;
+        bool m_tvcEntered = false;
         uint32_t m_calibrationStart;
         bool m_firstNominal = false;
 
