@@ -1,29 +1,24 @@
 Parameter,                                      Value,  Unit,       Notes
 
-Fuel preposition angle,                         105,    deg,
-Ox preposition angle,                           70,     deg,
+Fuel preposition angle,                         105,    deg,        not used
+Ox preposition angle,                           70,     deg,        not used
 
-Fuel max open angle,                            150,    deg,
-Ox max open angle,                              150,    deg,
-
-Fuel nominal angle,                             150,    deg,
-Ox nominal angle,                               140,    deg,
-
-Throttle down speed,                            75,     deg/sec,
-Throttle up speed,                              75,     deg/sec,
+Fuel nominal angle,                             130,    deg,        this is the initial target angle
+Ox nominal angle,                               130,    deg,        this is the initial target angle
 
 Fuel valve nominal time,                        500,    ms,         since ignition
 Ox valve nominal time,                          550,    ms,         since ignition
 Ignition sequence time total,                   550,    ms,
 
-Low chamber pressure,                           5,      bar,
-Nominal chamber pressure,                       30,     bar,
+Low chamber pressure,                           1,      bar,
+Target chamber pressure,                        12.5,   bar,
+Target fuel pressure,                           8,      bar,
 
-Fuel valve leads ox valve by,                   5,      %,
+Fuel valve leads ox valve by,                   -5,      %,
 
 TVC circling time,                              2000,   ms,
 Delay: valves in nominal & TVC starts circling, 1000,   ms,
 Max test duration,                              14,     s,
 Ox fill open duration,                          10.5,   s,          Since time of ignition
-Calibration time,                               30,     s,
+Calibration time,                               60,     s,
 Edging delay,                                   300,    ms,

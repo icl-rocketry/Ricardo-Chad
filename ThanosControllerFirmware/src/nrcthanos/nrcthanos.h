@@ -48,6 +48,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void thanosStateMachine();
         void odriveStateMachine();
         void updateChamberP(float chamberP);
+        void updateFuelP(float fuelP);
         bool getPollingStatus() { return _polling; };
 
         uint16_t getFuelAngle() { return fuelServo.getAngle(); };
@@ -77,7 +78,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         friend class NRCRemoteBase;
 
         void execute_impl(packetptr_t packetptr);
-        // void arm_impl(packetptr_t packetptr);
+        void arm_impl(packetptr_t packetptr);
         // void disarm_impl(packetptr_t packetptr);
         void override_impl(packetptr_t packetptr);
         void extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID commandID, packetptr_t packetptr);
@@ -127,6 +128,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         float _chamberP;
         float _thrust;
+        float _fuelP;
 
         bool timeFrameCheck(int64_t start_time, int64_t end_time = -1);
         bool nominalEngineOp();
@@ -136,6 +138,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         void gotoThrust(float target, float closespeed, float openspeed);
         void gotoChamberP(float target);
+        void gotoFuelP(float target);
         void firePyro(uint32_t duration);
         void openOxFill();
         void closeOxFill();
@@ -155,6 +158,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint64_t endOfIgnitionSeq = 1050;
 
         const float m_targetChamberP = 13;
+        const float m_targetFuelP = 8;
         const float m_targetBuffer = 0.02;
 
         const uint16_t fuelServoPreAngle = 105;
@@ -163,11 +167,12 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint16_t fuelMaxOpen = 150;
         const uint16_t oxMaxOpen = 150;
 
-        const uint16_t fuelNominalAngle = 150;
-        const uint16_t oxNominalAngle = 140;
+        const uint16_t fuelNominalAngle = 130;
+        const uint16_t oxNominalAngle = 130;
 
         uint64_t lastTimeThrustUpdate;
         uint64_t lastTimeChamberPUpdate;
+        uint64_t lastTimeFuelPUpdate;
         uint64_t m_latestAngleUpdate;
 
         const uint64_t pressureUpdateTimeLim = 1000;
@@ -175,7 +180,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_tvctime = 2000;
         const uint32_t m_secondNominalTime = 3000;
         const uint32_t m_cutoffTime = 12500;
-        const uint32_t m_calibrationTime = 30000;
+        const uint32_t m_calibrationTime = 60000;
         const uint32_t m_motorsLockTime = 1000;
         const uint32_t m_oxDelay = 100;
         const uint32_t m_startTVCCircle = 1000;
@@ -231,7 +236,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint16_t m_oxThrottleRange = 0;
         uint16_t m_fuelThrottleRange = 0;
 
-        float m_fuelExtra = 0.05;
+        float m_fuelExtra = -0.05;      //0.05 for hotfire
 
         void motorsOff(){
             digitalWrite(_tvcpin0,LOW);

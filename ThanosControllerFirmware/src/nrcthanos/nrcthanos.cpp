@@ -89,7 +89,7 @@ void NRCThanos::thanosStateMachine()
             oxServo.goto_Angle(oxNominalAngle);
             m_latestAngleUpdate = millis();
             currentEngineState = EngineState::NominalT;
-            currOdriveState = oDriveState::Armed;
+            //currOdriveState = oDriveState::Armed;     // already arms when we call arm_impl
             m_firstNominal = true;
             resetVars();
         }
@@ -99,7 +99,8 @@ void NRCThanos::thanosStateMachine()
 
     case EngineState::NominalT:
     {
-        gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
+        //gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
+        gotoFuelP(m_targetFuelP);
 
         if (millis() - m_nominalEntry > m_startTVCCircle)   // delay before transitioning to TVC sequence
         {
@@ -148,7 +149,7 @@ void NRCThanos::thanosStateMachine()
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
         closeOxFill();
-        //currOdriveState = oDriveState::Armed;      // lock in neutral position
+        currOdriveState = oDriveState::Armed;      // lock in neutral position
         _polling = false;
         break;
     }
@@ -211,6 +212,13 @@ void NRCThanos::updateThrust(float thrust)
 {
     lastTimeThrustUpdate = millis();
     _thrust = abs(thrust);
+}
+
+void NRCThanos::updateFuelP(float fuelP)
+{
+    lastTimeFuelPUpdate = millis();
+    _fuelP = fuelP;
+
 }
 
 void NRCThanos::execute_impl(packetptr_t packetptr)
@@ -382,6 +390,16 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
     }
 }
 
+void NRCThanos::arm_impl(packetptr_t packetptr){
+
+    NRCRemoteActuatorBase::arm_impl(std::move(packetptr));
+
+    if (m_calibrationDone){
+        currOdriveState = oDriveState::Armed;
+    }
+
+}
+
 bool NRCThanos::timeFrameCheck(int64_t start_time, int64_t end_time)
 {
     if (millis() - ignitionTime > start_time && end_time == -1)
@@ -502,9 +520,34 @@ void NRCThanos::gotoChamberP(float target){
     {
         fuelServo.goto_AngleHighRes(fuelAngle);
     }
+}
 
-    
+void NRCThanos::gotoFuelP(float target){
+    m_oxServoCurrAngle = static_cast<float>(getOxAngle());
 
+    if ((_fuelP < target) && (millis() - m_latestAngleUpdate > m_edgingDelay))
+    {
+        m_oxServoDemandAngle = m_oxServoCurrAngle + 5.0;
+        oxServo.goto_AngleHighRes(m_oxServoDemandAngle);
+        m_latestAngleUpdate = millis();
+    }
+    else if (_fuelP > target)
+    {
+        oxServo.goto_AngleHighRes(m_oxServoCurrAngle);
+    }
+
+    m_oxPercent = (float)(m_oxServoCurrAngle - (float)oxServoPreAngle) / (float)(m_oxThrottleRange);
+    m_fuelPercent = m_oxPercent + m_fuelExtra;
+    float fuelAngle = (float)(m_fuelPercent * (float)m_fuelThrottleRange) + (float)fuelServoPreAngle;
+
+    if (fuelAngle < (float)fuelServoPreAngle)
+    {
+        fuelServo.goto_AngleHighRes((float)fuelServoPreAngle);
+    }
+    else
+    {
+        fuelServo.goto_AngleHighRes(fuelAngle);
+    }
 }
 
 void NRCThanos::firePyro(uint32_t duration)
@@ -562,7 +605,7 @@ void NRCThanos::closeOxFill()
 
 bool NRCThanos::pValUpdated()
 {
-    if ((millis() - lastTimeChamberPUpdate) > pressureUpdateTimeLim || (millis() - lastTimeThrustUpdate) > pressureUpdateTimeLim)
+    if ((millis() - lastTimeChamberPUpdate) > pressureUpdateTimeLim || (millis() - lastTimeThrustUpdate) > pressureUpdateTimeLim || (millis() - lastTimeFuelPUpdate) > pressureUpdateTimeLim)
     {
         return false;
     }
