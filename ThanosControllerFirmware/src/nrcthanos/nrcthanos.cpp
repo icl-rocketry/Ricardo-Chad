@@ -110,8 +110,8 @@ void NRCThanos::thanosStateMachine()
 
     case EngineState::NominalT:
     {
-        //gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
-        gotoFuelP(m_targetFuelP);
+        gotoChamberP(m_targetChamberP);   // throttling based on chamber pressure value
+        // gotoFuelP(m_targetFuelP);
 
         if (millis() - m_nominalEntry > m_startTVCCircle && !m_tvcEntered)   // delay before transitioning to TVC sequence
         {
