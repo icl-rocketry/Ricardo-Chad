@@ -92,13 +92,14 @@ void NRCThanos::thanosStateMachine()
         else if (timeFrameCheck(fuelValveNominal, oxValveNominal))
         {
             openOxFill();
-            fuelServo.goto_Angle(fuelNominalAngle);
+            //fuelServo.goto_Angle(fuelNominalAngle);
+            gotoWithSpeed(fuelServo, fuelNominalAngle, m_firstNominalSpeed, m_fuelServoPrevAngle, m_fuelServoCurrAngle, m_fuelServoPrevUpdate);
             m_nominalEntry = millis();
         }
         else if (timeFrameCheck(oxValveNominal, -1))
         {
-            oxServo.goto_Angle(oxNominalAngle);
-            m_latestAngleUpdate = millis();
+            //oxServo.goto_Angle(oxNominalAngle);
+            gotoWithSpeed(oxServo, oxNominalAngle, m_firstNominalSpeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
             currentEngineState = EngineState::NominalT;
             //currOdriveState = oDriveState::Armed;     // already arms when we call arm_impl
             m_firstNominal = true;
@@ -508,16 +509,22 @@ void NRCThanos::gotoThrust(float target, float closespeed, float openspeed)
 void NRCThanos::gotoChamberP(float target){
     m_oxServoCurrAngle = static_cast<float>(getOxAngle());
     // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("cp " + std::to_string(_chamberP));
-
-    if ((_chamberP < target) && (millis() - m_latestAngleUpdate > m_edgingDelay))
+    if ((_chamberP < target)  && m_oxServoCurrAngle < oxNominalAngle){
+        gotoWithSpeed(oxServo, oxNominalAngle, m_firstNominalSpeed, m_oxServoPrevAngle, m_oxServoCurrAngle, m_oxServoPrevUpdate);
+    }
+    else if ((_chamberP < target) && (millis() - m_latestAngleUpdate > m_edgingDelay))
     {
         m_oxServoDemandAngle = m_oxServoCurrAngle + 5.0;
-        oxServo.goto_AngleHighRes(m_oxServoDemandAngle);
+        if (m_oxServoDemandAngle >= oxMaxOpen){
+            m_oxServoDemandAngle = oxMaxOpen;
+        }
+        oxServo.goto_Angle(m_oxServoDemandAngle);
         m_latestAngleUpdate = millis();
     }
-    else if (_chamberP > target)
+    else if (_chamberP >= target)
     {
-        oxServo.goto_AngleHighRes(m_oxServoCurrAngle);
+        //oxServo.goto_AngleHighRes(m_oxServoCurrAngle);
+        oxServo.goto_Angle(m_oxServoCurrAngle);
     }
 
     m_oxPercent = (float)(m_oxServoCurrAngle - (float)oxServoPreAngle) / (float)(m_oxThrottleRange);

@@ -158,7 +158,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint64_t oxValveNominal = 550;
         const uint64_t endOfIgnitionSeq = 1050;
 
-        const float m_targetChamberP = 12.5;
+        const float m_targetChamberP = 13;
         const float m_targetFuelP = 8;
         const float m_targetBuffer = 0.02;
 
@@ -174,7 +174,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint64_t lastTimeThrustUpdate;
         uint64_t lastTimeChamberPUpdate;
         uint64_t lastTimeFuelPUpdate;
-        uint64_t m_latestAngleUpdate;
+        uint64_t m_latestAngleUpdate = 0;
 
         const uint64_t pressureUpdateTimeLim = 1000;
         const uint32_t m_firstNominalTime = 2000;
@@ -184,7 +184,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_calibrationTime = 65000;
         const uint32_t m_motorsLockTime = 1000;
         const uint32_t m_oxDelay = 100;
-        const uint32_t m_startTVCCircle = 2000;
+        const uint32_t m_startTVCCircle = 2500;
         const uint32_t m_oxFillCloseTime = 10500;
         const uint32_t m_edgingDelay = 300;
 
@@ -218,7 +218,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         uint32_t m_oxServoPrevUpdate = 0;
 
         const float m_servoFast = 75; // degs per second
-        const float m_firstNominalSpeed = 120; // degs per second
+        const float m_firstNominalSpeed = 110; // degs per second
         const float m_servoSlow = 20;  // degs per second
 
         //
