@@ -33,7 +33,6 @@ void NRCThanos::update()
         // _Buck.restart(5); // abuse restart command to prevent servos from getting too hot when in disarmed state
     }
 
-  
 
     // Close valves if abort is used
     if (digitalRead(_overrideGPIO) == 1)
@@ -41,7 +40,7 @@ void NRCThanos::update()
         currentEngineState = EngineState::ShutDown;
     }
 
-    // Close valves after a flat 14 seconds
+    // // Close valves after a flat 14 seconds
     if ((millis() - ignitionTime > m_cutoffTime) && _ignitionCalls > 0)
     {
         currentEngineState = EngineState::ShutDown;
@@ -69,6 +68,7 @@ void NRCThanos::thanosStateMachine()
         oxServo.goto_Angle(0);
         if (this->_state.flagSet(COMPONENT_STATUS_FLAGS::NOMINAL) && m_calibrationDone)
         {
+            // currOdriveState = oDriveState::Idle; // allow pwm stuff to be reset
             currOdriveState = oDriveState::Armed;
             // _Buck.restart(5); // abuse restart command to prevent servos from getting too hot when in disarmed state
         }
@@ -163,6 +163,7 @@ void NRCThanos::thanosStateMachine()
         oxServo.goto_Angle(0);
         closeOxFill();
         //currOdriveState = oDriveState::Armed;      // lock in neutral position
+        currOdriveState = oDriveState::Idle; 
         _polling = false;
         break;
     }
@@ -200,6 +201,15 @@ void NRCThanos::odriveStateMachine(){
             motorsDebug();
             break;
         }
+        case oDriveState::pwmEnable:{
+            pwmEnable();
+            break;
+        }
+        // default:
+        // {
+        //     motorsOff();
+        //     break;
+        // }
     }
 }
 
@@ -387,6 +397,19 @@ void NRCThanos::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID comm
         {
             currOdriveState = oDriveState::Armed;
             RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Motors armed");
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+    case 14:
+    {
+        if (currentEngineState == EngineState::Debug)
+        {
+            currOdriveState = oDriveState::pwmEnable;
+            RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Enable PWM");
             break;
         }
         else

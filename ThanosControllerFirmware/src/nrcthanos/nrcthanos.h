@@ -114,7 +114,8 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             LockedCurrent = 1<<2,
             HotfireProfile = 1<<3,
             Calibration = 1<<4,
-            Debug = 1<<5
+            Debug = 1<<5,
+            pwmEnable = 1<<6
         };
 
 
@@ -240,41 +241,51 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         float m_fuelExtra = -0.1;      //0.05 for hotfire
 
-        void motorsOff(){
+
+        //NOTE oDriveStatea does not match bit mapping!!!
+        void motorsOff(){ // 0
             digitalWrite(_tvcpin0,LOW);
             digitalWrite(_tvcpin1,LOW);
             digitalWrite(_tvcpin2,LOW);
         };
 
-        void motorsCalibrate(){
+        void motorsArmed(){ // 6
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,HIGH);
+            digitalWrite(_tvcpin2,HIGH);
+        };
+
+         void motorsLocked(){ // 2
+            digitalWrite(_tvcpin0,LOW);
+            digitalWrite(_tvcpin1,HIGH);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsCircle(){ // 3
+            digitalWrite(_tvcpin0,HIGH);
+            digitalWrite(_tvcpin1,HIGH);
+            digitalWrite(_tvcpin2,LOW);
+        };
+
+        void motorsCalibrate(){ //1
             digitalWrite(_tvcpin0,HIGH);
             digitalWrite(_tvcpin1,LOW);
             digitalWrite(_tvcpin2,LOW);
         };
 
-        void motorsLocked(){
-            digitalWrite(_tvcpin0,LOW);
-            digitalWrite(_tvcpin1,HIGH);
-            digitalWrite(_tvcpin2,LOW);
-        };
-
-        void motorsCircle(){
-            digitalWrite(_tvcpin0,HIGH);
-            digitalWrite(_tvcpin1,HIGH);
-            digitalWrite(_tvcpin2,LOW);
-        };
-
-        void motorsDebug(){
+        void motorsDebug(){ //4
             digitalWrite(_tvcpin0,LOW);
             digitalWrite(_tvcpin1,LOW);
             digitalWrite(_tvcpin2,HIGH);
         };
 
-        void motorsArmed(){
-            digitalWrite(_tvcpin0,LOW);
-            digitalWrite(_tvcpin1,HIGH);
+        void pwmEnable(){ //5
+            digitalWrite(_tvcpin0,HIGH);
+            digitalWrite(_tvcpin1,LOW);
             digitalWrite(_tvcpin2,HIGH);
         };
+
+        
 
         
 };
