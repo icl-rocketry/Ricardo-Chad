@@ -21,8 +21,8 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-Servo1(PinMap::ServoPWM1, 0, networkmanager),
-Servo2(PinMap::ServoPWM2, 1, networkmanager)
+Servo1(PinMap::ServoPWM1, 0, networkmanager,90,0,180,0,180,1000,2000),
+Servo2(PinMap::ServoPWM2, 1, networkmanager,90,0,180,0,180,1000,2000)
 {};
 
 
@@ -42,6 +42,15 @@ void System::systemSetup(){
     Buck.setup();
     Servo1.setup();
     Servo2.setup();
+    //override any callibration that has been preivously set and stored
+    Servo1.setAngleLims(0,180);
+    Servo2.setAngleLims(0,180);
+    Servo1.setHome(90);
+    Servo2.setHome(90);
+    Servo1.reset();
+    Servo2.reset();
+
+
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
