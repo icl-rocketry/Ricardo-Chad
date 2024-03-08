@@ -25,9 +25,9 @@ canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 chamberPTap(1, GeneralConfig::Kermitaddr, static_cast<uint8_t>(Services::ID::chamberPTap), static_cast<uint8_t>(Services::ID::chamberPTap), networkmanager, [](const std::string& msg){RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(msg);}),
 thrustGauge(2, GeneralConfig::Kermitaddr, static_cast<uint8_t>(Services::ID::thrustGauge), static_cast<uint8_t>(Services::ID::thrustGauge), networkmanager, [](const std::string& msg){RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(msg);}),
 fuelPTap(3, GeneralConfig::Kermitaddr, static_cast<uint8_t>(Services::ID::fuelPTap), static_cast<uint8_t>(Services::ID::fuelPTap), networkmanager, [](const std::string& msg){RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(msg);}),
-chamberPTapPoller(20, &chamberPTap),
-thrustGaugePoller(50, &thrustGauge),
-fuelPTapPoller(50, &fuelPTap),
+chamberPTapPoller(20, &chamberPTap, 1000),
+thrustGaugePoller(50, &thrustGauge, 1000),
+fuelPTapPoller(50, &fuelPTap, 1000),
 Thanos(networkmanager,PinMap::ServoPWM1,0,PinMap::ServoPWM2,1,PinMap::EngineOverride,PinMap::TVCPIN0,PinMap::TVCPIN1,PinMap::TVCPIN2,networkmanager.getAddress(),Buck)
 {};
 
@@ -70,22 +70,27 @@ void System::systemUpdate(){
     Buck.update();
 
     if(Thanos.getPollingStatus()){  
-        chamberPTapPoller.update();
+        try{
+            chamberPTapPoller.update();
+        }
+        catch{
+            
+        }
         thrustGaugePoller.update();
         fuelPTapPoller.update();
     }
     
-    if(chamberPTapPoller.newdata)
+    if(chamberPTapPoller.newData)
     {
         Thanos.updateChamberP(chamberPTapPoller.getVal());
     }
 
-    if(thrustGaugePoller.newdata)
+    if(thrustGaugePoller.newData)
     {
         Thanos.updateThrust(thrustGaugePoller.getVal());
     }
 
-    if(fuelPTapPoller.newdata)
+    if(fuelPTapPoller.newData)
     {
         Thanos.updateFuelP(fuelPTapPoller.getVal());
     }
