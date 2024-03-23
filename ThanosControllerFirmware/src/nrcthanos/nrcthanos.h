@@ -90,11 +90,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         //Ignition sequence timings from moment ignition command received
         const uint64_t pyroFires = 0;
-        const uint64_t fuelValvePreposition = 500;
-        const uint64_t oxValvePreposition = 550;
-        const uint64_t fuelValveFullBore = 1300;
-        const uint64_t oxValveFullBore = 1350;
-        const uint64_t endOfIgnitionSeq = 2100;
+        const uint64_t fuelValvePreposition = 5500;
+        const uint64_t oxValvePreposition = 5000;
+        const uint64_t fuelValveFullBore = 6800;
+        const uint64_t oxValveFullBore = 6800;
+        const uint64_t endOfIgnitionSeq = 7500;
 
         float error;
         const float Kp = 2.5;
