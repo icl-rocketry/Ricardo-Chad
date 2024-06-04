@@ -29,6 +29,24 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         NRCRemoteServo Servo1;
         NRCRemoteServo Servo2;
+        NRCHelikopterHelikopter HelikopterHelikopter; //ya this does nothing yet
+    //everything below this is done by arlo, idk if it works yet😔
+    protected: 
+
+        enum class GNCState : uint8_t
+            {
+                Default = 0,
+                Arm = 1,
+                Hover = 2,
+                Abort = 3,
+               
+            };
+
+            bool fullbore_called = false;
+            bool shutdown_called = false;
+
+            EngineState currentEngineState = EngineState::Default;
+
         
 
 };

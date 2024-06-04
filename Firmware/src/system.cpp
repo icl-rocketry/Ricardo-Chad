@@ -21,8 +21,8 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-Servo1(PinMap::ServoPWM1, 0, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
-Servo2(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
+Motor1(PinMap::ServoPWM1, 0, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
+Motor2(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
 {};
 
 
@@ -40,21 +40,21 @@ void System::systemSetup(){
     //any other setup goes here
     
     Buck.setup();
-    Servo1.setup();
-    Servo2.setup();
+    Motor1.setup();
+    Motor2.setup();
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
     //Defining these so the methods following are less ugly
-    uint8_t servoservice1 = (uint8_t) Services::ID::Servo1;
-    uint8_t servoservice2 = (uint8_t) Services::ID::Servo2;
+    uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
+    uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
 
     networkmanager.addInterface(&canbus);
 
-    networkmanager.registerService(servoservice1,Servo1.getThisNetworkCallback());
-    networkmanager.registerService(servoservice2,Servo2.getThisNetworkCallback());
+    networkmanager.registerService(motorservice1,Mo1or2.getThisNetworkCallback());
+    networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
     
 };
 
@@ -62,5 +62,39 @@ long prevTime = 0;
 bool update = false;
 
 void System::systemUpdate(){
+    //everything under here is done by arlo, idk if it works!!!
+     if (this -> _state.flagSet(COMPONENT_STATUS_FLAGS::DISARMED))
+    {
+        current = GNCState::Default;
+    }
+
+    switch (currentGNCState)
+    {
+
+        case GNCState::Default:
+        {
+            //make code so nothing runs ie disarmed 
+            //set Servo1 power = 0 
+            //set Servo2 power = 0
+            //set motor power = 0 
+        }
+        case GNCState::Arm:
+        {
+            //set it so TVC moves to pointing down but the motor cant move 
+        }
+        case GNCState::Hover:
+        {
+            //case for hovering (TVC and motor on)
+            //add exit conditions so if it goes over a specific boundary go back to abort state ie kill
+            
+        }
+        case GNCState::Abort: 
+        {
+            //cut power 
+        }
+       
+    }
+
+
     Buck.update();
 };
