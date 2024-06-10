@@ -111,6 +111,7 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         void gotoThrust(float target, float closespeed, float openspeed);
         void firePyro(uint32_t duration);
         void ereg_controlled();
+        void ereg_shutdown();
         void deluge_start(uint32_t deluge_duration);
         void deluge_stop();
 
@@ -182,6 +183,8 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const float m_servoFast = 75; // degs per second
         const float m_firstNominalSpeed = 120; // degs per second
         const float m_servoSlow = 20;  // degs per second
+        const float m_nominalCloseSpeed = 100; // degs per second
+        const float m_nominalOpenSpeed = 150; // degs per second
 
         //
         bool m_thrustreached = false;

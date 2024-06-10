@@ -341,17 +341,17 @@ void NRCThanos::ereg_controlled()
  void NRCThanos::ereg_shutdown() 
 
   { 
-        SimpleCommandPacket ereg_controlled(2,2); 
-            ereg_controlled.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
-            ereg_controlled.header.destination_service = m_ereg_service;
-            ereg_controlled.header.source = _address;
-            ereg_controlled.header.destination = m_ereg_node;
-            ereg_controlled.header.uid = 0;
+        SimpleCommandPacket ereg_shutdown(2,2); 
+            ereg_shutdown.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+            ereg_shutdown.header.destination_service = m_ereg_service;
+            ereg_shutdown.header.source = _address;
+            ereg_shutdown.header.destination = m_ereg_node;
+            ereg_shutdown.header.uid = 0;
             _networkmanager.sendPacket(ereg_shutdown);
  }
 
 void NRCThanos::deluge_start(uint32_t deluge_duration) 
-{`
+{
     SimpleCommandPacket deluge_start(2, deluge_duration);
             deluge_start.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
             deluge_start.header.destination_service = m_deluge_service;
