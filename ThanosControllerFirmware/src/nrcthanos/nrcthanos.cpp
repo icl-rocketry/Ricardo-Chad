@@ -12,8 +12,8 @@ void NRCThanos::setup()
     fuelServo.setup();
     oxServo.setup();
 
-    fuelServo.setAngleLims(0, 175);
-    oxServo.setAngleLims(0, 160);
+    fuelServo.setAngleLims(0, 140);
+    oxServo.setAngleLims(0, 155);
 
     m_oxThrottleRange = 160 - oxServoPreAngle;
     m_fuelThrottleRange = 175 - fuelServoPreAngle;
@@ -50,6 +50,7 @@ void NRCThanos::update()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
+        resetDeluge();
         _polling = false;
         break;
     }
@@ -59,11 +60,12 @@ void NRCThanos::update()
     { // ignition sequence
         // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Ignition state");
         if (timeFrameCheck(pyroFires, fuelValvePreposition))
-        {
+        {   
+            deluge_start(endOfIgnitionSeq - pyroFires);
             firePyro(fuelValvePreposition - pyroFires);
         }
 
-        else if (timeFrameCheck(fuelValvePreposition, oxValvePreposition))
+        else if (timeFrameCheck(fuelValvePreposition, endOfIgnitionSeq))
         {
             currentEngineState = EngineState::NominalT;
             m_nominalEntry = millis();
@@ -84,12 +86,10 @@ void NRCThanos::update()
         break;
     }
 
-    case EngineState::NominalT:
-    {
-        fuelServo.goto_Angle(150);
-        if(millis() - m_nominalEntry > m_oxDelay){
-        oxServo.goto_Angle(140);
-        }
+    case EngineState::NominalT: 
+    {   
+
+        gotoThrust(m_nominal, m_nominalCloseSpeed, m_nominalOpenSpeed);
         _ignitionCalls = 1;
         break;
     }
@@ -98,6 +98,8 @@ void NRCThanos::update()
     {
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
+        ereg_shutdown();
+        deluge_stop();
         _polling = false;
 
         break;
@@ -324,6 +326,57 @@ void NRCThanos::firePyro(uint32_t duration)
     }
 }
 
+void NRCThanos::ereg_controlled() 
+
+  { 
+        SimpleCommandPacket ereg_controlled(2,1); 
+            ereg_controlled.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+            ereg_controlled.header.destination_service = m_ereg_service;
+            ereg_controlled.header.source = _address;
+            ereg_controlled.header.destination = m_ereg_node;
+            ereg_controlled.header.uid = 0;
+            _networkmanager.sendPacket(ereg_controlled);
+ }
+
+ void NRCThanos::ereg_shutdown() 
+
+  { 
+        SimpleCommandPacket ereg_controlled(2,2); 
+            ereg_controlled.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+            ereg_controlled.header.destination_service = m_ereg_service;
+            ereg_controlled.header.source = _address;
+            ereg_controlled.header.destination = m_ereg_node;
+            ereg_controlled.header.uid = 0;
+            _networkmanager.sendPacket(ereg_shutdown);
+ }
+
+void NRCThanos::deluge_start(uint32_t deluge_duration) 
+{`
+    SimpleCommandPacket deluge_start(2, deluge_duration);
+            deluge_start.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+            deluge_start.header.destination_service = m_deluge_service;
+            deluge_start.header.source = _address;
+            deluge_start.header.destination = m_deluge_node;
+            deluge_start.header.uid = 0;
+            _networkmanager.sendPacket(deluge_start);
+}
+
+void NRCThanos::deluge_stop()
+{ 
+    if (_delugeStopCalls > 0)
+    {
+        return;
+    }
+    SimpleCommandPacket deluge_stop(2,0); 
+            deluge_stop.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
+            deluge_stop.header.destination_service = m_deluge_service;
+            deluge_stop.header.source = _address;
+            deluge_stop.header.destination = m_deluge_node;
+            deluge_stop.header.uid = 0;
+            _networkmanager.sendPacket(deluge_stop);
+            _delugeStopCalls++;
+}
+  
 bool NRCThanos::pValUpdated()
 {
     if ((millis() - lastTimeChamberPUpdate) > pressureUpdateTimeLim || (millis() - lastTimeThrustUpdate) > pressureUpdateTimeLim)

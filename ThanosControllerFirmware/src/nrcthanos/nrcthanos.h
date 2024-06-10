@@ -110,6 +110,9 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
 
         void gotoThrust(float target, float closespeed, float openspeed);
         void firePyro(uint32_t duration);
+        void ereg_controlled();
+        void deluge_start(uint32_t deluge_duration);
+        void deluge_stop();
 
         void resetVars(){
             m_fuelServoPrevUpdate = 0;
@@ -119,10 +122,14 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             m_thrustreached = false;
         };
 
+        void resetDeluge(){
+            _delugeStopCalls = 0;
+        };
+
         // Ignition sequence timings from moment ignition command received
         const uint64_t pyroFires = 0;
         const uint64_t fuelValvePreposition = 500;
-        const uint64_t oxValvePreposition = 550;
+        const uint64_t oxValvePreposition = 500;
         const uint64_t endOfIgnitionSeq = 1050;
 
         const uint16_t fuelServoPreAngle = 105;
@@ -142,17 +149,25 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_oxDelay = 100;
 
         uint8_t _ignitionCalls = 0;
+        uint8_t _delugeStopCalls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;
         const uint8_t _ignitionCommandSendDelta = 50;
         uint32_t _prevFiring = 0;
 
         bool _polling = false;
 
-        //
-        uint8_t m_ingitionService = 12;
+        uint8_t m_ingitionService = 10;
         uint8_t m_ignitionNode = 107;
 
-        float m_nominal = 2400;
+        uint8_t m_ereg_service = 11; 
+        uint8_t m_ereg_node = 108;
+
+        uint8_t m_deluge_service = 13; 
+        uint8_t m_deluge_node = 107;
+
+        
+
+        float m_nominal = 4500;
         float m_targetThrottled = 792;
 
         float m_fuelServoCurrAngle = 0;
