@@ -127,6 +127,11 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
             _delugeStopCalls = 0;
         };
 
+        void resetEreg(){
+
+            _ereg_shutdown_calls = 0;
+        }
+
         // Ignition sequence timings from moment ignition command received
         const uint64_t pyroFires = 0;
         const uint64_t fuelValvePreposition = 500;
@@ -146,11 +151,12 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         const uint32_t m_firstNominalTime = 5000;
         const uint32_t m_throttledDownTime = 4100;
         const uint32_t m_secondNominalTime = 3000;
-        const uint32_t m_cutoffTime = 3000;
+        const uint32_t m_cutoffTime = 10000;
         const uint32_t m_oxDelay = 100;
 
         uint8_t _ignitionCalls = 0;
         uint8_t _delugeStopCalls = 0;
+        uint8_t _ereg_shutdown_calls = 0;
         const uint8_t _ignitionCommandMaxCalls = 2;
         const uint8_t _ignitionCommandSendDelta = 50;
         uint32_t _prevFiring = 0;

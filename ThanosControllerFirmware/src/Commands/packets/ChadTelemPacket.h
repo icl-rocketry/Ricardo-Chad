@@ -16,7 +16,9 @@ class ChadTelemPacket : public RnpPacket{
                 &ChadTelemPacket::servoVoltage,
                 &ChadTelemPacket::fuelAngle,
                 &ChadTelemPacket::oxAngle,
-                &ChadTelemPacket::thanosState,
+                &ChadTelemPacket::P_angle,
+                &ChadTelemPacket::I_angle,
+
                 &ChadTelemPacket::system_status,
                 &ChadTelemPacket::system_time
             );
@@ -43,8 +45,10 @@ class ChadTelemPacket : public RnpPacket{
         void serialize(std::vector<uint8_t>& buf) override;
 
         float servoVoltage;
-        uint16_t fuelAngle;
-        uint16_t oxAngle;
+        float fuelAngle;
+        float oxAngle;
+        float P_angle;
+        float I_angle;
         uint8_t thanosState;
         uint32_t system_status;
         uint64_t system_time;

@@ -43,6 +43,8 @@ void NRCThanos::update()
         _ignitionCalls = 0;
     }
 
+    _value = static_cast<uint32_t>(currentEngineState);
+
     switch (currentEngineState)
     {
 
@@ -51,6 +53,7 @@ void NRCThanos::update()
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
         resetDeluge();
+        resetEreg();
         _polling = false;
         break;
     }
@@ -61,7 +64,8 @@ void NRCThanos::update()
         // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Ignition state");
         if (timeFrameCheck(pyroFires, fuelValvePreposition))
         {   
-            deluge_start(endOfIgnitionSeq - pyroFires);
+            // deluge_start(m_cutoffTime - pyroFires);
+            ereg_controlled();
             firePyro(fuelValvePreposition - pyroFires);
         }
 
@@ -99,7 +103,7 @@ void NRCThanos::update()
         fuelServo.goto_Angle(0);
         oxServo.goto_Angle(0);
         ereg_shutdown();
-        deluge_stop();
+        // deluge_stop();
         _polling = false;
 
         break;
@@ -339,8 +343,9 @@ void NRCThanos::ereg_controlled()
  }
 
  void NRCThanos::ereg_shutdown() 
+{    if (_ereg_shutdown_calls < 1){
 
-  { 
+  
         SimpleCommandPacket ereg_shutdown(2,2); 
             ereg_shutdown.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
             ereg_shutdown.header.destination_service = m_ereg_service;
@@ -348,6 +353,9 @@ void NRCThanos::ereg_controlled()
             ereg_shutdown.header.destination = m_ereg_node;
             ereg_shutdown.header.uid = 0;
             _networkmanager.sendPacket(ereg_shutdown);
+            _ereg_shutdown_calls++;
+
+  }
  }
 
 void NRCThanos::deluge_start(uint32_t deluge_duration) 
@@ -363,10 +371,9 @@ void NRCThanos::deluge_start(uint32_t deluge_duration)
 
 void NRCThanos::deluge_stop()
 { 
-    if (_delugeStopCalls > 0)
+    if (_delugeStopCalls < 1)
     {
-        return;
-    }
+  
     SimpleCommandPacket deluge_stop(2,0); 
             deluge_stop.header.source_service = static_cast<uint8_t>(Services::ID::Thanos);
             deluge_stop.header.destination_service = m_deluge_service;
@@ -375,6 +382,8 @@ void NRCThanos::deluge_stop()
             deluge_stop.header.uid = 0;
             _networkmanager.sendPacket(deluge_stop);
             _delugeStopCalls++;
+
+    }
 }
   
 bool NRCThanos::pValUpdated()
