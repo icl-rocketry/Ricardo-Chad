@@ -38,8 +38,10 @@ void GNC::update()
             externalServo.goto_Angle(0);
             sleep(1000);
             externalServo.goto_Angle(90);
-            changeState(Arm);
-            //state.flagSet(COMPONENT_STATUS_FLAGS::Arm);
+
+            currentGNCState = GNCState::Arm;
+            break;
+ 
 
         }
         case GNCState::Arm:
@@ -52,8 +54,10 @@ void GNC::update()
            //go to idle
            externalServo.goto_Angle(0);
            sleep(1000);
-           changeState(Idle);
-           //state.flagSet(COMPONENT_STATUS_FLAGS::Idle);
+           currentGNCState = GNCState::Idle;
+           break;
+
+      
         }
         case GNCState::Abort: 
         {

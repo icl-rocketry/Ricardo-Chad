@@ -7,7 +7,7 @@
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
-#include "GNC.h"
+#include "GNC/GNC.h"
 
 #include "Commands/commands.h"
 
@@ -29,7 +29,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
     private:
 
         NRCRemoteServo externalServo;
-        NRCRemoteServo internalServo;
+        NRCRemoteServo internalServo; 
        
     protected: 
 

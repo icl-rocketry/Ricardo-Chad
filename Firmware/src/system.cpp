@@ -23,7 +23,7 @@ Buck(PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 //Motor1(PinMap::ServoPWM1, 0, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
 //Motor2(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
-externalServo(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
+externalServo(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
 internalServo(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
 {};
 
@@ -45,7 +45,7 @@ void System::systemSetup(){
     //Motor1.setup();
     //Motor2.setup();
     externalServo.setup();
-    internalServo.setuo();
+    internalServo.setup();
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
