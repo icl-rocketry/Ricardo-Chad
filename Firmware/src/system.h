@@ -25,12 +25,10 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
-        GNC gnc; 
     private:
 
-        NRCRemoteServo externalServo;
-        NRCRemoteServo internalServo; 
-       
+        GNC gnc; 
+
     protected: 
 
         

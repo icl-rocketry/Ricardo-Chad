@@ -13,8 +13,8 @@
 
 void GNC::setup()
 {
-    externalServo.setup();
-    internalServo.setup();    
+    topProp.setup();
+    bottomProp.setup();    
 }
 
 
@@ -34,17 +34,19 @@ void GNC::update()
             //set angle to 0 
             //wait 1 second 
             //go to arm
-            sleep(1000);
-            externalServo.goto_Angle(0);
-            sleep(1000);
-            externalServo.goto_Angle(90);
 
-            currentGNCState = GNCState::Arm;
-            break;
+            topProp.goto_Speed(0);
+            delay(1000);
+            topProp.goto_Speed(1);
+            delay(1000);
+            topProp.goto_Speed(0);
+
+            currentGNCState = GNCState::Armed;
  
+            break;
 
         }
-        case GNCState::Arm:
+        case GNCState::Armed:
         {
            // check time since last packet is less than TIME if true, abort, if not continue 
 
@@ -52,10 +54,14 @@ void GNC::update()
            //go to angle 90 
            //wait 1 second
            //go to idle
-           externalServo.goto_Angle(0);
-           sleep(1000);
-           currentGNCState = GNCState::Idle;
-           break;
+            bottomProp.goto_Speed(0);
+            delay(1000);
+            bottomProp.goto_Speed(1);
+            delay(1000);
+            bottomProp.goto_Speed(0);
+
+            currentGNCState = GNCState::Idle;
+            break;
 
       
         }

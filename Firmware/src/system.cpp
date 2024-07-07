@@ -23,8 +23,7 @@ Buck(PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 //Motor1(PinMap::ServoPWM1, 0, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
 //Motor2(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
-externalServo(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
-internalServo(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
+gnc(networkmanager,PinMap::ServoPWM1, 0, PinMap::ServoPWM2, 1, networkmanager.getAddress())
 {};
 
 
@@ -44,8 +43,7 @@ void System::systemSetup(){
     Buck.setup();
     //Motor1.setup();
     //Motor2.setup();
-    externalServo.setup();
-    internalServo.setup();
+
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
@@ -54,14 +52,16 @@ void System::systemSetup(){
     //Defining these so the methods following are less ugly
     //uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
     //uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
-    uint8_t externalservoservice = (uint8_t) Services::ID::externalServo;
-    uint8_t internalservoservice = (uint8_t) Services::ID::internalServo;
+
+    // uint8_t externalservoservice = (uint8_t) Services::ID::externalServo;
+    // uint8_t internalservoservice = (uint8_t) Services::ID::internalServo;
 
     networkmanager.addInterface(&canbus);
 
     //networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
     //networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
     
+    gnc.setup();
 };
 
 long prevTime = 0;
@@ -72,4 +72,5 @@ void System::systemUpdate(){
 
     gnc.update();
     Buck.update();
+    Serial.println("System Update");
 };

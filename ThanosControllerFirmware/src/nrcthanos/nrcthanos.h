@@ -40,12 +40,6 @@ class NRCThanos : public NRCRemoteActuatorBase<NRCThanos>
         
     protected:
 
-        RnpNetworkManager& _networkmanager;
-        const uint8_t _fuelServoGPIO;
-        const uint8_t _fuelServoChannel;
-        const uint8_t _oxServoGPIO;
-        const uint8_t _oxServoChannel;
-        const uint8_t _address;
 
         NRCRemoteServo fuelServo;
         NRCRemoteServo oxServo;    

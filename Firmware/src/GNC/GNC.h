@@ -1,32 +1,33 @@
 #pragma once 
 
-#include "prop.h"
 #include "librrc/nrcremoteactuatorbase.h"
 #include "librrc/nrcremoteservo.h"
 
 #include <librnp/rnp_networkmanager.h>
 #include <librnp/rnp_packet.h>
 
+#include "nrcremoteprop.h"
+
 
 class GNC : public NRCRemoteActuatorBase<GNC>
 {
     public:
         GNC(RnpNetworkManager &networkmanager,
-                    uint8_t fuelServoGPIO,
-                    uint8_t fuelServoChannel,
-                    uint8_t oxServoGPIO,
-                    uint8_t oxServoChannel,
+                    uint8_t topPropGPIO,
+                    uint8_t topPropChannel,
+                    uint8_t bottomPropGPIO,
+                    uint8_t bottomPropChannel,
                     uint8_t address
                     ):
             NRCRemoteActuatorBase(networkmanager),
             _networkmanager(networkmanager),      
-            _fuelServoGPIO(fuelServoGPIO),
-            _fuelServoChannel(fuelServoChannel),
-            _oxServoGPIO(oxServoGPIO),
-            _oxServoChannel(oxServoChannel),
+            _topPropGPIO(topPropGPIO),
+            _topPropChannel(topPropChannel),
+            _bottomPropGPIO(bottomPropGPIO),
+            _bottomPropChannel(bottomPropChannel),
             _address(address),
-            externalServo(fuelServoGPIO,fuelServoChannel,networkmanager,0,0,180,0,170),
-            internalServo(oxServoGPIO,oxServoChannel,networkmanager,0,0,180,10,170)
+            topProp(topPropGPIO,topPropChannel,networkmanager),
+            bottomProp(bottomPropGPIO,bottomPropChannel,networkmanager)
             {};
         void setup();
         void update();
@@ -35,14 +36,14 @@ class GNC : public NRCRemoteActuatorBase<GNC>
 
 
         RnpNetworkManager& _networkmanager;
-        const uint8_t _fuelServoGPIO;
-        const uint8_t _fuelServoChannel;
-        const uint8_t _oxServoGPIO;
-        const uint8_t _oxServoChannel;
+        const uint8_t _topPropGPIO;
+        const uint8_t _topPropChannel;
+        const uint8_t _bottomPropGPIO;
+        const uint8_t _bottomPropChannel;
         const uint8_t _address;
 
-        NRCRemoteServo externalServo;
-        NRCRemoteServo internalServo;    
+        NRCRemoteProp topProp;
+        NRCRemoteProp bottomProp;    
 
         friend class NRCRemoteActuatorBase;
         friend class NRCRemoteBase;
@@ -56,7 +57,7 @@ class GNC : public NRCRemoteActuatorBase<GNC>
         enum class GNCState : uint8_t
             {
                 Idle = 0,
-                Arm = 1,
+                Armed = 1,
                 Abort = 2
             
             };
