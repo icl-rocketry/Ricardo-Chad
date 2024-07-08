@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <esp_adc_cal.h>
 #include <esp32-hal-adc.h>
+#include "Sensors/vrailmonitor.h"
 
 class SiC43x
 {
@@ -27,8 +28,7 @@ public:
                                                                                                                                                          _defaultEN(defaultEN),
                                                                                                                                                          _invertEN(invertEN),
                                                                                                                                                          _VReadPin(VRead),
-                                                                                                                                                         _RHighS(HighResistor),
-                                                                                                                                                         _RLowS(LowResistor){};
+                                                                                                                                                         _servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
 
     void setup()
     {
@@ -42,9 +42,7 @@ public:
             setEN(_defaultEN); 
         }
         if (_VReadPin >= 0){
-            analogReadResolution(12);
-            analogSetPinAttenuation(_VReadPin, ADC_11db);
-            adcAttachPin(_VReadPin);
+            _servoVoltage.setup(12,5,4);
         }
     };
 
@@ -64,8 +62,9 @@ public:
      */
     void update()
     {
-        OutputV = ((float)(_RHighS + _RLowS) / (float)_RLowS) * (float)adc1_get_raw(ADC1_CHANNEL_3) * (_VReadPin) / (float)ADCMax;
-        //Serial.println(OutputV);
+        if(_VReadPin >= 0){
+            _servoVoltage.update(OutputV);
+        }
         
         if (_PGoodPin >= 0)
         {
@@ -125,4 +124,6 @@ private:
     uint32_t _offTime;
 
     static constexpr int ADCMax = 4095;
+
+    VRailMonitor _servoVoltage;
 };

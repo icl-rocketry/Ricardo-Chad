@@ -1,7 +1,7 @@
 #pragma once
 
 #include <libriccore/riccoresystem.h>
-#include <librrc/nrcremoteservo.h>
+#include <librrc/Remote/nrcremoteservo.h>
 
 #include "Config/systemflags_config.h"
 #include "Config/commands_config.h"
