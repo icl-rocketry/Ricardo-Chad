@@ -1159,11 +1159,11 @@
 				)
 			)
 		)
-		(symbol "iclr:RT9025-25GSP"
+		(symbol "iclr:SC4215ASTRT"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U6"
+			(property "Reference" "U5"
 				(at 0 4.8428 0)
 				(effects
 					(font
@@ -1171,7 +1171,7 @@
 					)
 				)
 			)
-			(property "Value" "RT9025-25GSP"
+			(property "Value" "SC4215"
 				(at 0 2.3059 0)
 				(effects
 					(font
@@ -1180,7 +1180,7 @@
 				)
 			)
 			(property "Footprint" "iclr:SOIC127P599X175-9N"
-				(at 0 5.08 0)
+				(at 0 7.366 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1206,7 +1206,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "RT9025-25GSP_1_1"
+			(symbol "SC4215ASTRT_1_1"
 				(rectangle
 					(start -10.16 1.27)
 					(end 10.16 -16.51)
@@ -1237,7 +1237,7 @@
 					)
 				)
 				(pin input line
-					(at -10.16 -10.16 0)
+					(at -10.16 -6.35 0)
 					(length 2.54)
 					(name "EN"
 						(effects
@@ -1254,7 +1254,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin power_in line
 					(at -10.16 -1.27 0)
 					(length 2.54)
 					(name "VIN"
@@ -1273,7 +1273,7 @@
 					)
 				)
 				(pin input line
-					(at -10.16 -13.97 0)
+					(at -10.16 -10.16 0)
 					(length 2.54)
 					(name "VDD"
 						(effects
@@ -1290,7 +1290,25 @@
 						)
 					)
 				)
-				(pin output line
+				(pin no_connect line
+					(at -10.16 -15.24 0)
+					(length 2.54) hide
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
 					(at 10.16 -1.27 180)
 					(length 2.54)
 					(name "VOUT"
@@ -1326,7 +1344,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin power_out line
 					(at 0 -16.51 90)
 					(length 2.54)
 					(name "GND"
@@ -1344,9 +1362,9 @@
 						)
 					)
 				)
-				(pin input line
+				(pin power_out line
 					(at 0 -16.51 90)
-					(length 2.54)
+					(length 2.54) hide
 					(name "GND"
 						(effects
 							(font
@@ -1756,6 +1774,12 @@
 		(uuid "bb9ea337-879a-4082-b14b-4d7f64dd185e")
 	)
 	(junction
+		(at 208.28 62.23)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c6590307-cc7d-4790-8aea-5a3ce692a13c")
+	)
+	(junction
 		(at 139.7 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1786,12 +1810,6 @@
 		(uuid "ff5dc2f5-b9e7-457c-8947-04531a88dfda")
 	)
 	(junction
-		(at 207.01 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ffcec43d-cd20-4d34-8faa-9f3b286a8702")
-	)
-	(junction
 		(at 246.38 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1806,12 +1824,12 @@
 		(uuid "3505f0b5-4ad5-4bc3-af9e-085dc1adbf8a")
 	)
 	(no_connect
-		(at 234.95 74.93)
-		(uuid "4d9b5286-9c49-4563-9df4-209d4c5152fb")
+		(at 214.63 71.12)
+		(uuid "3cfb64fb-7d85-4273-804a-ba1ace6f7d5c")
 	)
 	(no_connect
-		(at 214.63 74.93)
-		(uuid "6cef55e9-abb4-4010-9b2c-de6904fbf2f6")
+		(at 234.95 74.93)
+		(uuid "4d9b5286-9c49-4563-9df4-209d4c5152fb")
 	)
 	(wire
 		(pts
@@ -1822,16 +1840,6 @@
 			(type default)
 		)
 		(uuid "03f665c4-a01f-4b95-9c00-12e262b0726a")
-	)
-	(wire
-		(pts
-			(xy 207.01 62.23) (xy 207.01 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0db257d9-f27c-41a8-91c8-7a6b6bf340fb")
 	)
 	(wire
 		(pts
@@ -1955,6 +1963,16 @@
 	)
 	(wire
 		(pts
+			(xy 208.28 67.31) (xy 208.28 62.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "526082c8-0507-4883-bf6e-e421c42ba98b")
+	)
+	(wire
+		(pts
 			(xy 134.62 62.23) (xy 139.7 62.23)
 		)
 		(stroke
@@ -1992,6 +2010,16 @@
 			(type default)
 		)
 		(uuid "804b2f54-9443-4331-a8f0-342f4f4f5da1")
+	)
+	(wire
+		(pts
+			(xy 208.28 62.23) (xy 214.63 62.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "845e642a-e0d7-45fc-a0f2-6acf0d55a833")
 	)
 	(wire
 		(pts
@@ -2115,7 +2143,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 62.23) (xy 207.01 62.23)
+			(xy 200.66 62.23) (xy 208.28 62.23)
 		)
 		(stroke
 			(width 0)
@@ -2162,16 +2190,6 @@
 			(type default)
 		)
 		(uuid "ce536cae-fa95-4aaf-9591-99aa0cc7eea3")
-	)
-	(wire
-		(pts
-			(xy 207.01 62.23) (xy 214.63 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d53ab3bb-b7ed-4f3f-864e-9e8ee6c99cd9")
 	)
 	(wire
 		(pts
@@ -2275,16 +2293,6 @@
 	)
 	(wire
 		(pts
-			(xy 207.01 71.12) (xy 214.63 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f53a570d-195d-44cd-be6d-159cd0f42b44")
-	)
-	(wire
-		(pts
 			(xy 138.43 77.47) (xy 142.24 77.47)
 		)
 		(stroke
@@ -2292,6 +2300,16 @@
 			(type default)
 		)
 		(uuid "f963b891-4ee6-455b-84a8-6d5dbbc9b047")
+	)
+	(wire
+		(pts
+			(xy 214.63 67.31) (xy 208.28 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc56fa27-f535-4301-ba98-0740d1dcc660")
 	)
 	(wire
 		(pts
@@ -5062,25 +5080,24 @@
 		)
 	)
 	(symbol
-		(lib_id "iclr:RT9025-25GSP")
+		(lib_id "iclr:SC4215ASTRT")
 		(at 224.79 60.96 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fb63f54e-c140-4f82-a1d3-39d0ad4c7ff2")
 		(property "Reference" "U5"
-			(at 224.79 56.1172 0)
+			(at 224.79 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "SC4215"
-			(at 224.79 58.6541 0)
+		(property "Value" "SC4215ASTRT"
+			(at 224.79 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5088,7 +5105,7 @@
 			)
 		)
 		(property "Footprint" "iclr:SOIC127P599X175-9N"
-			(at 224.79 55.88 0)
+			(at 224.79 53.594 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5137,6 +5154,9 @@
 		)
 		(pin "9"
 			(uuid "b70b7931-4367-42be-9497-51bb1f61c5ea")
+		)
+		(pin "5"
+			(uuid "f765d478-2a48-4812-9ac4-4b06d2908c0c")
 		)
 		(instances
 			(project "Chad"

@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.6,
-          "height": 0.6,
-          "width": 0.6
+          "drill": 0.0,
+          "height": 0.95,
+          "width": 0.8
         },
         "silk_line_width": 0.1524,
         "silk_text_italic": false,
@@ -49,7 +49,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.0
+          "min_clearance": 0.25
         }
       },
       "diff_pair_dimensions": [
@@ -69,16 +69,7 @@
           "width": 0.261112
         }
       ],
-      "drc_exclusions": [
-        "hole_clearance|47663000|48882000|2a35485d-4ed1-4d6a-b93f-bed51cdf3d1b|10134243-6a42-49b1-ad5f-1e962d29cee8",
-        "hole_clearance|47663000|48882000|2a35485d-4ed1-4d6a-b93f-bed51cdf3d1b|65a87011-388c-460f-aaab-f7471c161bdd",
-        "hole_clearance|47863000|48882000|2a35485d-4ed1-4d6a-b93f-bed51cdf3d1b|670b5f15-5645-4db6-bf6c-d2d32a9050f0",
-        "hole_clearance|47863000|48882000|2a35485d-4ed1-4d6a-b93f-bed51cdf3d1b|829aaaad-d410-4962-bc60-ba53a94ca3e5",
-        "hole_clearance|53263000|48882000|044268ba-47d4-4f9c-9402-f31246b2847b|1b67ee9c-cd7a-4cf1-a20c-667736a9bc63",
-        "hole_clearance|53263000|48882000|044268ba-47d4-4f9c-9402-f31246b2847b|a82b48d6-9bae-43de-99d2-f34bc91af6ca",
-        "hole_clearance|53463000|48882000|044268ba-47d4-4f9c-9402-f31246b2847b|7eeee2e6-1169-49da-88d3-96fe3f061ca2",
-        "hole_clearance|53463000|48882000|044268ba-47d4-4f9c-9402-f31246b2847b|b578edce-7e5a-45f6-bb02-4c6cfe2a2565"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -503,6 +494,23 @@
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.254,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "High Clearance",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -510,7 +518,12 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "Default",
+        "pattern": "/buckC/SW"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
