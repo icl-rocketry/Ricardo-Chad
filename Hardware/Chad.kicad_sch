@@ -4406,6 +4406,10 @@
 		(uuid "0e0e9cb8-e907-4b10-a51c-1f6edada27c6")
 	)
 	(no_connect
+		(at 69.85 62.23)
+		(uuid "134baaf3-63fb-4555-bce1-a6eaadf159c5")
+	)
+	(no_connect
 		(at 69.85 74.93)
 		(uuid "17e3050d-c576-48b3-981a-1315c4168fe6")
 	)
@@ -4805,16 +4809,6 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 62.23) (xy 69.85 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c250346-e57f-46d0-b7ce-f5a4aa1641f5")
-	)
-	(wire
-		(pts
 			(xy 27.94 21.59) (xy 30.48 21.59)
 		)
 		(stroke
@@ -5102,26 +5096,6 @@
 			(type default)
 		)
 		(uuid "7c5f3091-7791-43b3-8d50-43f6a72274c9")
-	)
-	(wire
-		(pts
-			(xy 50.8 62.23) (xy 54.61 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7da42b1a-58c8-436d-a35c-f2f7eeadb548")
-	)
-	(wire
-		(pts
-			(xy 59.69 62.23) (xy 63.5 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "81baa0e2-b7cd-4556-98c0-5782e8cdee93")
 	)
 	(wire
 		(pts
@@ -7102,7 +7076,7 @@
 				)
 			)
 		)
-		(property "Value" "TX_LED"
+		(property "Value" "GREEN_LED"
 			(at 25.4 24.4856 0)
 			(effects
 				(font
@@ -7366,7 +7340,7 @@
 				)
 			)
 		)
-		(property "Value" "3V3LED"
+		(property "Value" "BLUE_LED"
 			(at 54.61 18.6944 0)
 			(effects
 				(font
@@ -7777,7 +7751,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_Mini-Fit_Jr_5569-06A2_2x03_P4.20mm_Horizontal"
+		(property "Footprint" "iclr:Molex_Mini-Fit_Jr_5569-06A2_2x03_P4.20mm_Horizontal"
 			(at 123.19 20.32 0)
 			(effects
 				(font
@@ -7848,7 +7822,7 @@
 				)
 			)
 		)
-		(property "Value" "12V_LED"
+		(property "Value" "RED_LED"
 			(at 63.5 21.59 0)
 			(effects
 				(font
@@ -8120,7 +8094,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_Nano-Fit_105313-xx03_1x03_P2.50mm_Horizontal"
+		(property "Footprint" "iclr:Molex_Nano-Fit_105313-xx03_1x03_P2.50mm_Horizontal"
 			(at 276.86 77.47 0)
 			(effects
 				(font
@@ -8526,7 +8500,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_Nano-Fit_105313-xx03_1x03_P2.50mm_Horizontal"
+		(property "Footprint" "iclr:Molex_Nano-Fit_105313-xx03_1x03_P2.50mm_Horizontal"
 			(at 276.86 92.71 0)
 			(effects
 				(font
@@ -9808,7 +9782,7 @@
 				)
 			)
 		)
-		(property "Value" "6V_LED"
+		(property "Value" "AMBER_LED"
 			(at 64.77 29.21 0)
 			(effects
 				(font
@@ -11476,75 +11450,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C_Small")
-		(at 66.04 62.23 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c0650df8-0097-4808-a69a-54df442bfee3")
-		(property "Reference" "C12"
-			(at 67.31 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "DNP"
-			(at 68.58 59.69 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 66.04 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 66.04 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 66.04 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "efbccaa2-b2d1-4db9-b173-97da7ab5adf2")
-		)
-		(pin "2"
-			(uuid "dac44665-b0bf-4824-bd6e-f452771d70e3")
-		)
-		(instances
-			(project "Chad"
-				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
-					(reference "C12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:L")
 		(at 40.64 135.89 90)
 		(unit 1)
@@ -11759,7 +11664,7 @@
 				)
 			)
 		)
-		(property "Value" "CANTXLED"
+		(property "Value" "GREEN_LED"
 			(at 25.4 40.9956 0)
 			(effects
 				(font
@@ -12413,7 +12318,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Crystal:Crystal_SMD_2016-4Pin_2.0x1.6mm"
+		(property "Footprint" "iclr:Crystal_SMD_2016-4Pin_2.0x1.6mm"
 			(at 156.21 132.08 0)
 			(effects
 				(font
@@ -12934,72 +12839,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 50.8 62.23 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ed18ec58-39a2-4bc4-bb5f-14092c2e1ff7")
-		(property "Reference" "#PWR09"
-			(at 50.8 68.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 48.26 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 50.8 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 50.8 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 50.8 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8cd64b10-37e7-426b-be55-293c29bb3a1d")
-		)
-		(instances
-			(project "Chad"
-				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
-					(reference "#PWR09")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_Small")
 		(at 59.69 113.03 90)
 		(unit 1)
@@ -13051,6 +12890,15 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "AC0402FR-07499RL"
+			(at 59.69 113.03 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c1d0073e-944f-4687-aba4-07fb2a533e6a")
 		)
@@ -13083,7 +12931,7 @@
 				)
 			)
 		)
-		(property "Value" "CANRXLED"
+		(property "Value" "AMBER_LED"
 			(at 25.4 53.6956 0)
 			(effects
 				(font
@@ -13128,73 +12976,6 @@
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
 					(reference "CANRXLED1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 57.15 62.23 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "f69128a2-f4d5-40e5-857b-300c6c856bdd")
-		(property "Reference" "R5"
-			(at 57.15 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "DNP"
-			(at 57.15 59.69 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 57.15 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 57.15 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 57.15 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c6c6331d-51dd-41b1-88e5-d2114f77d24b")
-		)
-		(pin "2"
-			(uuid "a83d5af1-de8b-42e9-804d-b4639c7713a2")
-		)
-		(instances
-			(project "Chad"
-				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
-					(reference "R5")
 					(unit 1)
 				)
 			)

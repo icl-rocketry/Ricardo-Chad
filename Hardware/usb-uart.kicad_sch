@@ -2308,7 +2308,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_USB:USB_C_Receptacle_Palconn_UTC16-G"
+		(property "Footprint" "iclr:USB_C_Receptacle_Palconn_UTC16-G"
 			(at 104.14 104.14 0)
 			(effects
 				(font
@@ -2751,7 +2751,7 @@
 				)
 			)
 		)
-		(property "Value" "USB_LED"
+		(property "Value" "WHITE_LED"
 			(at 162.56 89.8144 0)
 			(effects
 				(font
