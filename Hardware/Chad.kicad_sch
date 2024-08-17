@@ -8698,7 +8698,7 @@
 				)
 			)
 		)
-		(property "Value" "TBD"
+		(property "Value" "165R"
 			(at 266.7 72.39 90)
 			(effects
 				(font
@@ -8726,6 +8726,15 @@
 		)
 		(property "Description" "Resistor, small symbol"
 			(at 266.7 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" " RK73H1ETTP1650F "
+			(at 266.7 74.93 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10919,7 +10928,7 @@
 				)
 			)
 		)
-		(property "Value" "TBD"
+		(property "Value" "165R"
 			(at 266.7 87.63 90)
 			(effects
 				(font
@@ -10947,6 +10956,15 @@
 		)
 		(property "Description" "Resistor, small symbol"
 			(at 266.7 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" " RK73H1ETTP1650F "
+			(at 266.7 90.17 90)
 			(effects
 				(font
 					(size 1.27 1.27)

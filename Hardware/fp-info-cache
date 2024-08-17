@@ -1,4 +1,4 @@
-23973559346400890
+23975283098792088
 0_CAPACITOR_ELM
 C_0603_1608Metric_Pad1.08x0.95mm_HandSolder
 Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
@@ -96690,6 +96690,13 @@ Loudspeaker or Buzzer
 0
 3
 3
+iclr
+CONN8_08S4TR2000_JAE
+
+ST1W008S4TR2000 
+0
+13
+13
 iclr
 CONV_MAX77827AEFD+T
 
