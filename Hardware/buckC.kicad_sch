@@ -4958,7 +4958,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "TBD"
+		(property "Value" "160pF"
 			(at 179.07 86.3662 0)
 			(effects
 				(font
@@ -5366,7 +5366,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "TBD"
+		(property "Value" "5.4R"
 			(at 179.07 91.4399 0)
 			(effects
 				(font

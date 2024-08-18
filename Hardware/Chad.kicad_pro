@@ -669,6 +669,14 @@
     [
       "8734796e-d088-404b-9453-b276f910a8bb",
       "buckC"
+    ],
+    [
+      "4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d",
+      "Servo Connectors"
+    ],
+    [
+      "980abe29-0240-4f42-9b28-48e9ccaa9b3e",
+      "GPIO"
     ]
   ],
   "text_variables": {}
