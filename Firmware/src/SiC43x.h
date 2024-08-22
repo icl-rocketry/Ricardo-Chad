@@ -87,7 +87,7 @@ public:
                 m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (ADC reading out of range)");
             }
             else if(OutputV < 12 && OutputV > 4 && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK)){
-                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (ADC reading back in configured range)");
+                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage returned to nominal! (ADC reading back in configured range)");
             }
         }
 
