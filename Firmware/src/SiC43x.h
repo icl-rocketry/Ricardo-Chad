@@ -94,14 +94,14 @@ public:
         if (m_PGoodPin >= 0)
         {
             PGOOD = digitalRead(m_PGoodPin);
-
-            if (!PGOOD && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK))
-            {
-                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (PGOOD deasserted)");
-            }
-            else if(PGOOD && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK)){
-                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage returned to nominal! (PGOOD reasserted)");
-            }
+            // Serial.println(PGOOD);
+            // if (!PGOOD && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK))
+            // {
+            //     m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (PGOOD deasserted)");
+            // }
+            // else if(PGOOD && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK)){
+            //     m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage returned to nominal! (PGOOD reasserted)");
+            // }
         }
 
         if (m_restartFlag == 1)

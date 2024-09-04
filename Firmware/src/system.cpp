@@ -21,8 +21,10 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-Servo1(PinMap::ServoPWM1, 0, networkmanager),
-Servo2(PinMap::ServoPWM2, 1, networkmanager)
+m_servo0_pwm(PinMap::ServoPWM0, 0),
+m_servo1_pwm(PinMap::ServoPWM1, 1),
+Servo0(m_servo0_pwm, networkmanager, "Srvo0"),
+Servo1(m_servo0_pwm, networkmanager, "Srvo1")
 {};
 
 
@@ -40,21 +42,21 @@ void System::systemSetup(){
     //any other setup goes here
     
     Buck.setup();
+    Servo0.setup();
     Servo1.setup();
-    Servo2.setup();
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
     //Defining these so the methods following are less ugly
-    uint8_t servoservice1 = (uint8_t) Services::ID::Servo1;
-    uint8_t servoservice2 = (uint8_t) Services::ID::Servo2;
+    uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
+    uint8_t servoservice1 = static_cast<uint8_t>(Services::ID::Servo1);
 
     networkmanager.addInterface(&canbus);
 
+    networkmanager.registerService(servoservice0,Servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,Servo1.getThisNetworkCallback());
-    networkmanager.registerService(servoservice2,Servo2.getThisNetworkCallback());
     
 };
 

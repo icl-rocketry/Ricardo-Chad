@@ -7,6 +7,7 @@
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
+#include <librrc/HAL/localpwm.h>
 
 #include "Commands/commands.h"
 
@@ -27,8 +28,11 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
     private:
 
-        NRCRemoteServo Servo1;
-        NRCRemoteServo Servo2;
+        LocalPWM m_servo0_pwm;
+        LocalPWM m_servo1_pwm;
+
+        NRCRemoteServo<LocalPWM> Servo0;
+        NRCRemoteServo<LocalPWM> Servo1;
         
 
 };
