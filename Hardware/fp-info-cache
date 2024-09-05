@@ -1,4 +1,4 @@
-23977007688907729
+23985651765211502
 0_CAPACITOR_ELM
 C_0603_1608Metric_Pad1.08x0.95mm_HandSolder
 Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
@@ -96670,6 +96670,13 @@ Axes_Magnetic_Lefthand_Xdown
 0
 0
 iclr
+BSZ025N04LS
+BSZ025N04LS-2
+MOSFET (N-Channel)
+0
+10
+10
+iclr
 BUK9M1140HX
 BUK9M11-40HX
 MOSFET (N-Channel)
@@ -97041,6 +97048,13 @@ QFN50P400X400X95-24N
 24
 24
 iclr
+QFN50P500X500X90-29N
+TMC2209-LA
+Integrated Circuit
+0
+29
+29
+iclr
 QFN65P400X400X100-17N
 
 
@@ -97132,12 +97146,26 @@ SOIC127P600X170-9N
 15
 15
 iclr
+SON50P300X300X80-13N-D
+DRR0012E_2021
+Integrated Circuit
+0
+13
+13
+iclr
 SON50P400X400X100-13N
 DNT0012B_-
 Integrated Circuit
 0
 13
 13
+iclr
+SON65P300X300X100-9N-D
+8 lead
+Integrated Circuit
+0
+9
+9
 iclr
 SOP40P640X120-14N
 
@@ -97285,6 +97313,13 @@ USB C Type-C Receptacle USB2.0
 0
 20
 17
+iclr
+V8PAM10SM3I
+V8PAM10S-M3/I-5
+Schottky Diode
+0
+2
+2
 iclr
 VIA-0.6mm
 

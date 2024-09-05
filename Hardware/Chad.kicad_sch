@@ -3804,6 +3804,16 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 29.21) (xy 236.22 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5103cdda-9715-4d83-960e-c2323c1b439b")
+	)
+	(wire
+		(pts
 			(xy 156.21 127) (xy 156.21 128.27)
 		)
 		(stroke
@@ -3921,16 +3931,6 @@
 			(type default)
 		)
 		(uuid "70d34adf-9bd8-469e-8c77-5c0d7adf511e")
-	)
-	(wire
-		(pts
-			(xy 236.22 34.29) (xy 236.22 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "713b5b5e-c15e-4055-b77c-009462e2e532")
 	)
 	(wire
 		(pts
@@ -4301,16 +4301,6 @@
 			(type default)
 		)
 		(uuid "cf7bb7d6-3394-4ca8-aa98-85a7ecf51bec")
-	)
-	(wire
-		(pts
-			(xy 99.06 156.21) (xy 102.87 156.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d075de7f-3792-4fce-915d-e7165f3761a8")
 	)
 	(wire
 		(pts
@@ -6324,71 +6314,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 102.87 156.21 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "00000000-0000-0000-0000-000061a7095b")
-		(property "Reference" "#PWR016"
-			(at 102.87 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 103.251 151.8158 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 102.87 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 102.87 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 102.87 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8fae37d8-c6ef-448d-8735-6ee0f7f3dc00")
-		)
-		(instances
-			(project "Chad"
-				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
-					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 128.27 26.67 0)
 		(unit 1)
@@ -7661,73 +7586,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Small")
-		(at 236.22 31.75 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5f662d26-675f-41d0-ac58-8847effe296d")
-		(property "Reference" "R35"
-			(at 241.1984 31.75 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1.5k"
-			(at 238.887 31.75 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 236.22 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "582805e7-ccc2-45c9-9363-d434135b4db9")
-		)
-		(pin "2"
-			(uuid "163cd0d4-3690-4c3a-a51c-a182f82fdd06")
-		)
-		(instances
-			(project "Chad"
-				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83"
-					(reference "R35")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+6V")
 		(at 83.82 34.29 0)
 		(unit 1)
@@ -8479,7 +8337,7 @@
 				)
 			)
 		)
-		(property "Value" "2.2k"
+		(property "Value" "18k"
 			(at 238.887 40.64 90)
 			(effects
 				(font
@@ -10338,16 +10196,6 @@
 				)
 				(justify left top)
 			)
-		)
-		(pin "3.3V" output
-			(at 99.06 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "b54cae5b-c17c-4ed7-b249-2e7d5e83609a")
 		)
 		(pin "Data+" bidirectional
 			(at 99.06 160.02 0)
