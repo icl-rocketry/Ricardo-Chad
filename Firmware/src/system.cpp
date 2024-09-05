@@ -42,6 +42,7 @@ void System::systemSetup(){
     //any other setup goes here
     
     Buck.setup();
+
     Servo0.setup();
     Servo1.setup();
     canbus.setup();
@@ -59,9 +60,6 @@ void System::systemSetup(){
     networkmanager.registerService(servoservice1,Servo1.getThisNetworkCallback());
     
 };
-
-long prevTime = 0;
-bool update = false;
 
 void System::systemUpdate(){
     Buck.update();
