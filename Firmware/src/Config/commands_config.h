@@ -17,7 +17,7 @@ namespace Commands
     enum class ID : uint8_t
     {
         NoCommand = 0,
-        ChadTelem = 69,
+        ChadTelem = 8,
         BuckRestart = 44,
         Free_Ram = 250
     };
@@ -26,7 +26,6 @@ namespace Commands
 
     inline std::unordered_map<ID, std::function<void(ForwardDecl_SystemClass &, const RnpPacketSerialized &)>> command_map{
         {ID::Free_Ram, FreeRamCommand}, {ID::ChadTelem, ChadTelemCommand}, {ID::BuckRestart, BuckRestartCommand}};
-
 
 
 };

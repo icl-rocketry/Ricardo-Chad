@@ -12,7 +12,8 @@ enum class SYSTEM_FLAG:uint32_t{
     ERROR_SERIAL = (1 << 10),
     ERROR_CAN = (1 << 11),
     //Hardware errors
-    ERROR_BUCK = (1 << 12)
+    ERROR_PGOOD = (1 << 12), //Power good flag is in the wrong state
+    ERROR_VBOUNDS = (1 << 13) //Buck output voltage is out of bounds
     
 };
 

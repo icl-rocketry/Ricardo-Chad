@@ -82,26 +82,25 @@ public:
             m_servoVoltage.update(OutputV);
 
             //!TODO - make voltage limits configurable
-            if ((OutputV > 12 || OutputV < 4) && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK))
+            if ((OutputV > 12 || OutputV < 4) && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS))
             {
-                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (ADC reading out of range)");
+                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_VBOUNDS, "Buck output voltage off-nominal! (ADC reading out of range)");
             }
-            else if(OutputV < 12 && OutputV > 4 && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK)){
-                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage returned to nominal! (ADC reading back in configured range)");
+            else if(OutputV < 12 && OutputV > 4 && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS)){
+                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_VBOUNDS, "Buck output voltage returned to nominal! (ADC reading back in configured range)");
             }
         }
 
         if (m_PGoodPin >= 0)
         {
             PGOOD = digitalRead(m_PGoodPin);
-            // Serial.println(PGOOD);
-            // if (!PGOOD && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK))
-            // {
-            //     m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage off-nominal! (PGOOD deasserted)");
-            // }
-            // else if(PGOOD && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_BUCK)){
-            //     m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_BUCK, "Buck output voltage returned to nominal! (PGOOD reasserted)");
-            // }
+            if (!PGOOD && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_PGOOD))
+            {
+                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_PGOOD, "Buck output voltage off-nominal! (PGOOD deasserted)");
+            }
+            else if(PGOOD && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_PGOOD)){
+                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_PGOOD, "Buck output voltage returned to nominal! (PGOOD reasserted)");
+            }
         }
 
         if (m_restartFlag == 1)
