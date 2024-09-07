@@ -24,7 +24,7 @@ canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0, 0),
 m_servo1_pwm(PinMap::ServoPWM1, 1),
 Servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-Servo1(m_servo0_pwm, networkmanager, "Srvo1")
+Servo1(m_servo1_pwm, networkmanager, "Srvo1")
 {};
 
 
