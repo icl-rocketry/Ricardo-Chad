@@ -18201,6 +18201,7 @@
 		(property "Reference" "D4"
 			(at 1.8 0.05 180)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "6938812b-71ba-4034-9a10-a1a4d3be3a0a")
 			(effects
 				(font
