@@ -23,8 +23,8 @@ Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0, 0),
 m_servo1_pwm(PinMap::ServoPWM1, 1),
-Servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-Servo1(m_servo1_pwm, networkmanager, "Srvo1")
+m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
 {};
 
 
@@ -43,8 +43,8 @@ void System::systemSetup(){
     
     Buck.setup();
 
-    Servo0.setup();
-    Servo1.setup();
+    m_servo0.setup();
+    m_servo1.setup();
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
@@ -56,8 +56,8 @@ void System::systemSetup(){
 
     networkmanager.addInterface(&canbus);
 
-    networkmanager.registerService(servoservice0,Servo0.getThisNetworkCallback());
-    networkmanager.registerService(servoservice1,Servo1.getThisNetworkCallback());
+    networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
+    networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
     
 };
 

@@ -31,8 +31,8 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         LocalPWM m_servo0_pwm;
         LocalPWM m_servo1_pwm;
 
-        NRCRemoteServo<LocalPWM> Servo0;
-        NRCRemoteServo<LocalPWM> Servo1;
+        NRCRemoteServo<LocalPWM> m_servo0;
+        NRCRemoteServo<LocalPWM> m_servo1;
         
 
 };
