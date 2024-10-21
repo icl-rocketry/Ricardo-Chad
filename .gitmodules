@@ -13,18 +13,3 @@
 [submodule "Firmware/components/librrc"]
 	path = Firmware/components/librrc
 	url = git@github.com:icl-rocketry/librrc.git
-[submodule "ThanosControllerFirmware/components/libriccore"]
-	path = ThanosControllerFirmware/components/libriccore
-	url = git@github.com:icl-rocketry/libriccore.git
-[submodule "ThanosControllerFirmware/components/librnp"]
-	path = ThanosControllerFirmware/components/librnp
-	url = git@github.com:icl-rocketry/librnp.git
-[submodule "ThanosControllerFirmware/components/arduino"]
-	path = ThanosControllerFirmware/components/arduino
-	url = https://github.com/espressif/arduino-esp32.git
-[submodule "ThanosControllerFirmware/components/librrc"]
-	path = ThanosControllerFirmware/components/librrc
-	url = git@github.com:icl-rocketry/librrc.git
-[submodule "ThanosControllerFirmware/components/ArduinoJson"]
-	path = ThanosControllerFirmware/components/ArduinoJson
-	url = https://github.com/bblanchon/ArduinoJson.git

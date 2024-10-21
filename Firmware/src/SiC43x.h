@@ -1,17 +1,29 @@
+/**
+ * @file SiC43x.h
+ * @author Andrei Paduraru
+ * @brief Class to manage Vishay SiC43x buck converter devices.
+ * @version 0.2
+ * @date 2024-07-12
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 #include <stdint.h>
-#include <Arduino.h>
 #include <esp_adc_cal.h>
 #include <esp32-hal-adc.h>
+
+#include <librrc/HAL/arduinogpio.h>
+#include "Config/types.h"
+#include "Sensors/vrailmonitor.h"
 
 class SiC43x
 {
 
 public:
     /**
-     * @brief Class to manage SiC43x buck converter devices
-     *
-     * @author Andrei Paduraru
+     * @brief Class constructor
      *
      * @param PGood PowerGood pin number
      * @param EN Enable pin number
@@ -22,29 +34,30 @@ public:
      * @param LowResistor Resistance value of potential divider resistor connected to the low side
      */
 
-    SiC43x(int8_t PGood = -1, int8_t EN = -1, bool defaultEN = 0, bool invertEN = 0, int8_t VRead = -1, float HighResistor = 0, float LowResistor = 1) : _PGoodPin(PGood),
-                                                                                                                                                         _ENPin(EN),
-                                                                                                                                                         _defaultEN(defaultEN),
-                                                                                                                                                         _invertEN(invertEN),
-                                                                                                                                                         _VReadPin(VRead),
-                                                                                                                                                         _RHighS(HighResistor),
-                                                                                                                                                         _RLowS(LowResistor){};
+    SiC43x(Types::CoreTypes::SystemStatus_t &systemstatus, int8_t PGood = -1, int8_t EN = -1, bool defaultEN = 0, bool invertEN = 0, int8_t VRead = -1, float HighResistor = 0, float LowResistor = 1) : 
+        m_systemstatus(systemstatus),
+        m_PGoodPin(PGood),
+        m_ENPin(EN),
+        m_defaultEN(defaultEN),
+        m_invertEN(invertEN),
+        m_VReadPin(VRead),
+        m_servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
 
     void setup()
     {
-        if (_PGoodPin >= 0)
+        if (m_PGoodPin >= 0)
         {
-            pinMode(_PGoodPin, INPUT);
+            pinMode(m_PGoodPin, INPUT);
         }
-        if (_ENPin >= 0)
+        if (m_ENPin >= 0)
         {
-            pinMode(_ENPin, OUTPUT);
-            setEN(_defaultEN); 
+            pinMode(m_ENPin, OUTPUT);
+            setEN(m_defaultEN);
         }
-        if (_VReadPin >= 0){
-            analogReadResolution(12);
-            analogSetPinAttenuation(_VReadPin, ADC_11db);
-            adcAttachPin(_VReadPin);
+        if (m_VReadPin >= 0)
+        {
+            //!TODO - make voltage limits configurable
+            m_servoVoltage.setup(12, 5, 4);
         }
     };
 
@@ -55,8 +68,8 @@ public:
      */
     void setEN(bool Bucklevel)
     {
-        bool pinLevel = _invertEN ^ Bucklevel;
-        digitalWrite(_ENPin, pinLevel);
+        bool pinLevel = m_invertEN ^ Bucklevel;
+        digitalWrite(m_ENPin, pinLevel);
     };
 
     /**
@@ -64,38 +77,61 @@ public:
      */
     void update()
     {
-        OutputV = ((float)(_RHighS + _RLowS) / (float)_RLowS) * (float)adc1_get_raw(ADC1_CHANNEL_3) * (_VReadPin) / (float)ADCMax;
-        //Serial.println(OutputV);
-        
-        if (_PGoodPin >= 0)
+        if (m_VReadPin >= 0)
         {
-            PGOOD = digitalRead(_PGoodPin);
+            m_servoVoltage.update(OutputV);
+
+            //!TODO - make voltage limits configurable
+            if ((OutputV > 12 || OutputV < 4) && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS))
+            {
+                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_VBOUNDS, "Buck output voltage off-nominal! (ADC reading out of range)");
+            }
+            else if(OutputV < 12 && OutputV > 4 && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS)){
+                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_VBOUNDS, "Buck output voltage returned to nominal! (ADC reading back in configured range)");
+            }
         }
 
-        if (_restartFlag == 1)
+        if (m_PGoodPin >= 0)
         {
-            restart(_offTime);
+            PGOOD = digitalRead(m_PGoodPin);
+            if (!PGOOD && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_PGOOD))
+            {
+                m_systemstatus.newFlag(SYSTEM_FLAG::ERROR_PGOOD, "Buck output voltage off-nominal! (PGOOD deasserted)");
+            }
+            else if(PGOOD && m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_PGOOD)){
+                m_systemstatus.deleteFlag(SYSTEM_FLAG::ERROR_PGOOD, "Buck output voltage returned to nominal! (PGOOD reasserted)");
+            }
+        }
+
+        if (m_restartFlag == 1)
+        {
+            restart(m_offTime);
         }
     };
+
+    /**
+     * @brief Method to restart the buck converter. Requires update to be called continuously for accurate timing.
+     *
+     * @param offTime Time the converter should be turned off for in milliseconds.
+     */
 
     void restart(uint32_t offTime)
     {
 
-        if (_restartFlag == 0)
+        if (m_restartFlag == 0)
         {
-            _prevtime = millis(); // time taken at the start of a restart routine, i.e. when the buck is just on normally
-            _offTime = offTime; /*I don't like that this has to be stored but I can't figure out
-            a different way to make this non blocking so it is what it is*/
+            m_prevtime = millis(); // time taken at the start of a restart routine, i.e. when the buck is just on normally
+            m_offTime = offTime;
         }
 
-        _restartFlag = 1; //set the flag to 1 so the method gets called again during update
-        
-        setEN(false); //turn the buck off
+        m_restartFlag = 1; // set the flag to 1 so the method gets called again during update
 
-        if (millis() - _prevtime > offTime)
+        setEN(false); // turn the buck off
+
+        if (millis() - m_prevtime > offTime)
         {
-            setEN(true); //turn it back on after the offtime has passed
-            _restartFlag = 0; //set the flag back to 0 to avoid restart being called again during update
+            setEN(true);       // turn it back on after the offtime has passed
+            m_restartFlag = 0; // set the flag back to 0 to avoid restart being called again during update
             return;
         }
         return;
@@ -108,21 +144,20 @@ private:
     float OutputV;
     bool PGOOD;
 
+    // Systemflags
+    Types::CoreTypes::SystemStatus_t &m_systemstatus;
+
     // Pin Definitions
-    int8_t _PGoodPin = -1;
-    int8_t _ENPin = -1;
-    bool _defaultEN = 0;
-    bool _invertEN = 0;
-    int8_t _VReadPin = -1;
+    int8_t m_PGoodPin = -1;
+    int8_t m_ENPin = -1;
+    bool m_defaultEN = 0;
+    bool m_invertEN = 0;
+    int8_t m_VReadPin = -1;
 
-    // Potential divider setup. Default is no divider.
-    float _RHighS = 0;
-    float _RLowS = 1;
+    bool m_restartFlag = 0;
 
-    bool _restartFlag = 0;
+    uint32_t m_prevtime;
+    uint32_t m_offTime;
 
-    uint32_t _prevtime;
-    uint32_t _offTime;
-
-    static constexpr int ADCMax = 4095;
+    VRailMonitor m_servoVoltage;
 };
