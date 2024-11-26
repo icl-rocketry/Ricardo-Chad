@@ -1,13 +1,14 @@
 #pragma once
 
 #include <libriccore/riccoresystem.h>
-#include <librrc/nrcremoteservo.h>
+#include <librrc/Remote/nrcremoteservo.h>
+#include <librrc/Remote/nrcremoteprop.h>
 
 #include "Config/systemflags_config.h"
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
-#include "GNC/GNC.h"
+// #include "GNC/GNC.h"
 
 #include "Commands/commands.h"
 
@@ -26,8 +27,9 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         CanBus<SYSTEM_FLAG> canbus;
     private:
-
-        GNC gnc; 
+        
+        NRCRemoteProp Motor1;
+        NRCRemoteProp Motor2;
 
     protected: 
 

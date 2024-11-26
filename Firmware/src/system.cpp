@@ -15,15 +15,16 @@
 #include "Commands/commands.h"
 
 #include "States/idle.h"
-
+// #include "GNC/GNCWatchDog.h"
 
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-//Motor1(PinMap::ServoPWM1, 0, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000)),
-//Motor2(PinMap::ServoPWM2, 1, networkmanager,0,0,100,0,100,NRCRemoteServo::counts(1130),NRCRemoteServo::counts(2000))
-gnc(networkmanager,PinMap::ServoPWM1, 0, PinMap::ServoPWM2, 1, networkmanager.getAddress())
+Motor1(PinMap::ServoPWM1, 0, networkmanager, "Prop1"),
+Motor2(PinMap::ServoPWM2, 1, networkmanager, "Prop2")
+// gnc(networkmanager,PinMap::ServoPWM1, 0, PinMap::ServoPWM2, 1, networkmanager.getAddress())
+// GNCWatchDog(1000, networkmanager, Motor1, Motor2)
 {};
 
 
@@ -41,36 +42,26 @@ void System::systemSetup(){
     //any other setup goes here
     
     Buck.setup();
-    //Motor1.setup();
-    //Motor2.setup();
+    Motor1.setup();
+    Motor2.setup();
 
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
-    //Defining these so the methods following are less ugly
-    //uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
-    //uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
-
-    // uint8_t externalservoservice = (uint8_t) Services::ID::externalServo;
-    // uint8_t internalservoservice = (uint8_t) Services::ID::internalServo;
+    // Defining these so the methods following are less ugly
+    uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
+    uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
 
     networkmanager.addInterface(&canbus);
 
-    //networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
-    //networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
+    networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
+    networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
     
-    gnc.setup();
 };
 
-long prevTime = 0;
-bool update = false;
-
 void System::systemUpdate(){
-
-
-    gnc.update();
     Buck.update();
-    Serial.println("System Update");
+    // WatchDog.update();
 };
