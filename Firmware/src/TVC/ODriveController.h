@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <librrc/Helpers/jsonconfighelper.h>
 
-#include "Impl/ODriveUARTImpl.h"
+#include "ODriveEnums.h"
 
 /**
  * CHAD GPIO LAYOUT
@@ -23,6 +23,11 @@ public:
     enum Connection {
         UART,
         CAN
+    };
+
+    enum class Axis {
+        ZERO = 0,
+        ONE = 1
     };
 
     /**
@@ -65,7 +70,12 @@ public:
      */
     void position(float xAxis, float yAxis);
 
-    using SysCommand = ODriveArduino::ODriveSysCommand;
+    enum class SysCommand {
+        REBOOT,
+        SAVE_CONF,
+        ERASE_CONF,
+        CLEAR_ERR
+    };
 
     /**
      * @brief Blocking call to restart the connected ODrive.
@@ -79,6 +89,8 @@ public:
     void writeConfig(const std::string& conf, float command);
     void writeConfig(const std::string& conf, int command);
 
+    void calibrateAxis(Axis axis);
+
     /**
      * @brief Query the status of the ODrive, returns wether or not the ODrive sent a 
      * valid heartbeat on the last construction / restart.
@@ -90,6 +102,32 @@ public:
      */
     explicit operator bool();
 private:
+
+    String readString();
+
+    // Commands
+    void setPosition(int motor_number, float position);
+    void setPosition(int motor_number, float position, float velocity_feedforward);
+    void setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward);
+    void setVelocity(int motor_number, float velocity);
+    void setVelocity(int motor_number, float velocity, float current_feedforward);
+    void setCurrent(int motor_number, float current);
+    void trapezoidalMove(int motor_number, float position);
+
+    // Getters
+    float getVelocity(int motor_number);
+    float getPosition(int motor_number);
+
+    // General params
+    float readFloat();
+    int32_t readInt();
+
+    // State helper
+    bool run_state(int axis, int requested_state, bool wait_for_idle, float timeout = 10.0f);
+
+    void writeConfig(const std::string& config, const float value);
+    void readConfig(const std::string& config);
+    void sendSystemCommand(SysCommand command);
 
     //! @brief The status from the ODrive from the last status check
     bool operational = false;
@@ -115,5 +153,5 @@ private:
     //! @brief Current number of turns from minimum.
     float currentTurns = 0;
 
-    ODriveArduino uartDriver;
+    Stream& serial;
 };

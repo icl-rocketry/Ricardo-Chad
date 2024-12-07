@@ -12,7 +12,12 @@ const int Y_AXIS = 1;
 
 // Odrive UART RX = 1, TX = 2
 
-ODriveController::ODriveController(Stream& serial): uartDriver(serial) {}
+// Print with stream operator
+template<class T> inline Print& operator <<(Print &obj,     T arg) { obj.print(arg);    return obj; }
+template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 4); return obj; }
+template<>        inline Print& operator <<(Print &obj, std::string arg) { obj.print(arg.c_str()); return obj; }
+
+ODriveController::ODriveController(Stream& serial): serial(serial) {}
 
 
 // ODriveController ODriveController::fromConfig(JsonObjectConst config) {
@@ -69,22 +74,158 @@ void ODriveController::position(float xAxis, float yAxis) {
     const float xAxisTurns = xAxis * turnRange - currentTurns;
     const float yAxisTurns = yAxis * turnRange - currentTurns;
 
-    uartDriver.SetPosition(X_AXIS, xAxisTurns);
-    uartDriver.SetPosition(Y_AXIS, yAxisTurns);
+    setPosition(X_AXIS, xAxisTurns);
+    setPosition(Y_AXIS, yAxisTurns);
 }
 
 void ODriveController::command(SysCommand command) {
-    uartDriver.SendSystemCommand(command);
+    sendSystemCommand(command);
 }
 
 void ODriveController::writeConfig(const std::string &conf, float command) {
-    uartDriver.WriteConfig(conf, command);
+    writeConfig(conf, command);
 }
 
 void ODriveController::writeConfig(const std::string &conf, int command) {
-    uartDriver.WriteConfig(conf, command);
+    writeConfig(conf, command);
 }
 
 ODriveController::operator bool() {
     return status();
 };
+
+void ODriveController::calibrateAxis(Axis axis) {
+    if (axis == Axis::ONE) {
+        writeConfig("axis1.requested_state", AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+    } else {
+        writeConfig("axis0.requested_state", AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+    }
+}
+
+/**
+MIT License
+
+Copyright (c) 2017 Oskar Weigl
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+void ODriveController::setPosition(int motor_number, float position) {
+    setPosition(motor_number, position, 0.0f, 0.0f);
+}
+
+void ODriveController::setPosition(int motor_number, float position, float velocity_feedforward) {
+    setPosition(motor_number, position, velocity_feedforward, 0.0f);
+}
+
+void ODriveController::setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward) {
+    serial << "p " << motor_number  << " " << position << " " << velocity_feedforward << " " << current_feedforward << "\n";
+}
+
+void ODriveController::setVelocity(int motor_number, float velocity) {
+    setVelocity(motor_number, velocity, 0.0f);
+}
+
+void ODriveController::setVelocity(int motor_number, float velocity, float current_feedforward) {
+    serial << "v " << motor_number  << " " << velocity << " " << current_feedforward << "\n";
+}
+
+void ODriveController::setCurrent(int motor_number, float current) {
+    serial << "c " << motor_number << " " << current << "\n";
+}
+
+void ODriveController::trapezoidalMove(int motor_number, float position) {
+    serial << "t " << motor_number << " " << position << "\n";
+}
+
+float ODriveController::readFloat() {
+    return readString().toFloat();
+}
+
+float ODriveController::getVelocity(int motor_number) {
+	serial<< "r axis" << motor_number << ".encoder.vel_estimate\n";
+	return ODriveController::readFloat();
+}
+
+float ODriveController::getPosition(int motor_number) {
+    serial << "r axis" << motor_number << ".encoder.pos_estimate\n";
+    return ODriveController::readFloat();
+}
+
+int32_t ODriveController::readInt() {
+    return readString().toInt();
+}
+
+bool ODriveController::run_state(int axis, int requested_state, bool wait_for_idle, float timeout) {
+    int timeout_ctr = (int)(timeout * 10.0f);
+    serial << "w axis" << axis << ".requested_state " << requested_state << '\n';
+    if (wait_for_idle) {
+        do {
+            delay(100);
+            serial << "r axis" << axis << ".current_state\n";
+        } while (readInt() != AXIS_STATE_IDLE && --timeout_ctr > 0);
+    }
+
+    return timeout_ctr > 0;
+}
+
+void ODriveController::writeConfig(const std::string& config, const float value) {
+    serial << "w " << config << " " << value << "\n";
+}
+
+void ODriveController::readConfig(const std::string& config) {
+    serial << "r " << config << "\n";
+}
+
+void ODriveController::sendSystemCommand(SysCommand command) {
+    switch (command) {
+        case SysCommand::REBOOT:
+            serial << "sr\n";
+            break;
+        case SysCommand::ERASE_CONF:
+            serial << "se\n";
+            break;
+        case SysCommand::SAVE_CONF:
+            serial << "ss\n";
+            break;
+        case SysCommand::CLEAR_ERR:
+            serial << "sc\n";
+            break;
+    }
+}
+
+
+String ODriveController::readString() {
+    String str = "";
+    static const unsigned long timeout = 1000;
+    unsigned long timeout_start = millis();
+    for (;;) {
+        while (!serial.available()) {
+            if (millis() - timeout_start >= timeout) {
+                return str;
+            }
+        }
+        char c = serial.read();
+        if (c == '\n')
+            break;
+        str += c;
+    }
+    return str;
+}
