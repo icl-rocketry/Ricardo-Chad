@@ -2,7 +2,6 @@
 
 #include <ArduinoJson.h>
 #include <librrc/Helpers/jsonconfighelper.h>
-#include <driver/twai.h>
 
 //! @brief Baud rate of UART connection for the ODrive
 const unsigned int UART_BAUD = 115200;
@@ -14,10 +13,11 @@ const int Y_AXIS = 1;
 
 // Print with stream operator
 template<class T> inline Print& operator <<(Print &obj,     T arg) { obj.print(arg);    return obj; }
-template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 4); return obj; }
+template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 5); return obj; }
 template<>        inline Print& operator <<(Print &obj, std::string arg) { obj.print(arg.c_str()); return obj; }
+template<>        inline Print& operator <<(Print &obj, bool arg) { obj.print(arg ? "True" : "False"); return obj; }
 
-ODriveController::ODriveController(Stream& serial): serial(serial) {}
+ODriveController::ODriveController(Stream& serial, float turnRange, float currentTurns): serial(serial), turnRange(turnRange), currentTurns(currentTurns) {}
 
 
 // ODriveController ODriveController::fromConfig(JsonObjectConst config) {
@@ -61,33 +61,30 @@ bool ODriveController::arm() {
     return false;
 }
 
-bool ODriveController::status() {
-    return false;
+bool ODriveController::status(int timeout) {
+    float voltage = 0.0f;
+    int it = 0;
+    do {
+        serial << "r vbus_voltage\n";
+        voltage = readFloat();
+        delay(timeout);
+    } while (voltage == 0.0f && it++ < 20);
+    return it < 20;
 }
 
 void ODriveController::printDebug() {
 }
 
-void ODriveController::position(float xAxis, float yAxis) {
-    assert(std::abs(xAxis) <= 1.0 && std::abs(yAxis) <= 1.0);
+void ODriveController::position(float axis0, float axis1) {
+    // Constrain Axis Values
+    axis0 = axis0 > 1.0f ? 1.0f : (axis0 < 0.0f ? 0.0f : axis0);
+    axis1 = axis1 > 1.0f ? 1.0f : (axis1 < 0.0f ? 0.0f : axis1);
 
-    const float xAxisTurns = xAxis * turnRange - currentTurns;
-    const float yAxisTurns = yAxis * turnRange - currentTurns;
+    const float axis0Turns = axis0 * turnRange - currentTurns;
+    const float axis1Turns = axis1 * turnRange - currentTurns;
 
-    setPosition(X_AXIS, xAxisTurns);
-    setPosition(Y_AXIS, yAxisTurns);
-}
-
-void ODriveController::command(SysCommand command) {
-    sendSystemCommand(command);
-}
-
-void ODriveController::writeConfig(const std::string &conf, float command) {
-    writeConfig(conf, command);
-}
-
-void ODriveController::writeConfig(const std::string &conf, int command) {
-    writeConfig(conf, command);
+    setPosition(X_AXIS, axis0Turns);
+    setPosition(Y_AXIS, axis1Turns);
 }
 
 ODriveController::operator bool() {
@@ -95,11 +92,13 @@ ODriveController::operator bool() {
 };
 
 void ODriveController::calibrateAxis(Axis axis) {
-    if (axis == Axis::ONE) {
-        writeConfig("axis1.requested_state", AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
-    } else {
-        writeConfig("axis0.requested_state", AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
-    }
+    run_state(axis == ZERO ? 0 : 1, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+}
+
+void ODriveController::requestFeedback(Axis axis, float &position, float &velocity) {
+    serial << "f " << (axis == ZERO ? 0 : 1) << "\n";
+    position = readFloat();
+    velocity = readFloat();
 }
 
 /**
@@ -190,11 +189,19 @@ void ODriveController::writeConfig(const std::string& config, const float value)
     serial << "w " << config << " " << value << "\n";
 }
 
+void ODriveController::writeConfig(const std::string& config, const int value) {
+    serial << "w " << config << " " << value << "\n";
+}
+
+void ODriveController::writeConfig(const std::string& config, const bool value) {
+    serial << "w " << config << " " << value << "\n";
+}
+
 void ODriveController::readConfig(const std::string& config) {
     serial << "r " << config << "\n";
 }
 
-void ODriveController::sendSystemCommand(SysCommand command) {
+void ODriveController::command(SysCommand command) {
     switch (command) {
         case SysCommand::REBOOT:
             serial << "sr\n";

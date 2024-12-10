@@ -25,7 +25,7 @@ public:
         CAN
     };
 
-    enum class Axis {
+    enum Axis {
         ZERO = 0,
         ONE = 1
     };
@@ -33,7 +33,7 @@ public:
     /**
      * @brief Privately construct a new ODriveController object using a serial Stream.
      */
-    ODriveController(Stream& serial);
+    ODriveController(Stream& serial, float turnRange, float currentTurns);
 
     /** @brief Factory method for constructing the ODrive controller from a config setup. */    
     static ODriveController fromConfig(JsonObjectConst config);
@@ -52,7 +52,7 @@ public:
      * @return true All good!
      * @return false Bad
      */
-    bool status();
+    bool status(int timeout = 20);
 
     /**
      * @brief Queries the ODrive for some debug information and prints.
@@ -65,10 +65,10 @@ public:
      * Commands should be in the range [0, 1], 0 representing the 
      * minimal position, and 1 the maximal.
      * 
-     * @param xAxis Position command for the motor on the x-axis (Motor 0).
-     * @param yAxis Position command for the motor on the y-axis (Motor 1).
+     * @param axis0 Position command for the motor on the x-axis (Motor 0).
+     * @param axis1 Position command for the motor on the y-axis (Motor 1).
      */
-    void position(float xAxis, float yAxis);
+    void position(float axis0, float axis1);
 
     enum class SysCommand {
         REBOOT,
@@ -86,10 +86,14 @@ public:
      */
     void command(SysCommand type);
 
-    void writeConfig(const std::string& conf, float command);
-    void writeConfig(const std::string& conf, int command);
+    void writeConfig(const std::string& conf, const float command);
+    void writeConfig(const std::string& conf, const int command);
+    void writeConfig(const std::string& conf, const bool command);
 
     void calibrateAxis(Axis axis);
+
+    void requestFeedback(Axis axis, float& position, float& velocity);
+    void readConfig(const std::string& config);
 
     /**
      * @brief Query the status of the ODrive, returns wether or not the ODrive sent a 
@@ -123,11 +127,7 @@ private:
     int32_t readInt();
 
     // State helper
-    bool run_state(int axis, int requested_state, bool wait_for_idle, float timeout = 10.0f);
-
-    void writeConfig(const std::string& config, const float value);
-    void readConfig(const std::string& config);
-    void sendSystemCommand(SysCommand command);
+    bool run_state(int axis, int requested_state, bool wait_for_idle = true, float timeout = 10.0f);
 
     //! @brief The status from the ODrive from the last status check
     bool operational = false;
@@ -147,11 +147,11 @@ private:
     //! @brief UART receive pin
     int uartRxPin = -1;
 
+    Stream& serial;
+
     //! @brief Maximal number of turns of the motor between minimal and maximal position.
     float turnRange = 0;
 
     //! @brief Current number of turns from minimum.
     float currentTurns = 0;
-
-    Stream& serial;
 };

@@ -16,14 +16,13 @@
 
 #include "States/idle.h"
 
-#include "TVC/ODriveController.h"
-#include "TVC/Impl/ODriveUARTEnums.h"
+#include "TVC/TVCSequence.h"
 
 
 const int RX_uart = 5;
 const int TX_uart = 6;
 
-std::unique_ptr<ODriveController> controller;
+std::unique_ptr<TVCSequence> controller;
 
 
 System::System():
@@ -65,23 +64,27 @@ void System::systemSetup(){
 
     networkmanager.addInterface(&canbus);
 
-    delay(10000);
-
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
+
     Serial1.begin(115200, SERIAL_8N1, RX_uart, TX_uart);
+
+    while (!Serial1) { delay(100); }
+
     RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Starting Now !");
-    controller = std::make_unique<ODriveController>(Serial1);
-    // controller->command(ODriveController::SysCommand::CLEAR_ERR);
-    // delay(5000);
-    controller->writeConfig("axis1.requested_state", AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
-    // delay(5000);
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Done");
+
+    controller = std::make_unique<TVCSequence>(Serial1);
+
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Calibrating!");
+    controller->calibrateAxes();
+
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Done!");
+    controller->startProgram(TVCSequence::Program::PROGRAM_ONE);
 };
 
 void System::systemUpdate(){
-    Buck.update();
-
+    // Buck.update();
+    controller->update();
     // int it = 0;
 
     // controller.position(it / 1000.0, it / 1000.0);
