@@ -1,4 +1,4 @@
-#include "ChadTelemPacket.h"
+#include "TVCTelemPacket.h"
 
 #include <librnp/rnp_networkmanager.h>
 #include <librnp/rnp_packet.h>
@@ -7,22 +7,22 @@
 
 
 
-ChadTelemPacket::~ChadTelemPacket()
+TVCTelemPacket::~TVCTelemPacket()
 {};
 
-ChadTelemPacket::ChadTelemPacket():
+TVCTelemPacket::TVCTelemPacket():
 RnpPacket(0,
           104,
           size())
 {};
 
-ChadTelemPacket::ChadTelemPacket(const RnpPacketSerialized& packet):
+TVCTelemPacket::TVCTelemPacket(const RnpPacketSerialized& packet):
 RnpPacket(packet,size())
 {
     getSerializer().deserialize(*this,packet.getBody());
 };
 
-void ChadTelemPacket::serialize(std::vector<uint8_t>& buf){
+void TVCTelemPacket::serialize(std::vector<uint8_t>& buf){
     RnpPacket::serialize(buf);
 	size_t bufsize = buf.size();
 	buf.resize(bufsize + size());
