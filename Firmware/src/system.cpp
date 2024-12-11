@@ -71,19 +71,20 @@ void System::systemSetup(){
 
     while (!Serial1) { delay(100); }
 
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Starting Now !");
-
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Starting Now !\n");
     controller = std::make_unique<TVCSequence>(Serial1);
-
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Calibrating!");
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Calibrating!\n");
     controller->calibrateAxes();
-
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Done!");
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Arming!\n");
+    controller->arm();
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Done!\n");
     controller->startProgram(TVCSequence::Program::PROGRAM_ONE);
 };
 
 void System::systemUpdate(){
     // Buck.update();
+    // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Update Loop\n");
+    
     controller->update();
     // int it = 0;
 

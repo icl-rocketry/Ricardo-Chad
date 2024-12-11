@@ -3,16 +3,20 @@
 #include <libriccore/riccorelogging.h>
 #include "ODriveEnums.h"
 
-#define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
+// #define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
+template<RicCoreLoggingConfig::LOGGERS Conf>
+using log_tem = RicCoreLogging::log<Conf>;
 
-TVCSequence::TVCSequence(Stream& serial): controller(serial, 100, 50) {
+using log = log_tem<RicCoreLoggingConfig::LOGGERS::SYS>;
+
+TVCSequence::TVCSequence(Stream& serial): controller(serial, 10, 5) {
     // Wait until TVC connected
     while(!controller.status()) {
         delay(100);
     }
 
     // Initialise TVC
-    log("Initialising ODrive");
+    log("Initialising ODrive\n");
     // controller.command(ODriveController::SysCommand::ERASE_CONF);
 
     // Wait for initialisation
@@ -21,7 +25,7 @@ TVCSequence::TVCSequence(Stream& serial): controller(serial, 100, 50) {
     // Clear Errors
     controller.command(ODriveController::SysCommand::CLEAR_ERR);
 
-    log("Setting up ODrive");
+    log("Setting up ODrive\n");
 
     // Setup Brake Resistor
     // controller.writeConfig("config.enable_brake_resistor", true);
@@ -32,8 +36,8 @@ TVCSequence::TVCSequence(Stream& serial): controller(serial, 100, 50) {
 
     // controller.writeConfig("config.gpio5_mode", GPIO_MODE_DIGITAL);
     // controller.writeConfig("config.gpio4_mode", GPIO_MODE_DIGITAL);
-    controller.writeConfig("min_endstop.config.enabled", false);
-    controller.writeConfig("max_endstop.config.enabled", false);
+    controller.writeConfig("axis0.min_endstop.config.enabled", false);
+    controller.writeConfig("axis0.max_endstop.config.enabled", false);
 
     // Motor Configs
     controller.writeConfig("axis0.motor.config.current_lim", 10);
@@ -58,7 +62,7 @@ TVCSequence::TVCSequence(Stream& serial): controller(serial, 100, 50) {
     // controller.writeConfig("min_endstop.config.gpio_num", 5);
     // controller.writeConfig("min_endstop.config.is_active_high", true);
 
-    log("Finished configuration");
+    log("Finished configuration\n");
 }
 
 TVCSequence::~TVCSequence() {}
@@ -68,6 +72,10 @@ void TVCSequence::calibrateAxes() {
     // controller.calibrateAxis(ODriveController::Axis::ZERO);
 }
 
+void TVCSequence::arm() {
+    controller.arm();
+}
+
 
 void TVCSequence::startProgram(Program program) {
     currentProgram = program;
@@ -75,21 +83,44 @@ void TVCSequence::startProgram(Program program) {
 
 void TVCSequence::programOne() {
     // controller.command(ODriveController::SysCommand::CLEAR_ERR);
-    const uint64_t time = (uint64_t) micros();
+    const uint64_t time = millis();
+    static int it = 0;
+    
+    static float time_t = 0;
+    time_t += PI / 10;
 
     // Command is between 0.25 and 0.75
-    const float axis0Command = (sin(time) / 4) + 0.25;
-    const float axis1Command = (cos(time) / 4) + 0.25;
+    const float axis0Command = (sin(time_t) / 2) + 0.5;
+    const float axis1Command = (cos(time) / 2) + 0.5;
 
-    controller.position(axis0Command, axis1Command);
+    // if (it++ % 100 == 0) {
+    //     float position;
+    //     float vel;
+    //     controller.requestFeedback(ODriveController::Axis::ZERO, position, vel);
+
+    //     const std::string message = "\n\np " + std::to_string(position) + " v " + std::to_string(vel) + "\n";
+    //     log(message);
+    //     const std::string command = "command : " + std::to_string(axis0Command) + "\n";
+    //     log(command);
+    //     const std::string status = "Status of controller : " + std::string(controller.status() ? "t" : "f") + "\n\n";
+    //     log(status);
+    //     controller.printDebug();
+    // }
+
+    // controller.position(axis0Command, axis1Command);
+    if (it++ % 2 == 0) {
+        controller.position(axis0Command, 0);
+    }
 }
 
 void TVCSequence::update() {
-    switch (currentProgram) {
-        case PROGRAM_ONE:
-            programOne();
-            break;
-        default:
-            break;
-    }
+    programOne();
+
+    // switch (currentProgram) {
+    //     case PROGRAM_ONE:
+    //         programOne();
+    //         break;
+    //     default:
+    //         break;
+    // }
 }

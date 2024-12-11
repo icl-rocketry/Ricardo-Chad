@@ -30,6 +30,8 @@ public:
 
     void calibrateAxes();
 
+    void arm();
+
     void update();
 
 private:

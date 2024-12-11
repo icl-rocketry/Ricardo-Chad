@@ -44,7 +44,7 @@ public:
      * @return true Success
      * @return false Failure
      */
-    bool arm();
+    void arm();
 
     /**
      * @brief Query the status of the controller.
