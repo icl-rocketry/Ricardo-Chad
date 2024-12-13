@@ -77,10 +77,13 @@ void TVCController::programOne() {
 
     const uint64_t time = millis();
 
+
     // Only send commands at <= 200Hz
-    if (time - prev < 5) {
+    if (time - prev < 100) {
         return;
     }
+    prev = time;
+    log("Initialising ODrive\n");
 
     const float axis0Command = (sin(time / 500) / 2) + 0.5;
     const float axis1Command = (cos(time / 500) / 2) + 0.5;

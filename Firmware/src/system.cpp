@@ -19,8 +19,8 @@
 #include "TVC/TVCController.h"
 
 
-const int RX_uart = 10;
-const int TX_uart = 9;
+const int TX_uart = 10;
+const int RX_uart = 9;
 
 std::unique_ptr<TVCController> controller;
 // Odrive UART RX = 1, TX = 2
@@ -35,6 +35,7 @@ m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
 m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
 {};
 
+#define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
 
 void System::systemSetup(){
     
@@ -67,15 +68,20 @@ void System::systemSetup(){
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
 
+    delay(1000);
+
     pinMode(7, INPUT_PULLDOWN);
+    log("Initialising!");
 
     Serial1.begin(115200, SERIAL_8N1, RX_uart, TX_uart);
 
     while (!Serial1) { delay(10); }
 
+
     controller = std::make_unique<TVCController>(networkmanager, Serial1);
     controller->arm_base(0);
     controller->execute_base(0x1);
+    log("Executing!");
 }
 
 void System::systemUpdate(){

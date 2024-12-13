@@ -65,16 +65,12 @@ ODriveController::ODriveController(Stream& serial, float turnRange): serial(seri
 // }
 
 bool ODriveController::available() {
-    float voltage = 0.0f;
+    float voltage = readConfigFloat("vbus_voltage");
     int it = 0;
 
-    serial << "r vbus_voltage\n";
-    voltage = readFloat();
-
     while (voltage == 0.0f && it++ < 20) {
-        delay(10);
-        serial << "r vbus_voltage\n";
-        voltage = readFloat();
+        delay(5);
+        voltage = readConfigFloat("vbus_voltage");
     }
 
     return it < 20;
@@ -185,7 +181,8 @@ void ODriveController::trapezoidalMove(int motor_number, float position) {
 }
 
 float ODriveController::readFloat() {
-    return readString().toFloat();
+    String str = readString();
+    return str.length() == 0 ? 0 : str.toFloat();
 }
 
 float ODriveController::getVelocity(int motor_number) {
@@ -199,7 +196,8 @@ float ODriveController::getPosition(int motor_number) {
 }
 
 int32_t ODriveController::readInt() {
-    return readString().toInt();
+    String str = readString();
+    return str.length() == 0 ? 0 : str.toInt();
 }
 
 bool ODriveController::run_state(int axis, int requested_state, bool wait_for_idle, float timeout) {
@@ -261,7 +259,7 @@ void ODriveController::command(SysCommand command) {
 
 String ODriveController::readString() {
     String str = "";
-    static const unsigned long timeout = 5;
+    static const unsigned long timeout = 1000;
     unsigned long timeout_start = millis();
     for (;;) {
         while (!serial.available()) {
