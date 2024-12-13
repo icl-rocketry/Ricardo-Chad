@@ -4,19 +4,19 @@
 #include "ODriveEnums.h"
 
 // #define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
-template<RicCoreLoggingConfig::LOGGERS Conf>
-using log_tem = RicCoreLogging::log<Conf>;
+// template<RicCoreLoggingConfig::LOGGERS Conf>
+// using log_tem = RicCoreLogging::log<Conf>;
 
-using log = log_tem<RicCoreLoggingConfig::LOGGERS::SYS>;
+// #define log(x) log_tem<RicCoreLoggingConfig::LOGGERS::SYS>(x);
 
-TVCSequence::TVCSequence(Stream& serial): controller(serial, 10, 5) {
+TVCSequence::TVCSequence(Stream& serial): controller(serial, 10) {
     // Wait until TVC connected
-    while(!controller.status()) {
+    while(!controller.available()) {
         delay(100);
     }
 
     // Initialise TVC
-    log("Initialising ODrive\n");
+    // log("Initialising ODrive\n");
     // controller.command(ODriveController::SysCommand::ERASE_CONF);
 
     // Wait for initialisation
@@ -25,7 +25,7 @@ TVCSequence::TVCSequence(Stream& serial): controller(serial, 10, 5) {
     // Clear Errors
     controller.command(ODriveController::SysCommand::CLEAR_ERR);
 
-    log("Setting up ODrive\n");
+    // log("Setting up ODrive\n");
 
     // Setup Brake Resistor
     // controller.writeConfig("config.enable_brake_resistor", true);
@@ -62,18 +62,14 @@ TVCSequence::TVCSequence(Stream& serial): controller(serial, 10, 5) {
     // controller.writeConfig("min_endstop.config.gpio_num", 5);
     // controller.writeConfig("min_endstop.config.is_active_high", true);
 
-    log("Finished configuration\n");
+    // log("Finished configuration\n");
 }
 
 TVCSequence::~TVCSequence() {}
 
-void TVCSequence::calibrateAxes() {
-    controller.calibrateAxis(ODriveController::Axis::ZERO);
-    // controller.calibrateAxis(ODriveController::Axis::ZERO);
-}
 
 void TVCSequence::arm() {
-    controller.arm();
+    // controller.arm();
 }
 
 

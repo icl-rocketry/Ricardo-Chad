@@ -28,8 +28,6 @@ public:
      */
     void startProgram(Program program);
 
-    void calibrateAxes();
-
     void arm();
 
     void update();

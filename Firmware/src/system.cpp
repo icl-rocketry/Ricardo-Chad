@@ -16,14 +16,14 @@
 
 #include "States/idle.h"
 
-#include "TVC/TVCSequence.h"
+#include "TVC/TVCController.h"
 
 
-const int RX_uart = 5;
-const int TX_uart = 6;
+const int RX_uart = 10;
+const int TX_uart = 9;
 
-std::unique_ptr<TVCSequence> controller;
-
+std::unique_ptr<TVCController> controller;
+// Odrive UART RX = 1, TX = 2
 
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
@@ -67,28 +67,18 @@ void System::systemSetup(){
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
 
+    pinMode(7, INPUT_PULLDOWN);
+
     Serial1.begin(115200, SERIAL_8N1, RX_uart, TX_uart);
 
-    while (!Serial1) { delay(100); }
+    while (!Serial1) { delay(10); }
 
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Starting Now !\n");
-    controller = std::make_unique<TVCSequence>(Serial1);
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Calibrating!\n");
-    controller->calibrateAxes();
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Arming!\n");
-    controller->arm();
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Done!\n");
-    controller->startProgram(TVCSequence::Program::PROGRAM_ONE);
-};
+    controller = std::make_unique<TVCController>(networkmanager, Serial1);
+    controller->arm_base(0);
+    controller->execute_base(0x1);
+}
 
 void System::systemUpdate(){
     // Buck.update();
-    // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Update Loop\n");
-    
     controller->update();
-    // int it = 0;
-
-    // controller.position(it / 1000.0, it / 1000.0);
-    // it += 1;
-    // it = it % 1000;
-};
+}

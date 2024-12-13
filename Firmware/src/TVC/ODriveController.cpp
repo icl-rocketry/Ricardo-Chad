@@ -10,6 +10,12 @@ const unsigned int UART_BAUD = 115200;
 const int X_AXIS = 0;
 const int Y_AXIS = 1;
 
+// template<RicCoreLoggingConfig::LOGGERS Conf>
+// using log_impl = RicCoreLogging::log<Conf>;
+// using log = log_impl<RicCoreLoggingConfig::LOGGERS::SYS>;
+
+#define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
+
 // Odrive UART RX = 1, TX = 2
 
 // Print with stream operator
@@ -18,7 +24,7 @@ template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(a
 template<>        inline Print& operator <<(Print &obj, std::string arg) { obj.print(arg.c_str()); return obj; }
 template<>        inline Print& operator <<(Print &obj, bool arg) { obj.print(arg ? 1 : 0); return obj; }
 
-ODriveController::ODriveController(Stream& serial, float turnRange, float currentTurns): serial(serial), turnRange(turnRange), currentTurns(currentTurns) {}
+ODriveController::ODriveController(Stream& serial, float turnRange): serial(serial), turnRange(turnRange) {}
 
 
 // ODriveController ODriveController::fromConfig(JsonObjectConst config) {
@@ -58,14 +64,19 @@ ODriveController::ODriveController(Stream& serial, float turnRange, float curren
 //     return controller;
 // }
 
-bool ODriveController::status(int timeout) {
+bool ODriveController::available() {
     float voltage = 0.0f;
     int it = 0;
-    do {
+
+    serial << "r vbus_voltage\n";
+    voltage = readFloat();
+
+    while (voltage == 0.0f && it++ < 20) {
+        delay(10);
         serial << "r vbus_voltage\n";
         voltage = readFloat();
-        delay(timeout);
-    } while (voltage == 0.0f && it++ < 20);
+    }
+
     return it < 20;
 }
 
@@ -78,32 +89,40 @@ void ODriveController::printDebug() {
 
 void ODriveController::position(float axis0, float axis1) {
     // Constrain Axis Values
-    // axis0 = axis0 > 1.0f ? 1.0f : (axis0 < 0.0f ? 0.0f : axis0);
+    axis0 = axis0 > 1.0f ? 1.0f : (axis0 < 0.0f ? 0.0f : axis0);
     axis1 = axis1 > 1.0f ? 1.0f : (axis1 < 0.0f ? 0.0f : axis1);
 
-    const float axis0Turns = axis0 * turnRange - currentTurns;
-    // const float axis1Turns = axis1 * turnRange - currentTurns;
-
     // serial << "p 0 " << 100 << "\n";
-    const std::string turns = "turn req : " + std::to_string(axis0Turns) + " ax0 : " + std::to_string(axis0) + "\n";
+    // const std::string turns = "turn req : " + std::to_string(axis0Turns) + " ax0 : " + std::to_string(axis0) + "\n";
     // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(turns);
-    setPosition(0, axis0Turns);
+    setPosition(0, axis0 * turnRange);
     // setPosition(1, axis1Turns);
 }
 
 ODriveController::operator bool() {
-    return status();
+    return available();
 };
 
-void ODriveController::calibrateAxis(Axis axis) {
-    run_state(axis == ZERO ? 0 : 1, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
-    run_state(axis == ZERO ? 0 : 1, AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
-    // run_state(axis == ZERO ? 0 : 1, AXIS_STATE_HOMING);
+void ODriveController::calibrateAxis(Axis axis_) {
+    int axis = axis_ == ZERO ? 0 : 1;
+    // Calibrate Motor & Encoder
+    run_state(axis, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+
+    // Endstop Homing
+    // run_state(axis, AXIS_STATE_CLOSED_LOOP_CONTROL);
+    // run_state(axis, AXIS_STATE_HOMING);
+
+    float turns = 0;
+    float vel = 0;
+    requestFeedback(axis_, turns, vel);
+
+    std::string logging = "\nCalibration : t " + std::to_string(turns) + "\n";
+    log(logging);
 }
 
-void ODriveController::arm() {
-    run_state(0, AXIS_STATE_CLOSED_LOOP_CONTROL);
-    // run_state(1, AXIS_STATE_CLOSED_LOOP_CONTROL);
+void ODriveController::arm(Axis axis_) {
+    int axis = axis_ == Axis::ZERO ? 0 : 1;
+    run_state(axis, AXIS_STATE_CLOSED_LOOP_CONTROL);
 }
 
 void ODriveController::requestFeedback(Axis axis, float &position, float &velocity) {
@@ -212,6 +231,16 @@ void ODriveController::readConfig(const std::string& config) {
     serial << "r " << config << "\n";
 }
 
+float ODriveController::readConfigFloat(const std::string& config) {
+    serial << "r " << config << "\n";
+    return readFloat();
+}
+
+int ODriveController::readConfigInt(const std::string& config) {
+    serial << "r " << config << "\n";
+    return readInt();
+}
+
 void ODriveController::command(SysCommand command) {
     switch (command) {
         case SysCommand::REBOOT:
@@ -232,7 +261,7 @@ void ODriveController::command(SysCommand command) {
 
 String ODriveController::readString() {
     String str = "";
-    static const unsigned long timeout = 1000;
+    static const unsigned long timeout = 5;
     unsigned long timeout_start = millis();
     for (;;) {
         while (!serial.available()) {

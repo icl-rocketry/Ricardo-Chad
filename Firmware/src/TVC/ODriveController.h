@@ -9,10 +9,10 @@
 /**
  * CHAD GPIO LAYOUT
  * 
- * 10 GND
- * 9  8
- * 7  3v3
- * 6  5 
+ * 10    GND
+ * 9     8
+ * 7     3v3
+ * 6(TX) 5(RX) 
  */
 
 class ODriveController {
@@ -33,7 +33,7 @@ public:
     /**
      * @brief Privately construct a new ODriveController object using a serial Stream.
      */
-    ODriveController(Stream& serial, float turnRange, float currentTurns);
+    ODriveController(Stream& serial, float turnRange);
 
     /** @brief Factory method for constructing the ODrive controller from a config setup. */    
     static ODriveController fromConfig(JsonObjectConst config);
@@ -44,7 +44,7 @@ public:
      * @return true Success
      * @return false Failure
      */
-    void arm();
+    void arm(Axis axis);
 
     /**
      * @brief Query the status of the controller.
@@ -52,7 +52,7 @@ public:
      * @return true All good!
      * @return false Bad
      */
-    bool status(int timeout = 20);
+    bool available();
 
     /**
      * @brief Queries the ODrive for some debug information and prints.
@@ -94,6 +94,8 @@ public:
 
     void requestFeedback(Axis axis, float& position, float& velocity);
     void readConfig(const std::string& config);
+    float readConfigFloat(const std::string& config);
+    int readConfigInt(const std::string& config);
 
     /**
      * @brief Query the status of the ODrive, returns wether or not the ODrive sent a 
