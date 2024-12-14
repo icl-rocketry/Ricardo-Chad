@@ -19,8 +19,10 @@ TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial):
 
     // Wait for signal from the ODrive
     while(!controller.available()) {
-        delay(100);
+        log("\nTVC NOT FOUND\n");
     }
+
+    log("\nTVC FOUND!\n");
 
     // Initialise TVC
     log("Initialising ODrive\n");
@@ -78,15 +80,16 @@ void TVCController::programOne() {
     const uint64_t time = millis();
 
 
-    // Only send commands at <= 200Hz
-    if (time - prev < 100) {
+    // Only send commands at <= 60Hz
+    if (time - prev < 200) {
         return;
     }
     prev = time;
-    log("Initialising ODrive\n");
+    // log("Sending Position at time : "+std::to_string(time)+"\n");
+    // log("Error value : " + std::to_string(controller.error()) + " " + std::to_string(controller.error(ODriveController::Axis::ZERO)) + " " + std::to_string(controller.error(ODriveController::Axis::ONE)) + "\n");
 
-    const float axis0Command = (sin(time / 500) / 2) + 0.5;
-    const float axis1Command = (cos(time / 500) / 2) + 0.5;
+    const float axis0Command = (sin(time / 1000) / 2) + 0.5;
+    const float axis1Command = (cos(time / 1000) / 2) + 0.5;
 
     controller.position(axis0Command, axis1Command);
 }
@@ -100,7 +103,7 @@ void TVCController::arm_base(int32_t /* arg */) {
     bool success = false;
 
     success |= arm_actuator(0);
-    success |= arm_actuator(1);
+    // success |= arm_actuator(1);
 
     if (!success) {
         return;

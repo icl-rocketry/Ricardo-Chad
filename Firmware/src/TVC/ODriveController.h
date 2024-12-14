@@ -59,6 +59,9 @@ public:
      */
     void printDebug();
 
+    int error();
+    int error(Axis axis);
+
     /**
      * @brief Send a position command to the ODrive controller.
      * 

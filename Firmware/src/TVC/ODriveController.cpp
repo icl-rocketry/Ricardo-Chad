@@ -68,12 +68,12 @@ bool ODriveController::available() {
     float voltage = readConfigFloat("vbus_voltage");
     int it = 0;
 
-    while (voltage == 0.0f && it++ < 20) {
+    while (voltage == 0.0f && it++ < 5) {
         delay(5);
         voltage = readConfigFloat("vbus_voltage");
     }
 
-    return it < 20;
+    return it < 5;
 }
 
 void ODriveController::printDebug() {
@@ -81,6 +81,14 @@ void ODriveController::printDebug() {
     const int error = readInt();
     const std::string err = "Error code : " + std::to_string(error) + "\n";
     // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(err);
+}
+
+int ODriveController::error() {
+    return readConfigInt("error");
+}
+
+int ODriveController::error(Axis axis) {
+    return readConfigInt(std::string(axis == Axis::ZERO ? "axis0." : "axis1.") + "error");
 }
 
 void ODriveController::position(float axis0, float axis1) {
@@ -161,7 +169,8 @@ void ODriveController::setPosition(int motor_number, float position, float veloc
 }
 
 void ODriveController::setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward) {
-    serial << "p " << motor_number  << " " << position << " " << velocity_feedforward << " " << current_feedforward << "\n";
+    assert(motor_number == 0 || motor_number == 1);
+    serial << "p " << motor_number  << " " << position << "\n";
 }
 
 void ODriveController::setVelocity(int motor_number, float velocity) {

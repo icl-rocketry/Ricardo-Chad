@@ -19,8 +19,8 @@
 #include "TVC/TVCController.h"
 
 
-const int TX_uart = 10;
-const int RX_uart = 9;
+const int TX_uart = 5;
+const int RX_uart = 6;
 
 std::unique_ptr<TVCController> controller;
 // Odrive UART RX = 1, TX = 2
@@ -70,15 +70,17 @@ void System::systemSetup(){
 
     delay(1000);
 
-    pinMode(7, INPUT_PULLDOWN);
-    log("Initialising!");
+    // pinMode(7, INPUT_PULLDOWN);
+    log("Initialising Serial!");
 
     Serial1.begin(115200, SERIAL_8N1, RX_uart, TX_uart);
 
     while (!Serial1) { delay(10); }
 
+    log("Initialising!");
 
     controller = std::make_unique<TVCController>(networkmanager, Serial1);
+    log("Initialising!");
     controller->arm_base(0);
     controller->execute_base(0x1);
     log("Executing!");
