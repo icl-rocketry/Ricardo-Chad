@@ -110,11 +110,20 @@ ODriveController::operator bool() {
 void ODriveController::calibrateAxis(Axis axis_) {
     int axis = axis_ == ZERO ? 0 : 1;
     // Calibrate Motor & Encoder
-    run_state(axis, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
+    // run_state(axis, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
 
     // Endstop Homing
     // run_state(axis, AXIS_STATE_CLOSED_LOOP_CONTROL);
-    // run_state(axis, AXIS_STATE_HOMING);
+
+    log("\nStarting Calibration\n");
+    run_state(axis, AXIS_STATE_MOTOR_CALIBRATION);
+    log("\nMotor Calibration Complete\n");
+    run_state(axis, AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
+    log("\nEncoder Calibration Complete\n");
+    log("\nStarting Homing in 3s\n");
+    delay(3000);
+    run_state(axis, AXIS_STATE_HOMING, true, 100.0f);
+    log("\nHoming Calibration Complete\n");
 
     float turns = 0;
     float vel = 0;

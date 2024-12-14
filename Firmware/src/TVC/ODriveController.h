@@ -110,6 +110,7 @@ public:
      * @return false 
      */
     explicit operator bool();
+    void setVelocity(int motor_number, float velocity);
 private:
 
     String readString();
@@ -118,7 +119,6 @@ private:
     void setPosition(int motor_number, float position);
     void setPosition(int motor_number, float position, float velocity_feedforward);
     void setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward);
-    void setVelocity(int motor_number, float velocity);
     void setVelocity(int motor_number, float velocity, float current_feedforward);
     void setCurrent(int motor_number, float current);
     void trapezoidalMove(int motor_number, float position);
@@ -157,6 +157,6 @@ private:
     //! @brief Maximal number of turns of the motor between minimal and maximal position.
     float turnRange = 0;
 
-    //! @brief Current number of turns from minimum.
-    float currentTurns = 0;
+    // //! @brief Current number of turns from minimum.
+    // float currentTurns = 0;
 };

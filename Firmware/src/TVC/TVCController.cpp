@@ -5,6 +5,7 @@
 #include "ODriveController.h"
 
 #include "TVCController.h"
+#include "TVCTelemPacket.h"
 
 // template<RicCoreLoggingConfig::LOGGERS Conf>
 // using log_impl = RicCoreLogging::log<Conf>;
@@ -15,7 +16,8 @@
 
 TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial): 
     NRCRemoteActuatorBase(networkManager),
-    controller(serial, 5) {
+    controller(serial, 5),
+    networkManager(networkManager) {
 
     // Wait for signal from the ODrive
     while(!controller.available()) {
@@ -23,6 +25,14 @@ TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial):
     }
 
     log("\nTVC FOUND!\n");
+
+    checkVoltage();
+
+    // controller.command(ODriveController::SysCommand::ERASE_CONF);
+
+    while(!controller.available()) {
+        log("\nTVC NOT FOUND\n");
+    }
 
     // Initialise TVC
     log("Initialising ODrive\n");
@@ -33,39 +43,62 @@ TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial):
     // controller.writeConfig("config.brake_resistance", 5);
 
     // Battery Configs
-    controller.writeConfig("config.dc_max_negative_current", -10);
-    
-    // Endstop Configs
-    // controller.writeConfig("config.gpio5_mode", GPIO_MODE_DIGITAL);
-    // controller.writeConfig("config.gpio4_mode", GPIO_MODE_DIGITAL);
+    // controller.writeConfig("config.dc_max_negative_current", -0.1f);
 
     // Configure individual axis
-    configure_actuator(0);
-    configure_actuator(1);
+    // configure_actuator(0);
+    // configure_actuator(1);
+
+    // controller.command(ODriveController::SysCommand::SAVE_CONF);
+
+    // while(!controller.available()) {
+    //     log("\nTVC NOT FOUND\n");
+    // }
+    // log("\nTVC FOUND! - SAVED\n");
+}
+
+void TVCController::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID commandID, packetptr_t packetptr) {
+    if (static_cast<uint8_t>(commandID) == 8) {
+        sendTelem();
+    } else {
+        NRCRemoteActuatorBase::extendedCommandHandler_impl(commandID, std::move(packetptr));
+    }
 }
 
 void TVCController::configure_actuator(int actuator) {
     const std::string axis = actuator == 0 ? "axis0" : "axis1";
 
-    controller.writeConfig(axis + ".min_endstop.config.enabled", false);
+    // "axis0.min_endstop.config.debounce_ms": 50,
+    // "axis0.min_endstop.config.enabled": true,
+    // "axis0.min_endstop.config.gpio_num": 4,
+    // "axis0.min_endstop.config.is_active_high": false,
+    // "axis0.min_endstop.config.offset": -0.25,
+
+    // Endstop Configs
+    controller.writeConfig("config.gpio4_mode", GPIO_MODE_DIGITAL);
+    controller.writeConfig(axis + ".min_endstop.config.gpio_num", 4);
+    controller.writeConfig(axis + ".min_endstop.config.is_active_high ", false);
+    controller.writeConfig(axis + ".min_endstop.config.offset", 2);
+    controller.writeConfig(axis + ".min_endstop.config.enabled", true);
     controller.writeConfig(axis + ".max_endstop.config.enabled", false);
+    controller.writeConfig("config.gpio4_mode", GPIO_MODE_DIGITAL_PULL_UP);
+    controller.writeConfig(axis + ".controller.config.homing_speed", 0.25f);
 
     // Motor Configs
     controller.writeConfig(axis + ".motor.config.current_lim", 10);
-    controller.writeConfig(axis + ".motor.config.pole_pairs", 7);
-    controller.writeConfig(axis + ".motor.config.torque_constant", 0.05907142857f);
+    controller.writeConfig(axis + ".motor.config.pole_pairs", 11);
+    controller.writeConfig(axis + ".motor.config.torque_constant", 0.01333871f);
 
     // Encoder Setup
     controller.writeConfig(axis + ".encoder.config.calib_scan_distance", 20);
     controller.writeConfig(axis + ".encoder.config.cpr", 8192);
 
     // Controller Setup
-    controller.writeConfig(axis + ".controller.config.vel_limit", 100);
-    controller.writeConfig(axis + ".controller.config.homing_speed", -2);
-    controller.writeConfig(axis + ".controller.config.vel_ramp_rate", 0.5f);
+    controller.writeConfig(axis + ".controller.config.vel_limit", 1000);
+    controller.writeConfig(axis + ".controller.config.vel_ramp_rate", 1);
 
     // Trapezium Trajectory Setup
-    controller.writeConfig(axis + ".trap_traj.config.vel_limit", 2);
+    controller.writeConfig(axis + ".trap_traj.config.vel_limit", 1);
     controller.writeConfig(axis + ".trap_traj.config.accel_limit", 2);
     controller.writeConfig(axis + ".trap_traj.config.decel_limit", 2);
 }
@@ -77,23 +110,21 @@ void TVCController::locked() {
 void TVCController::programOne() {
     static uint64_t prev = millis();
 
-    const uint64_t time = millis();
-
-    // log("Time : " + std::to_string(time) + "\n");
-
     // Only send commands at <= 60Hz
     if (time - prev < 10) {
         return;
     }
+
     prev = time;
     // log("Sending Position at time : "+std::to_string(time)+"\n");
-    // log("Error value : " + std::to_string(controller.error()) + " " + std::to_string(controller.error(ODriveController::Axis::ZERO)) + " " + std::to_string(controller.error(ODriveController::Axis::ONE)) + "\n");
+    log("Error value : " + std::to_string(controller.error()) + " " + std::to_string(controller.error(ODriveController::Axis::ZERO)) + " " + std::to_string(controller.error(ODriveController::Axis::ONE)) + "\n");
 
-    const float axis0Command = (sin(time / 300.0) / 4.0) + 0.5;
+    const float axis0Command = -1 * ((sin(time / 300.0) / 4.0) + 0.5);
     const float axis1Command = (cos(time / 300.0) / 4.0) + 0.5;
 
 
     controller.position(axis0Command, axis1Command);
+    controller.setVelocity(0, 0.25f);
 }
 
 void TVCController::arm_base(int32_t /* arg */) {
@@ -110,6 +141,10 @@ void TVCController::arm_base(int32_t /* arg */) {
     if (!success) {
         return;
     }
+
+    log("\nArming done, set to 0.5\n");
+    delay(1000);
+    controller.position(0.5, 0.5);
     
     this->_state.deleteFlag(LIBRRC::COMPONENT_STATUS_FLAGS::DISARMED);
     this->_state.newFlag(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
@@ -141,6 +176,15 @@ void TVCController::execute_base(int32_t arg) {
 }
 
 void TVCController::update() {
+    time = millis();
+    static uint64_t prev = time;
+
+    // Query voltage at 10Hz
+    if (time - prev > 100) {
+        prev = time;
+        checkVoltage();
+    }
+
     switch (currentProgram) {
         case ExecutionProgram::LOCKED:
             locked();
@@ -153,7 +197,16 @@ void TVCController::update() {
         case ExecutionProgram::PROGRAM_THREE:
             break;
     }
-};
+}
+
+void TVCController::sendTelem() {
+    telemPacket.odriveVoltage = odriveVoltage;
+
+    controller.requestFeedback(ODriveController::Axis::ZERO, telemPacket.axis0Turns, telemPacket.axis0Velocity);
+    controller.requestFeedback(ODriveController::Axis::ONE, telemPacket.axis1Turns, telemPacket.axis1Velocity);
+
+    networkManager.sendPacket(telemPacket);
+}
 
 bool TVCController::arm_actuator(int actuator) {
     const std::string axis = actuator == 0 ? "axis0" : "axis1";
@@ -172,4 +225,13 @@ bool TVCController::arm_actuator(int actuator) {
     }
 
     return true;
+}
+
+void TVCController::checkVoltage() {
+    odriveVoltage = controller.readConfigFloat("vbus_voltage");
+    if (odriveVoltage < 9.0) {
+        while (true) {
+            log("\nODRIVE LOW VOLTAGE\n");
+        }
+    }
 }

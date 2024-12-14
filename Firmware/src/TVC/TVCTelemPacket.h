@@ -13,9 +13,11 @@ class TVCTelemPacket : public RnpPacket{
         static constexpr auto getSerializer()
         {
             auto ret = RnpSerializer(
-                &TVCTelemPacket::servoVoltage,
-                &TVCTelemPacket::system_status,
-                &TVCTelemPacket::system_time
+                &TVCTelemPacket::odriveVoltage,
+                &TVCTelemPacket::axis0Turns,
+                &TVCTelemPacket::axis0Velocity,
+                &TVCTelemPacket::axis1Turns,
+                &TVCTelemPacket::axis1Velocity
             );
 
             return ret;
@@ -39,9 +41,13 @@ class TVCTelemPacket : public RnpPacket{
          */
         void serialize(std::vector<uint8_t>& buf) override;
 
-        float servoVoltage;
-        uint32_t system_status;
-        uint64_t system_time;
+        float odriveVoltage;
+        float axis0Turns;
+        float axis0Velocity;
+        // float axis0Current;
+        float axis1Turns;
+        float axis1Velocity;
+        // float axis1Current;
 
         static constexpr size_t size(){
             return getSerializer().member_size();

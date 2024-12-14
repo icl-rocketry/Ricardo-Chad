@@ -3,6 +3,8 @@
 #include <librrc/Remote/nrcremoteservo.h>
 #include <librnp/rnp_networkmanager.h>
 
+#include "TVCTelemPacket.h"
+
 #include "ODriveController.h"
 
 class TVCController : public NRCRemoteActuatorBase<TVCController>{
@@ -21,6 +23,8 @@ public:
      * @param networkmanager To connect to the NRCRemoteActuatorBase
      */
     TVCController(RnpNetworkManager& networkmanager, Stream& serial);
+
+    void extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID commandID, packetptr_t packetptr);
 
     /**
      * @brief Override of arm implementation for remote actuator.
@@ -52,6 +56,11 @@ public:
      * 
      */
     void update();
+
+    /**
+     * @brief Send an iteration of telemetry packets.
+     */
+    void sendTelem();
 
 private:
     /**
@@ -86,6 +95,8 @@ private:
      */
     void programOne();
 
+    void checkVoltage();
+
     /**
      * @brief Backing TVC controller.
      */
@@ -95,4 +106,18 @@ private:
      * @brief Currently running program.
      */
     ExecutionProgram currentProgram;
+
+    TVCTelemPacket telemPacket;
+
+    RnpNetworkManager& networkManager;
+
+    /**
+     * @brief Current voltage over odrive.
+     */
+    float odriveVoltage;
+
+    /**
+     * @brief Time updated on every update().
+     */
+    float time = 0;
 };
