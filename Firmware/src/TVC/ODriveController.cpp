@@ -20,7 +20,7 @@ const int Y_AXIS = 1;
 
 // Print with stream operator
 template<class T> inline Print& operator <<(Print &obj,     T arg) { obj.print(arg);    return obj; }
-template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 5); return obj; }
+template<>        inline Print& operator <<(Print &obj, float arg) { obj.print(arg, 3); return obj; }
 template<>        inline Print& operator <<(Print &obj, std::string arg) { obj.print(arg.c_str()); return obj; }
 template<>        inline Print& operator <<(Print &obj, bool arg) { obj.print(arg ? 1 : 0); return obj; }
 
@@ -170,7 +170,8 @@ void ODriveController::setPosition(int motor_number, float position, float veloc
 
 void ODriveController::setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward) {
     assert(motor_number == 0 || motor_number == 1);
-    serial << "p " << motor_number  << " " << position << "\n";
+    log("Sending position!\n");
+    serial.printf("p %d %.4f\n", motor_number, position);
 }
 
 void ODriveController::setVelocity(int motor_number, float velocity) {

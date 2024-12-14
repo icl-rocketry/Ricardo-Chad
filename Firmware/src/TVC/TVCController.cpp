@@ -15,7 +15,7 @@
 
 TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial): 
     NRCRemoteActuatorBase(networkManager),
-    controller(serial, 10) {
+    controller(serial, 5) {
 
     // Wait for signal from the ODrive
     while(!controller.available()) {
@@ -79,17 +79,19 @@ void TVCController::programOne() {
 
     const uint64_t time = millis();
 
+    // log("Time : " + std::to_string(time) + "\n");
 
     // Only send commands at <= 60Hz
-    if (time - prev < 200) {
+    if (time - prev < 10) {
         return;
     }
     prev = time;
     // log("Sending Position at time : "+std::to_string(time)+"\n");
     // log("Error value : " + std::to_string(controller.error()) + " " + std::to_string(controller.error(ODriveController::Axis::ZERO)) + " " + std::to_string(controller.error(ODriveController::Axis::ONE)) + "\n");
 
-    const float axis0Command = (sin(time / 1000) / 2) + 0.5;
-    const float axis1Command = (cos(time / 1000) / 2) + 0.5;
+    const float axis0Command = (sin(time / 300.0) / 4.0) + 0.5;
+    const float axis1Command = (cos(time / 300.0) / 4.0) + 0.5;
+
 
     controller.position(axis0Command, axis1Command);
 }
