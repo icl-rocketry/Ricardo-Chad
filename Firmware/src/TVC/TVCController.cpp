@@ -39,22 +39,29 @@ TVCController::TVCController(RnpNetworkManager& networkManager, Stream& serial):
     controller.command(ODriveController::SysCommand::CLEAR_ERR);
 
     // Setup Brake Resistor
-    // controller.writeConfig("config.enable_brake_resistor", true);
-    // controller.writeConfig("config.brake_resistance", 5);
+    controller.writeConfig("config.enable_brake_resistor", true);
+    controller.writeConfig("config.brake_resistance", 5);
 
     // Battery Configs
-    // controller.writeConfig("config.dc_max_negative_current", -0.1f);
+    controller.writeConfig("config.dc_max_negative_current", -0.1f);
 
     // Configure individual axis
-    // configure_actuator(0);
+    configure_actuator(0);
     // configure_actuator(1);
 
-    // controller.command(ODriveController::SysCommand::SAVE_CONF);
+    controller.command(ODriveController::SysCommand::SAVE_CONF);
 
-    // while(!controller.available()) {
-    //     log("\nTVC NOT FOUND\n");
-    // }
-    // log("\nTVC FOUND! - SAVED\n");
+    while(!controller.available()) {
+        log("\nTVC NOT FOUND\n");
+    }
+    log("\nTVC FOUND! - SAVED\n");
+
+    controller.command(ODriveController::SysCommand::REBOOT);
+
+    while(!controller.available()) {
+        log("\nTVC NOT FOUND\n");
+    }
+    log("\nTVC FOUND! - REBOOT\n");
 }
 
 void TVCController::extendedCommandHandler_impl(const NRCPacket::NRC_COMMAND_ID commandID, packetptr_t packetptr) {
@@ -85,7 +92,8 @@ void TVCController::configure_actuator(int actuator) {
     controller.writeConfig(axis + ".controller.config.homing_speed", 0.25f);
 
     // Motor Configs
-    controller.writeConfig(axis + ".motor.config.current_lim", 10);
+    controller.writeConfig(axis + ".motor.config.current_lim", 20);
+    controller.writeConfig(axis + ".motor.config.current_lim_margin", 2);
     controller.writeConfig(axis + ".motor.config.pole_pairs", 11);
     controller.writeConfig(axis + ".motor.config.torque_constant", 0.01333871f);
 
@@ -94,8 +102,11 @@ void TVCController::configure_actuator(int actuator) {
     controller.writeConfig(axis + ".encoder.config.cpr", 8192);
 
     // Controller Setup
-    controller.writeConfig(axis + ".controller.config.vel_limit", 1000);
+    controller.writeConfig(axis + ".controller.config.vel_limit", 10);
     controller.writeConfig(axis + ".controller.config.vel_ramp_rate", 1);
+    controller.writeConfig(axis + ".controller.config.vel_gain", 0.016f);
+    controller.writeConfig(axis + ".controller.config.pos_gain", 2);
+    
 
     // Trapezium Trajectory Setup
     controller.writeConfig(axis + ".trap_traj.config.vel_limit", 1);
@@ -117,14 +128,23 @@ void TVCController::programOne() {
 
     prev = time;
     // log("Sending Position at time : "+std::to_string(time)+"\n");
-    log("Error value : " + std::to_string(controller.error()) + " " + std::to_string(controller.error(ODriveController::Axis::ZERO)) + " " + std::to_string(controller.error(ODriveController::Axis::ONE)) + "\n");
+    int mainErr;
+    int axisErr;
+    int motorErr;
+    int controllerErr;
+
+    controller.fullErrors(ODriveController::Axis::ZERO, mainErr, axisErr, motorErr, controllerErr);
+
+    log("Error values : \n\tmain       - " + std::to_string(mainErr) + 
+        "\n\taxis       - " + std::to_string(axisErr) + 
+        "\n\tmotor      - " + std::to_string(motorErr) + 
+        "\n\tcontroller - " + std::to_string(controllerErr) + "\n");
 
     const float axis0Command = -1 * ((sin(time / 300.0) / 4.0) + 0.5);
     const float axis1Command = (cos(time / 300.0) / 4.0) + 0.5;
 
 
     controller.position(axis0Command, axis1Command);
-    controller.setVelocity(0, 0.25f);
 }
 
 void TVCController::arm_base(int32_t /* arg */) {

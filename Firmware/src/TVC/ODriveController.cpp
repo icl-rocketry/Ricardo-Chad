@@ -91,6 +91,14 @@ int ODriveController::error(Axis axis) {
     return readConfigInt(std::string(axis == Axis::ZERO ? "axis0." : "axis1.") + "error");
 }
 
+void ODriveController::fullErrors(Axis axis, int& main, int& axisErr, int& motor, int& controller) {
+    std::string axisStr = axis == Axis::ZERO ? "axis0" : "axis1";
+    main = readConfigInt("error");
+    axisErr = readConfigInt(axisStr + ".error");
+    controller = readConfigInt(axisStr + ".controller.error");
+    motor = readConfigInt(axisStr + ".motor.error");
+}
+
 void ODriveController::position(float axis0, float axis1) {
     // Constrain Axis Values
     axis0 = axis0 > 1.0f ? 1.0f : (axis0 < 0.0f ? 0.0f : axis0);
@@ -120,9 +128,9 @@ void ODriveController::calibrateAxis(Axis axis_) {
     log("\nMotor Calibration Complete\n");
     run_state(axis, AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
     log("\nEncoder Calibration Complete\n");
-    log("\nStarting Homing in 3s\n");
-    delay(3000);
-    run_state(axis, AXIS_STATE_HOMING, true, 100.0f);
+    // log("\nStarting Homing in 3s\n");
+    // delay(3000);
+    // run_state(axis, AXIS_STATE_HOMING, true, 100.0f);
     log("\nHoming Calibration Complete\n");
 
     float turns = 0;

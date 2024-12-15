@@ -62,6 +62,8 @@ public:
     int error();
     int error(Axis axis);
 
+    void fullErrors(Axis, int&, int&, int&, int&);
+
     /**
      * @brief Send a position command to the ODrive controller.
      * 
