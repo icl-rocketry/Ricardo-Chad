@@ -11,12 +11,9 @@
 
 #pragma once
 #include <stdint.h>
-#include <esp_adc_cal.h>
-#include <esp32-hal-adc.h>
 
 #include <librrc/HAL/arduinogpio.h>
 #include "Config/types.h"
-#include "Sensors/vrailmonitor.h"
 
 class SiC43x
 {
@@ -40,8 +37,8 @@ public:
         m_ENPin(EN),
         m_defaultEN(defaultEN),
         m_invertEN(invertEN),
-        m_VReadPin(VRead),
-        m_servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
+        m_VReadPin(VRead){};
+        // m_servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
 
     void setup()
     {
@@ -57,7 +54,7 @@ public:
         if (m_VReadPin >= 0)
         {
             //!TODO - make voltage limits configurable
-            m_servoVoltage.setup(12, 5, 4);
+            // m_servoVoltage.setup(12, 5, 4);
         }
     };
 
@@ -79,7 +76,7 @@ public:
     {
         if (m_VReadPin >= 0)
         {
-            m_servoVoltage.update(OutputV);
+            // m_servoVoltage.update(OutputV);
 
             //!TODO - make voltage limits configurable
             if ((OutputV > 12 || OutputV < 4) && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS))
@@ -159,5 +156,5 @@ private:
     uint32_t m_prevtime;
     uint32_t m_offTime;
 
-    VRailMonitor m_servoVoltage;
+    // VRailMonitor m_servoVoltage;
 };
