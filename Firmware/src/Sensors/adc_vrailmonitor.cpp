@@ -1,4 +1,4 @@
-#include "VRailMonitor.h"
+#include "adc_vrailmonitor.h"
 
 #include <string>
 
@@ -10,20 +10,20 @@
 #include <libriccore/riccorelogging.h>
 
 
-VRailMonitor::VRailMonitor(std::string_view vrail_name,const uint8_t pin, const float r1,const float r2):
-_name(vrail_name),
-_pin(pin),
-_channel(ADC_CHANNEL_0),//default
-_unit(ADC_UNIT_1),
-_adcCal(),
-_adcInitialized(false),
-factor(((r1+r2)/r2)),
-_maxVoltage(0),
-_lowVoltage(0),
-_minVoltage(0)
+ADC_VRailMonitor::ADC_VRailMonitor(std::string_view vrail_name,const uint8_t pin, const float r1,const float r2):
+    _name(vrail_name),
+    _pin(pin),
+    _channel(ADC_CHANNEL_0),//default
+    _unit(ADC_UNIT_1),
+    _adcCal(),
+    _adcInitialized(false),
+    factor(((r1+r2)/r2)),
+    _maxVoltage(0),
+    _lowVoltage(0),
+    _minVoltage(0)
 {};
 
-void VRailMonitor::setup(uint16_t maxVoltage, uint16_t lowVoltage,uint16_t minVoltage){
+void ADC_VRailMonitor::setup(int maxVoltage, int lowVoltage,int minVoltage){
     _maxVoltage = maxVoltage;
     _lowVoltage = lowVoltage;
     _minVoltage = minVoltage;
@@ -59,7 +59,7 @@ void VRailMonitor::setup(uint16_t maxVoltage, uint16_t lowVoltage,uint16_t minVo
     
 }
 
-void VRailMonitor::update(float &data)
+void ADC_VRailMonitor::update(float& OutputV)
 {
     if(!_adcInitialized)
     {
@@ -81,14 +81,14 @@ void VRailMonitor::update(float &data)
 
         uint32_t reading = esp_adc_cal_raw_to_voltage(raw_reading,&_adcCal);
 
-        data = (float)(factor * (float)reading) / 1000; // voltage in V
+        OutputV = (int)(factor * (float)reading); // voltage in mV
 
-        if ((data < _lowVoltage) && !_lowVoltageTriggered)
+        if ((OutputV < _lowVoltage) && !_lowVoltageTriggered)
         {
-            RicCoreLogging::log<LOG_TARGET>( _name + ": low voltage, at " + std::to_string(data) + "mV");
+            RicCoreLogging::log<LOG_TARGET>( _name + ": low voltage, at " + std::to_string(OutputV) + "mV");
             _lowVoltageTriggered = true;
         }
-        else if ((data > _lowVoltage) && _lowVoltageTriggered)
+        else if ((OutputV > _lowVoltage) && _lowVoltageTriggered)
         {
             _lowVoltageTriggered = false;
         }

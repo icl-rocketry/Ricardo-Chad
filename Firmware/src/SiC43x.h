@@ -2,21 +2,21 @@
  * @file SiC43x.h
  * @author Andrei Paduraru
  * @brief Class to manage Vishay SiC43x buck converter devices.
- * @version 0.2
- * @date 2024-07-12
+ * @version 0.3
+ * @date 2025-02-01
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2023-2025
  *
  */
 
 #pragma once
 #include <stdint.h>
-#include <esp_adc_cal.h>
-#include <esp32-hal-adc.h>
 
 #include <librrc/HAL/arduinogpio.h>
 #include "Config/types.h"
-#include "Sensors/vrailmonitor.h"
+
+//TODO switch this out for an ADC HAL implementation
+#include "Sensors/adc_vrailmonitor.h"
 
 class SiC43x
 {
@@ -159,5 +159,5 @@ private:
     uint32_t m_prevtime;
     uint32_t m_offTime;
 
-    VRailMonitor m_servoVoltage;
+    ADC_VRailMonitor m_servoVoltage;
 };

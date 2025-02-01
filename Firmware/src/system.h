@@ -12,6 +12,7 @@
 #include "Commands/commands.h"
 
 #include "SiC43x.h"
+
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
     public:
@@ -25,7 +26,8 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
-
+        
+        
     private:
 
         LocalPWM m_servo0_pwm;
@@ -33,6 +35,4 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         NRCRemoteServo<LocalPWM> m_servo0;
         NRCRemoteServo<LocalPWM> m_servo1;
-        
-
 };

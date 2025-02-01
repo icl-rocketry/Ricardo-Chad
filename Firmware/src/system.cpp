@@ -17,12 +17,13 @@
 #include "States/idle.h"
 
 
+
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-m_servo0_pwm(PinMap::ServoPWM0, 0),
-m_servo1_pwm(PinMap::ServoPWM1, 1),
+m_servo0_pwm(PinMap::ServoPWM0),
+m_servo1_pwm(PinMap::ServoPWM1),
 m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
 m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
 {};
@@ -45,8 +46,8 @@ void System::systemSetup(){
 
     m_servo0.setup();
     m_servo1.setup();
-    canbus.setup();
-    
+    canbus.setup(); 
+
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
@@ -63,4 +64,5 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
-};
+
+}
