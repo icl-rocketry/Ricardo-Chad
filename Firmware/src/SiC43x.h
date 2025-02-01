@@ -2,10 +2,10 @@
  * @file SiC43x.h
  * @author Andrei Paduraru
  * @brief Class to manage Vishay SiC43x buck converter devices.
- * @version 0.2
- * @date 2024-07-12
+ * @version 0.3
+ * @date 2025-02-01
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2023-2025
  *
  */
 
@@ -14,6 +14,9 @@
 
 #include <librrc/HAL/arduinogpio.h>
 #include "Config/types.h"
+
+//TODO switch this out for an ADC HAL implementation
+#include "Sensors/adc_vrailmonitor.h"
 
 class SiC43x
 {
@@ -37,8 +40,8 @@ public:
         m_ENPin(EN),
         m_defaultEN(defaultEN),
         m_invertEN(invertEN),
-        m_VReadPin(VRead){};
-        // m_servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
+        m_VReadPin(VRead),
+        m_servoVoltage("Servo Voltage", VRead, HighResistor, LowResistor){};
 
     void setup()
     {
@@ -54,7 +57,7 @@ public:
         if (m_VReadPin >= 0)
         {
             //!TODO - make voltage limits configurable
-            // m_servoVoltage.setup(12, 5, 4);
+            m_servoVoltage.setup(12, 5, 4);
         }
     };
 
@@ -76,7 +79,7 @@ public:
     {
         if (m_VReadPin >= 0)
         {
-            // m_servoVoltage.update(OutputV);
+            m_servoVoltage.update(OutputV);
 
             //!TODO - make voltage limits configurable
             if ((OutputV > 12 || OutputV < 4) && !m_systemstatus.flagSet(SYSTEM_FLAG::ERROR_VBOUNDS))
@@ -156,5 +159,5 @@ private:
     uint32_t m_prevtime;
     uint32_t m_offTime;
 
-    // VRailMonitor m_servoVoltage;
+    ADC_VRailMonitor m_servoVoltage;
 };
