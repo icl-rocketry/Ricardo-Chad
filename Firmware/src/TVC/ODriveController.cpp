@@ -26,44 +26,6 @@ template<>        inline Print& operator <<(Print &obj, bool arg) { obj.print(ar
 
 ODriveController::ODriveController(Stream& serial, float turnRange): serial(serial), turnRange(turnRange) {}
 
-
-// ODriveController ODriveController::fromConfig(JsonObjectConst config) {
-//     std::string connectionType = LIBRRC::JsonConfigHelper::getIfContains<std::string>(config, "connection_type");
-
-//     ODriveController controller;
-
-//     if (connectionType == "CAN") {
-//         controller.connection = Connection::CAN;
-
-//         // CAN controller not supported for now since there is no current easy
-//         // way to receive CAN messages from the ODrive since it uses a 
-//         // different format.
-//         // This is TODO
-//         throw "[ODriveController] CAN controller not supported";
-
-//     } else if (connectionType == "UART") {
-//         controller.connection = Connection::UART;
-
-//         int uartTxPin = LIBRRC::JsonConfigHelper::getIfContains<int>(config, "uart_tx_pin");
-//         int uartRxPin = LIBRRC::JsonConfigHelper::getIfContains<int>(config, "uart_rx_pin");
-
-//         controller.uartTxPin = uartTxPin;
-//         controller.uartRxPin = uartRxPin;
-
-
-//     } else {
-//         throw "[ODriveController] Invalid connection config type";
-//     }
-
-//     float turnRange = LIBRRC::JsonConfigHelper::getIfContains<float>(config, "turn_range");
-//     controller.turnRange = turnRange;
-
-//     float currentTurns = LIBRRC::JsonConfigHelper::getIfContains<float>(config, "turn_initial");
-//     controller.currentTurns = std::min(currentTurns, turnRange);
-
-//     return controller;
-// }
-
 bool ODriveController::available() {
     float voltage = readConfigFloat("vbus_voltage");
     int it = 0;
@@ -77,8 +39,7 @@ bool ODriveController::available() {
 }
 
 void ODriveController::printDebug() {
-    readConfig("error");
-    const int error = readInt();
+    const int error = this->error();
     const std::string err = "Error code : " + std::to_string(error) + "\n";
     // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(err);
 }
@@ -88,7 +49,7 @@ int ODriveController::error() {
 }
 
 int ODriveController::error(Axis axis) {
-    return readConfigInt(std::string(axis == Axis::ZERO ? "axis0." : "axis1.") + "error");
+    return readConfigInt(std::string(axis == Axis::ZERO ? "axis0" : "axis1") + ".error");
 }
 
 void ODriveController::fullErrors(Axis axis, int& main, int& axisErr, int& motor, int& controller) {
@@ -117,11 +78,6 @@ ODriveController::operator bool() {
 
 void ODriveController::calibrateAxis(Axis axis_) {
     int axis = axis_ == ZERO ? 0 : 1;
-    // Calibrate Motor & Encoder
-    // run_state(axis, AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
-
-    // Endstop Homing
-    // run_state(axis, AXIS_STATE_CLOSED_LOOP_CONTROL);
 
     log("\nStarting Calibration\n");
     run_state(axis, AXIS_STATE_MOTOR_CALIBRATION);
@@ -144,6 +100,7 @@ void ODriveController::calibrateAxis(Axis axis_) {
 void ODriveController::arm(Axis axis_) {
     int axis = axis_ == Axis::ZERO ? 0 : 1;
     run_state(axis, AXIS_STATE_CLOSED_LOOP_CONTROL);
+    writeConfig(axis + ".controller.config.input_mode", INPUT_MODE_TRAP_TRAJ);
 }
 
 void ODriveController::requestFeedback(Axis axis, float &position, float &velocity) {
@@ -187,8 +144,8 @@ void ODriveController::setPosition(int motor_number, float position, float veloc
 
 void ODriveController::setPosition(int motor_number, float position, float velocity_feedforward, float current_feedforward) {
     assert(motor_number == 0 || motor_number == 1);
-    log("Sending position!\n");
-    serial.printf("p %d %.4f\n", motor_number, position);
+    log("setting position : " + std::to_string(position));
+    serial.printf("t %d %.4f\n", motor_number, position);
 }
 
 void ODriveController::setVelocity(int motor_number, float velocity) {

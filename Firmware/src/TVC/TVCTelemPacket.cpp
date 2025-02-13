@@ -5,20 +5,11 @@
 
 #include <vector>
 
+TVCTelemPacket::~TVCTelemPacket() {};
 
+TVCTelemPacket::TVCTelemPacket(): RnpPacket(0, 104, size()) {};
 
-TVCTelemPacket::~TVCTelemPacket()
-{};
-
-TVCTelemPacket::TVCTelemPacket():
-RnpPacket(0,
-          104,
-          size())
-{};
-
-TVCTelemPacket::TVCTelemPacket(const RnpPacketSerialized& packet):
-RnpPacket(packet,size())
-{
+TVCTelemPacket::TVCTelemPacket(const RnpPacketSerialized& packet): RnpPacket(packet,size()) {
     getSerializer().deserialize(*this,packet.getBody());
 };
 
