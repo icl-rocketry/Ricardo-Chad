@@ -1,6 +1,6 @@
 #pragma once
 
-#include <librrc/nrcremoteactuatorbase.h>
+#include <librrc/Remote/nrcremoteactuatorbase.h>
 
 #include <librnp/rnp_networkmanager.h>
 #include <librnp/rnp_packet.h>

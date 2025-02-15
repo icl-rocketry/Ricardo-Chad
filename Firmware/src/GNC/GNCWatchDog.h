@@ -19,16 +19,19 @@
 class GNCWatchDog 
 {
 public:
-    GNCWatchDog();
+    GNCWatchDog(RnpNetworkManager &m_networkmanager);
 
     void watchDogSetup();
     void watchDogUpdate();
 
-
+    NetworkSensor PIDcheck;
     SensorPoller PicklePoller;
 
 
+
 private:
+
+    RnpNetworkManager &m_networkmanager;
     
 
 };

@@ -18,8 +18,10 @@
 
 #include <librrc/Interface/rocketcomponent.h>
 
-GNCWatchDog::GNCWatchDog();
-PicklePoller(300, &OxTankPTap)
+GNCWatchDog::GNCWatchDog(RnpNetworkManager &networkmanager):
+m_networkmanager(networkmanager),
+PIDcheck(1, GeneralConfig::pickleAddr, static_cast<uint8_t>(Services::ID::PID), static_cast<uint8_t>(Services::ID::PID), m_networkmanager, [](const std::string& msg){RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(msg);}),
+PicklePoller(300, &PIDcheck)
 {};
 void GNCWatchDog::watchDogSetup(){
 
@@ -29,8 +31,8 @@ void GNCWatchDog::watchDogSetup(){
 void GNCWatchDog::watchDogUpdate(){
     try {
        PicklePoller.update();
-    } catch (const std::runtime_error("Sensor with ID: " + std::to_string(_networksensor->getID()) + " not responding to poll request");) {
-        std::cout << "Caught an exception: " << e.what() << std::endl;
+    } catch (const std::exception &e) {
+        
     }
 }
 
