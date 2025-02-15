@@ -7,7 +7,7 @@
 
 TVCTelemPacket::~TVCTelemPacket() {};
 
-TVCTelemPacket::TVCTelemPacket(): RnpPacket(0, 104, size()) {};
+TVCTelemPacket::TVCTelemPacket(): RnpPacket(0, TVC_PACKET_ID, size()) {};
 
 TVCTelemPacket::TVCTelemPacket(const RnpPacketSerialized& packet): RnpPacket(packet,size()) {
     getSerializer().deserialize(*this,packet.getBody());
