@@ -1,31 +1,36 @@
 #include "GNCWatchDog.h"
-void GNCWatchDog::pollPickle()
-{
-    SimpleCommandPacket test_command_1(3, 0);
-    test_command_1.header.source_service = 10;
-    test_command_1.header.source = 2;
-    test_command_1.header.destination_service = 11;
-    test_command_1.header.destination = 104;
-    test_command_1.header.uid = 0;
-    networkmanager.sendPacket(test_command_1);
 
+#include <memory>
+
+#include <libriccore/riccoresystem.h>
+
+#include <HardwareSerial.h>
+
+#include "Config/systemflags_config.h"
+#include "Config/commands_config.h"
+#include "Config/pinmap_config.h"
+#include "Config/general_config.h"
+#include "Config/services_config.h"
+
+#include "Commands/commands.h"
+
+#include "States/idle.h"
+
+#include <librrc/Interface/rocketcomponent.h>
+
+GNCWatchDog::GNCWatchDog();
+PicklePoller(300, &OxTankPTap)
+{};
+void GNCWatchDog::watchDogSetup(){
+
+    PicklePoller.setup();
 }
 
-void GNCWatchDog::killMotors()
-{
-    //kill both the motors by setting them to 0
-    motor1.turnOff(); 
-    motor2.turnOff(); 
-}
-
-void GNCWatchDog::update()
-{
-    //poll the pickle to get time since last test wtf does this return cuz idk 😭
-    //
-    try {SensorPoller.update} catch (const std::exception &e)
-    {
-        killMotors();
+void GNCWatchDog::watchDogUpdate(){
+    try {
+       PicklePoller.update();
+    } catch (const std::runtime_error("Sensor with ID: " + std::to_string(_networksensor->getID()) + " not responding to poll request");) {
+        std::cout << "Caught an exception: " << e.what() << std::endl;
     }
 }
-
 
