@@ -66,12 +66,20 @@ public:
      */
     void idleAxis(MotorAxis motor);
 
+    void update();
+
+    void start() {
+        executing = true;
+    }
+
     /**
      * @brief Lock the axis to it's current position.
      * 
      * @param motor The motor axis.
      */
     void lockAxis(MotorAxis motor);
+
+    void disarmAxis(void);
 
     /**
      * @brief Structure to hold error states from the ODrive.
@@ -144,6 +152,8 @@ private:
         ERASE_CONF,
         CLEAR_ERR
     };
+
+    bool executing = false;
 
     /**
      * @brief Run an axis state.

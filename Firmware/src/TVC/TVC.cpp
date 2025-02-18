@@ -41,3 +41,29 @@ int TVC::idle(void)
     odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
+
+void TVC::disarm(void) {
+    odrv.disarmAxis();
+}
+
+void TVC::arm_base(int32_t arg) {
+    arm();
+}
+
+void TVC::disarm_base() {
+    disarm();
+}
+
+#define LOCK 0x0
+#define EXECUTE 0x1
+
+void TVC::execute_base(int32_t arg) {
+    switch (arg) {
+        case LOCK:
+            lock();
+            break;
+        case EXECUTE:
+            odrv.start();
+            break;
+    }
+}

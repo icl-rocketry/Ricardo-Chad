@@ -64,6 +64,15 @@ public:
     int idle(void);
 
     /**
+     * @brief Disarm the TVC.
+     */
+    void disarm(void);
+
+    void update(void) {
+        odrv.update();
+    }
+
+    /**
      * @brief Request a control signal [0, 1] for each motor.
      * 
      * This is used for testing the motors easily.
@@ -74,6 +83,30 @@ public:
      * @return int An integer error code, 0 for success.
      */
     int requestControl(float xAxis, float yAxis);
+
+    /**
+     * @brief Override of arm implementation for remote actuator.
+     * 
+     * @param arg 
+     */
+    void arm_base(int32_t arg);
+
+    /**
+     * @brief Override of disarm implementation for remote actuator.
+     */
+    void disarm_base();
+
+    /**
+     * @brief Executes a command for the TVC.
+     * 
+     * Commands : 
+     *     0x0 - Locked State.
+     *     0x1 - Execute Program.
+     * 
+     * @param arg The command.
+     */
+    void execute_base(int32_t arg);
+
 private:
     // state_t y_axis; // In body axis coordinates
     // state_t z_axis; // In body axis coordinates

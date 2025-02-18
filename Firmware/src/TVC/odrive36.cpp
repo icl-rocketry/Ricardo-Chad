@@ -202,12 +202,12 @@ std::string Odrive36::ODriveError::toString(void) {
 
     result 
         << "ODriveError {main : " << main << ", "
-        << "axis0 : {"
+        << "axis0 : { "
         << "main : " << axis0.main << ", "
         << "controller : " << axis0.controller << ", "
         << "motor : " << axis0.motor << ", "
         << "encoder : " << axis0.encoder << " }, "
-        << "axis1 : {"
+        << "axis1 : { "
         << "main : " << axis1.main << ", "
         << "controller : " << axis1.controller << ", "
         << "motor : " << axis1.motor << ", "
@@ -235,4 +235,30 @@ bool Odrive36::checkErrorsAxis(MotorAxis axis) {
     }
     
     return main || axisMain || axisController || axisMotor || axisEncoder;
+}
+
+void Odrive36::update() {
+    if (!executing) {
+        return;
+    }
+    static uint64_t prev = millis();
+    uint64_t time = millis();
+
+    // Only send commands at <= 60Hz
+    if (time - prev < 20) {
+        return;
+    }
+
+    prev = time;
+
+    static float i = 0;
+    i += 0.2;
+
+    float command = (sin(i) + 1.0f) / 2.0f;
+
+    commandAxisTurns(command * 10.0f, 0);
+}
+
+void Odrive36::lockAxis(MotorAxis motor) {
+    executing = false;
 }
