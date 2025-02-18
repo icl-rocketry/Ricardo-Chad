@@ -86,7 +86,7 @@ public:
             int encoder;
         };
 
-        ODriveError();
+        ODriveError(int main = 0);
 
         /**
          * @brief ODrive main error.
@@ -95,26 +95,34 @@ public:
 
         ODriveAxisError axis0;
         ODriveAxisError axis1;
+
+        std::string toString(void);
     };
+
+    /**
+     * @brief Check if the ODrive axis has any errors.
+     * 
+     * If it does, it will set the errors in the ODrive Error Object.
+     * 
+     * It will also set the main error code too.
+     */
+    bool checkErrorsAxis(MotorAxis axis);
 
     /**
      * @brief Get the ODrive Error object.
      * 
      * @return const ODriveError& Reference to the error state.
      */
-    const ODriveError& getError(void);
-
-    /**
-     * @brief Returns wether the ODrive has an error.
-     */
-    bool hasError(void);
+    inline const ODriveError& getError(void) {
+        return error;
+    }
 
 private:
     /// @brief The current error status of the ODrive (if hasError).
     ODriveError error;
 
     /// @brief Any of the error fields are set
-    bool currentError; 
+    bool hasAnyError; 
     
     /// @brief Number of turns from 0 until the maximal extension of the actuator.
     int maxTurns = 0;

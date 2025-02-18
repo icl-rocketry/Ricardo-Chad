@@ -33,7 +33,8 @@ Odrive36::Odrive36(float maxTurns):
         controlType(ControlType::TRAP_TRAJ) {
     Serial1.begin(UART_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
     delay(10);  // Wait for serial connection
-
+    configureAxis(MotorAxis::MOTOR_AXIS_ONE);
+    configureAxis(MotorAxis::MOTOR_AXIS_ZERO);
 }
 
 void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
@@ -193,5 +194,45 @@ void Odrive36::command(SysCommand command) {
 Odrive36::ODriveError::ODriveAxisError::ODriveAxisError(int main, int controller, int motor, int encoder): 
         main(main), controller(controller), motor(motor), encoder(encoder) {}
 
-Odrive36::ODriveError::ODriveError():
-        main(0), axis0(ODriveAxisError()), axis1(ODriveAxisError()) {}
+Odrive36::ODriveError::ODriveError(int main):
+        main(main) {}
+
+std::string Odrive36::ODriveError::toString(void) {
+    std::stringstream result;
+
+    result 
+        << "ODriveError {main : " << main << ", "
+        << "axis0 : {"
+        << "main : " << axis0.main << ", "
+        << "controller : " << axis0.controller << ", "
+        << "motor : " << axis0.motor << ", "
+        << "encoder : " << axis0.encoder << " }, "
+        << "axis1 : {"
+        << "main : " << axis1.main << ", "
+        << "controller : " << axis1.controller << ", "
+        << "motor : " << axis1.motor << ", "
+        << "encoder : " << axis1.encoder << " } }";
+
+    return result.str();
+}
+
+bool Odrive36::checkErrorsAxis(MotorAxis axis) {
+    std::string axisStr = axis == MotorAxis::MOTOR_AXIS_ZERO ? "axis0" : "axis1";
+
+    int main            = readConfigInt("error");
+    int axisMain         = readConfigInt(axisStr + ".error");
+    int axisController  = readConfigInt(axisStr + ".controller.error");
+    int axisMotor       = readConfigInt(axisStr + ".motor.error");
+    int axisEncoder     = readConfigInt(axisStr + ".encoder.error");
+
+    error.main = main;
+    ODriveError::ODriveAxisError axisErr(axisMain, axisController, axisMotor, axisEncoder);
+
+    if (axis == MotorAxis::MOTOR_AXIS_ZERO) {
+        error.axis0 = axisErr;
+    } else {
+        error.axis1 = axisErr;
+    }
+    
+    return main || axisMain || axisController || axisMotor || axisEncoder;
+}

@@ -16,7 +16,6 @@
 #include <librnp/rnp_networkmanager.h>
 
 #include "tvc/odrive36.h"
-
 #include "tvc/tvcTelemPacket.h"
 
 class TVC : public NRCRemoteActuatorBase<TVC> {
@@ -81,13 +80,11 @@ private:
 
     /**
      * @brief Network manager reference.
-     * 
      */
     RnpNetworkManager& networkManager;
 
     /**
      * @brief Telemetry packet instance;
-     * 
      */
     TVCTelemPacket telemPacket;
 
