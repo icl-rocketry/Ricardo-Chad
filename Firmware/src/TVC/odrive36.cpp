@@ -33,8 +33,8 @@ Odrive36::Odrive36(float maxTurns):
         controlType(ControlType::TRAP_TRAJ) {
     Serial1.begin(UART_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
     delay(10);  // Wait for serial connection
-    configureAxis(MotorAxis::MOTOR_AXIS_ONE);
     configureAxis(MotorAxis::MOTOR_AXIS_ZERO);
+    // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
 }
 
 void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
@@ -48,7 +48,7 @@ void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
     switch (controlType) {
         case ControlType::TRAP_TRAJ:
             serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ZERO), axisZero);
-            serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
+            // serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
             break;
         
         default:

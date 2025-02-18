@@ -25,20 +25,20 @@ int TVC::requestControl(float xAxis, float yAxis) {
 
 int TVC::arm(void) {
     odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    // odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
 int TVC::lock(void) {
     odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    // odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
 int TVC::idle(void)
 {
     odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    // odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 

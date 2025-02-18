@@ -20,6 +20,8 @@
 
 // Odrive UART RX = 1, TX = 2
 
+std::unique_ptr<TVC> tvcController;
+
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
@@ -67,8 +69,10 @@ void System::systemSetup(){
 
     // pinMode(7, INPUT_PULLDOWN);
     log("Initialising Serial!");
+    tvcController = std::make_unique<TVC>(networkmanager);
 }
 
 void System::systemUpdate(){
     Buck.update();
+    tvcController->update();
 }
