@@ -10,16 +10,19 @@
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 
+#include <librrc/Remote/nrcremoteservo.h>
+#include "GNC/nrcremoteprop.h"
+
 
 #include "SiC43x.h"
-//#include "nrcgreg/nrcgreg.h"
+
 
 #include "Commands/commands.h"
 
 class GNCWatchDog 
 {
 public:
-    GNCWatchDog(RnpNetworkManager &m_networkmanager);
+    GNCWatchDog(RnpNetworkManager &m_networkmanager,NRCRemoteProp &Motor1,NRCRemoteProp &Motor2);
 
     void watchDogSetup();
     void watchDogUpdate();
@@ -27,11 +30,19 @@ public:
     NetworkSensor PIDcheck;
     SensorPoller PicklePoller;
 
-
-
 private:
 
     RnpNetworkManager &m_networkmanager;
     
+    NRCRemoteProp Motor1;
+    NRCRemoteProp Motor2;
+    double requestTime;
+    double timeInterval = 0.1;
+
+    double timeElapsed; 
+    //equal to one to force pickle poll
+    double currentTime;
+    double oldTime;
+
 
 };

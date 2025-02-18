@@ -3,11 +3,13 @@
 #include <libriccore/riccoresystem.h>
 #include <librrc/Remote/nrcremoteservo.h>
 
+
 #include "Config/systemflags_config.h"
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
-#include <librrc/HAL/localpwm.h>
+#include "GNC/GNCWatchDog.h"
+#include "GNC/nrcremoteprop.h"
 
 #include "Commands/commands.h"
 
@@ -25,14 +27,16 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
-
     private:
-
-        LocalPWM m_servo0_pwm;
-        LocalPWM m_servo1_pwm;
-
-        NRCRemoteServo<LocalPWM> m_servo0;
-        NRCRemoteServo<LocalPWM> m_servo1;
         
+        NRCRemoteProp Motor1;
+        NRCRemoteProp Motor2;
 
+    protected: 
+
+        
+            bool fullbore_called = false;
+            bool shutdown_called = false;
+
+    
 };
