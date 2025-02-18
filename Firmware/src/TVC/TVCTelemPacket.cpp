@@ -1,3 +1,14 @@
+/**
+ * @file tvcTelemPacket.cpp
+ * @author Riley Horrix (rh1122@ic.ac.uk)
+ * @brief TVC Telemetry Packet Implementation
+ * @version 0.1
+ * @date 2025-02-17
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
 #include "TVCTelemPacket.h"
 
 #include <librnp/rnp_networkmanager.h>

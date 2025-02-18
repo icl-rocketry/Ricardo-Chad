@@ -20,9 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#ifndef ODriveEnums_h
-#define ODriveEnums_h
+#pragma once
 
 /* TODO: This file is dangerous because the enums could potentially change between API versions. Should transmit as part of the JSON.
 ** To regenerate this file, nagivate to the top level of the ODrive repository and run:
@@ -30,7 +28,7 @@
 */
 
 // ODrive.GpioMode
-enum GpioMode {
+enum class GpioMode {
     GPIO_MODE_DIGITAL                        = 0,
     GPIO_MODE_DIGITAL_PULL_UP                = 1,
     GPIO_MODE_DIGITAL_PULL_DOWN              = 2,
@@ -50,7 +48,7 @@ enum GpioMode {
 };
 
 // ODrive.StreamProtocolType
-enum StreamProtocolType {
+enum class StreamProtocolType {
     STREAM_PROTOCOL_TYPE_FIBRE               = 0,
     STREAM_PROTOCOL_TYPE_ASCII               = 1,
     STREAM_PROTOCOL_TYPE_STDOUT              = 2,
@@ -58,12 +56,12 @@ enum StreamProtocolType {
 };
 
 // ODrive.Can.Protocol
-enum Protocol {
+enum class Protocol {
     PROTOCOL_SIMPLE                          = 0x00000001,
 };
 
 // ODrive.Axis.AxisState
-enum AxisState {
+enum class AxisState {
     AXIS_STATE_UNDEFINED                     = 0,
     AXIS_STATE_IDLE                          = 1,
     AXIS_STATE_STARTUP_SEQUENCE              = 2,
@@ -80,7 +78,7 @@ enum AxisState {
 };
 
 // ODrive.Encoder.Mode
-enum EncoderMode {
+enum class EncoderMode {
     ENCODER_MODE_INCREMENTAL                 = 0,
     ENCODER_MODE_HALL                        = 1,
     ENCODER_MODE_SINCOS                      = 2,
@@ -92,7 +90,7 @@ enum EncoderMode {
 };
 
 // ODrive.Controller.ControlMode
-enum ControlMode {
+enum class ControlMode {
     CONTROL_MODE_VOLTAGE_CONTROL             = 0,
     CONTROL_MODE_TORQUE_CONTROL              = 1,
     CONTROL_MODE_VELOCITY_CONTROL            = 2,
@@ -100,7 +98,7 @@ enum ControlMode {
 };
 
 // ODrive.Controller.InputMode
-enum InputMode {
+enum class InputMode {
     INPUT_MODE_INACTIVE                      = 0,
     INPUT_MODE_PASSTHROUGH                   = 1,
     INPUT_MODE_VEL_RAMP                      = 2,
@@ -113,14 +111,14 @@ enum InputMode {
 };
 
 // ODrive.Motor.MotorType
-enum MotorType {
+enum class MotorType {
     MOTOR_TYPE_HIGH_CURRENT                  = 0,
     MOTOR_TYPE_GIMBAL                        = 2,
     MOTOR_TYPE_ACIM                          = 3,
 };
 
 // ODrive.Error
-enum ODriveError {
+enum class ODriveError {
     ODRIVE_ERROR_NONE                        = 0x00000000,
     ODRIVE_ERROR_CONTROL_ITERATION_MISSED    = 0x00000001,
     ODRIVE_ERROR_DC_BUS_UNDER_VOLTAGE        = 0x00000002,
@@ -133,13 +131,13 @@ enum ODriveError {
 };
 
 // ODrive.Can.Error
-enum CanError {
+enum class CanError {
     CAN_ERROR_NONE                           = 0x00000000,
     CAN_ERROR_DUPLICATE_CAN_IDS              = 0x00000001,
 };
 
 // ODrive.Axis.Error
-enum AxisError {
+enum class AxisError {
     AXIS_ERROR_NONE                          = 0x00000000,
     AXIS_ERROR_INVALID_STATE                 = 0x00000001,
     AXIS_ERROR_MOTOR_FAILED                  = 0x00000040,
@@ -156,7 +154,7 @@ enum AxisError {
 };
 
 // ODrive.Motor.Error
-enum MotorError {
+enum class MotorError : long long {
     MOTOR_ERROR_NONE                         = 0x00000000,
     MOTOR_ERROR_PHASE_RESISTANCE_OUT_OF_RANGE = 0x00000001,
     MOTOR_ERROR_PHASE_INDUCTANCE_OUT_OF_RANGE = 0x00000002,
@@ -188,7 +186,7 @@ enum MotorError {
 };
 
 // ODrive.Controller.Error
-enum ControllerError {
+enum class ControllerError {
     CONTROLLER_ERROR_NONE                    = 0x00000000,
     CONTROLLER_ERROR_OVERSPEED               = 0x00000001,
     CONTROLLER_ERROR_INVALID_INPUT_MODE      = 0x00000002,
@@ -201,7 +199,7 @@ enum ControllerError {
 };
 
 // ODrive.Encoder.Error
-enum EncoderError {
+enum class EncoderError {
     ENCODER_ERROR_NONE                       = 0x00000000,
     ENCODER_ERROR_UNSTABLE_GAIN              = 0x00000001,
     ENCODER_ERROR_CPR_POLEPAIRS_MISMATCH     = 0x00000002,
@@ -216,10 +214,8 @@ enum EncoderError {
 };
 
 // ODrive.SensorlessEstimator.Error
-enum SensorlessEstimatorError {
+enum class SensorlessEstimatorError {
     SENSORLESS_ESTIMATOR_ERROR_NONE          = 0x00000000,
     SENSORLESS_ESTIMATOR_ERROR_UNSTABLE_GAIN = 0x00000001,
     SENSORLESS_ESTIMATOR_ERROR_UNKNOWN_CURRENT_MEASUREMENT = 0x00000002,
 };
-
-#endif

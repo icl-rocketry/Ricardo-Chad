@@ -1,3 +1,14 @@
+/**
+ * @file TVCTelemPacket.h
+ * @author Riley Horrix (rh1122@ic.ac.uk)
+ * @brief TVC Telem Packet Definition.
+ * @version 0.1
+ * @date 2025-02-17
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
 #pragma once
 
 #include <librnp/rnp_packet.h>
@@ -20,6 +31,7 @@ private:
     static constexpr auto getSerializer()
     {
         auto ret = RnpSerializer(
+            &TVCTelemPacket::time,
             &TVCTelemPacket::axis0Turns,
             &TVCTelemPacket::axis0Velocity,
             &TVCTelemPacket::axis0Current,
@@ -49,6 +61,7 @@ public:
      */
     void serialize(std::vector<uint8_t>& buf) override;
 
+    uint32_t time;
     float axis0Turns;
     float axis0Velocity;
     float axis0Current;
