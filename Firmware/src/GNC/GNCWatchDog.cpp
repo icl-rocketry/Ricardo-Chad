@@ -33,6 +33,7 @@ void GNCWatchDog::watchDogUpdate(){
        PicklePoller.update();
     } catch (const std::exception &e) {
         
+        
     }
 }
 
