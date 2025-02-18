@@ -9,12 +9,14 @@
  * 
  */
 
-#include "TVCTelemPacket.h"
+#include "tvcTelemPacket.h"
 
 #include <librnp/rnp_networkmanager.h>
 #include <librnp/rnp_packet.h>
 
 #include <vector>
+
+const int TVC_PACKET_ID = 109;
 
 TVCTelemPacket::~TVCTelemPacket() {};
 

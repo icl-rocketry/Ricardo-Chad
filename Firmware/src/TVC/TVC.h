@@ -15,7 +15,9 @@
 
 #include <librnp/rnp_networkmanager.h>
 
-#include "tvcTelemPacket.h"
+#include "tvc/odrive36.h"
+
+#include "tvc/tvcTelemPacket.h"
 
 class TVC : public NRCRemoteActuatorBase<TVC> {
 public:
@@ -89,5 +91,5 @@ private:
      */
     TVCTelemPacket telemPacket;
 
-    Odrive36 odrive(10);
+    Odrive36 odrv = Odrive36(10.0f);
 };

@@ -72,6 +72,4 @@ public:
     static constexpr size_t size(){
         return getSerializer().member_size();
     }
-
-    const int TVC_PACKET_ID = 109;
 };

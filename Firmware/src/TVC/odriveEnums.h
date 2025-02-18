@@ -28,7 +28,7 @@
 */
 
 // ODrive.GpioMode
-enum class GpioMode {
+enum class GpioMode : int {
     GPIO_MODE_DIGITAL                        = 0,
     GPIO_MODE_DIGITAL_PULL_UP                = 1,
     GPIO_MODE_DIGITAL_PULL_DOWN              = 2,
@@ -48,7 +48,7 @@ enum class GpioMode {
 };
 
 // ODrive.StreamProtocolType
-enum class StreamProtocolType {
+enum class StreamProtocolType : int {
     STREAM_PROTOCOL_TYPE_FIBRE               = 0,
     STREAM_PROTOCOL_TYPE_ASCII               = 1,
     STREAM_PROTOCOL_TYPE_STDOUT              = 2,
@@ -56,12 +56,12 @@ enum class StreamProtocolType {
 };
 
 // ODrive.Can.Protocol
-enum class Protocol {
+enum class Protocol : int {
     PROTOCOL_SIMPLE                          = 0x00000001,
 };
 
 // ODrive.Axis.AxisState
-enum class AxisState {
+enum class AxisState : int {
     AXIS_STATE_UNDEFINED                     = 0,
     AXIS_STATE_IDLE                          = 1,
     AXIS_STATE_STARTUP_SEQUENCE              = 2,
@@ -78,7 +78,7 @@ enum class AxisState {
 };
 
 // ODrive.Encoder.Mode
-enum class EncoderMode {
+enum class EncoderMode : int {
     ENCODER_MODE_INCREMENTAL                 = 0,
     ENCODER_MODE_HALL                        = 1,
     ENCODER_MODE_SINCOS                      = 2,
@@ -90,7 +90,7 @@ enum class EncoderMode {
 };
 
 // ODrive.Controller.ControlMode
-enum class ControlMode {
+enum class ControlMode : int {
     CONTROL_MODE_VOLTAGE_CONTROL             = 0,
     CONTROL_MODE_TORQUE_CONTROL              = 1,
     CONTROL_MODE_VELOCITY_CONTROL            = 2,
@@ -98,7 +98,7 @@ enum class ControlMode {
 };
 
 // ODrive.Controller.InputMode
-enum class InputMode {
+enum class InputMode : int {
     INPUT_MODE_INACTIVE                      = 0,
     INPUT_MODE_PASSTHROUGH                   = 1,
     INPUT_MODE_VEL_RAMP                      = 2,
@@ -111,14 +111,14 @@ enum class InputMode {
 };
 
 // ODrive.Motor.MotorType
-enum class MotorType {
+enum class MotorType : int {
     MOTOR_TYPE_HIGH_CURRENT                  = 0,
     MOTOR_TYPE_GIMBAL                        = 2,
     MOTOR_TYPE_ACIM                          = 3,
 };
 
 // ODrive.Error
-enum class ODriveError {
+enum class ODriveError : int {
     ODRIVE_ERROR_NONE                        = 0x00000000,
     ODRIVE_ERROR_CONTROL_ITERATION_MISSED    = 0x00000001,
     ODRIVE_ERROR_DC_BUS_UNDER_VOLTAGE        = 0x00000002,
@@ -131,13 +131,13 @@ enum class ODriveError {
 };
 
 // ODrive.Can.Error
-enum class CanError {
+enum class CanError : int {
     CAN_ERROR_NONE                           = 0x00000000,
     CAN_ERROR_DUPLICATE_CAN_IDS              = 0x00000001,
 };
 
 // ODrive.Axis.Error
-enum class AxisError {
+enum class AxisError : int {
     AXIS_ERROR_NONE                          = 0x00000000,
     AXIS_ERROR_INVALID_STATE                 = 0x00000001,
     AXIS_ERROR_MOTOR_FAILED                  = 0x00000040,
@@ -186,7 +186,7 @@ enum class MotorError : long long {
 };
 
 // ODrive.Controller.Error
-enum class ControllerError {
+enum class ControllerError : int {
     CONTROLLER_ERROR_NONE                    = 0x00000000,
     CONTROLLER_ERROR_OVERSPEED               = 0x00000001,
     CONTROLLER_ERROR_INVALID_INPUT_MODE      = 0x00000002,
@@ -199,7 +199,7 @@ enum class ControllerError {
 };
 
 // ODrive.Encoder.Error
-enum class EncoderError {
+enum class EncoderError : int {
     ENCODER_ERROR_NONE                       = 0x00000000,
     ENCODER_ERROR_UNSTABLE_GAIN              = 0x00000001,
     ENCODER_ERROR_CPR_POLEPAIRS_MISMATCH     = 0x00000002,
@@ -214,7 +214,7 @@ enum class EncoderError {
 };
 
 // ODrive.SensorlessEstimator.Error
-enum class SensorlessEstimatorError {
+enum class SensorlessEstimatorError : int {
     SENSORLESS_ESTIMATOR_ERROR_NONE          = 0x00000000,
     SENSORLESS_ESTIMATOR_ERROR_UNSTABLE_GAIN = 0x00000001,
     SENSORLESS_ESTIMATOR_ERROR_UNKNOWN_CURRENT_MEASUREMENT = 0x00000002,

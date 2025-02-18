@@ -1,4 +1,3 @@
-#include "TVC.h"
 /**
  * @file tvc.cpp
  * @author Riley Horrix (rh1122@ic.ac.uk)
@@ -9,18 +8,22 @@
  * @copyright Copyright (c) 2025
  *
  */
+
+#include "tvc/tvc.h"
+
+#include "tvc/odrive36.h"
+
 TVC::TVC(RnpNetworkManager &networkManager):
+        NRCRemoteActuatorBase(networkManager),
         networkManager(networkManager) {}
 
-
-
 int TVC::requestControl(float xAxis, float yAxis) {
-    odrive.commandAxisTurns(xAxis, yAxis);
+    odrv.commandAxisTurns(xAxis, yAxis);
     return 0;
 }
 
 int TVC::arm(void) {
-    odrive.armAxis(MotorAxis::MOTOR_AXIS_ZERO);
-    odrive.armAxis(MotorAxis::MOTOR_AXIS_ONE);
+    odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
+    odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }

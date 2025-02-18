@@ -8,8 +8,11 @@
  * @copyright Copyright (c) 2025
  * 
  */
+#pragma once
 
 #include <Arduino.h>
+
+#include "tvc/odriveEnums.h"
 
 /**
  * @brief Driver component for the ODrive v3.6 board.
@@ -17,7 +20,6 @@
  */
 class Odrive36 {
 public:
-
     /**
      * @brief Construct a new Odrive36 object in homing mode.
      * 
@@ -29,7 +31,7 @@ public:
     /**
      * @brief Enum for selecting the motor axis.
      */
-    enum class MotorAxis {
+    enum class MotorAxis : int {
         MOTOR_AXIS_ZERO = 0,
         MOTOR_AXIS_ONE = 1
     };
@@ -77,14 +79,14 @@ public:
      */
     struct ODriveError {
         struct ODriveAxisError {
-            ODriveAxisError(int main, int controller, int motor, int encoder);
+            ODriveAxisError(int main = 0, int controller = 0, int motor = 0, int encoder = 0);
             int main;
             int controller;
             int motor;
             int encoder;
         };
 
-        ODriveError(int main, ODriveAxisError axis0, ODriveAxisError axis1);
+        ODriveError();
 
         /**
          * @brief ODrive main error.
@@ -112,13 +114,13 @@ private:
     ODriveError error;
 
     /// @brief Any of the error fields are set
-    bool hasError; 
+    bool currentError; 
+    
+    /// @brief Number of turns from 0 until the maximal extension of the actuator.
+    int maxTurns = 0;
 
     /// @brief The Serial connection to the ODrive.
     Stream& serial;
-
-    /// @brief Number of turns from 0 until the maximal extension of the actuator.
-    int maxTurns = 0;
 
     /// @brief Current method of control.
     ControlType controlType;
@@ -148,11 +150,12 @@ private:
 
     void configureAxis(MotorAxis axis);
 
-    template<class T>
-    void writeConfig(const std::string& config, const T value);
+    void writeConfig(const std::string& config, const float value);
+    void writeConfig(const std::string& config, const int value);
+    void writeConfig(const std::string& config, const bool value);
 
-    template<class T>
-    T readConfig(const std::string& config);
+    int readConfigInt(const std::string& config);
+    float readConfigFloat(const std::string& config);
 
     String readString();
     
