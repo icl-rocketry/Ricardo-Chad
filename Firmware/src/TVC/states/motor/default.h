@@ -10,16 +10,16 @@
  */
 #pragma once
 
-#include "../tvcTypes.h"
+#include "tvc/odrive36.h"
 
-class Idle : public TVCMotorState {
+#include "tvc/states/tvcTypes.h"
+
+class Default : public TVCMotorState {
 public:
     /**
-     * @brief Idle state constructor. All states require the systemstatus object to be passed in, as well as any other system level objects required. For example, if
-     * we want to control the available commands, we need to pass in the command handler from the riccoresystem.
-     * 
+     * @brief Default state constructor. 
      */
-    Idle(TVCMotorStatus& DefaultInitParams);
+    Default(Odrive36& odrv);
 
     /**
      * @brief Perform any initialization required for the state
@@ -40,4 +40,8 @@ public:
      * 
      */
     void exit() override;
+
+private: 
+    /// @brief Reference to the motor driver.
+    Odrive36& odrive;
 };

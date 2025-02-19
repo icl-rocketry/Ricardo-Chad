@@ -21,28 +21,12 @@
  */
 enum class TVC_FLAGS : uint32_t {
     // State flags
-    STATE_IDLE =        FLAG(0),
+    STATE_DEFAULT =     FLAG(0),
     STATE_ARMED =       FLAG(1),
     STATE_EXECUTING =   FLAG(2),
-    STATE_ERROR =       FLAG(3),
+    STATE_ERROR =       FLAG(3)
 };
 
 using TVCStatus         = SystemStatus<TVC_FLAGS>;
 using TVCState          = State<TVC_FLAGS>;
 using TVCStateMachine   = StateMachine<TVC_FLAGS>;
-
-/**
- * @brief State an error flags for a single TVC motor.
- */
-enum class TVC_MOTOR_FLAGS : uint32_t {
-    // State flags
-    STATE_IDLE =        FLAG(0),
-    STATE_ARMED =       FLAG(1),
-    STATE_EXECUTING =   FLAG(2),
-    STATE_ERROR =       FLAG(3),
-    STATE_LOCKED =      FLAG(4)
-};
-
-using TVCMotorStatus         = SystemStatus<TVC_MOTOR_FLAGS>;
-using TVCMotorState          = State<TVC_MOTOR_FLAGS>;
-using TVCMotorStateMachine   = StateMachine<TVC_MOTOR_FLAGS>;

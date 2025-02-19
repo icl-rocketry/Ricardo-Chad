@@ -18,6 +18,8 @@
 #include "tvc/odrive36.h"
 #include "tvc/tvcTelemPacket.h"
 
+#include "tvc/states/tvcTypes.h"
+
 class TVC : public NRCRemoteActuatorBase<TVC> {
 public:
     /**
@@ -107,20 +109,16 @@ public:
      */
     void execute_base(int32_t arg);
 
+    /// @brief The underlying TVC driver.
+    Odrive36 odrv;
 
-    Odrive36 odrv = Odrive36(10.0f);
 private:
-    // state_t y_axis; // In body axis coordinates
-    // state_t z_axis; // In body axis coordinates
-
-    /**
-     * @brief Network manager reference.
-     */
+    /// @brief Network manager reference.
     RnpNetworkManager& networkManager;
 
-    /**
-     * @brief Telemetry packet instance;
-     */
+    /// @brief Telemetry packet instance.
     TVCTelemPacket telemPacket;
 
+    /// @brief Unique pointer to the current state machine.
+    TVCStateMachine stateMachine;
 };

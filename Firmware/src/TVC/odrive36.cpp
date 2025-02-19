@@ -29,7 +29,7 @@ const int RX_PIN = PinMap::oDriveRx;
 /// @brief UART baud rate.
 const int UART_BAUD = 115200;
 
-Odrive36::Odrive36(float maxTurns): 
+Odrive36::Odrive36(): 
         maxTurns(maxTurns),
         serial(Serial1),
         controlType(ControlType::TRAP_TRAJ) {

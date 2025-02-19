@@ -4,15 +4,17 @@
  * @brief Implementation of TVC interface
  * @version 0.1
  * @date 2025-02-17
- * 
+ *
  * @copyright Copyright (c) 2025
  *
  */
 
 #include "tvc/tvc.h"
-
 #include "tvc/odrive36.h"
-#include "tvc.h"
+
+#include "tvc/states/tvcTypes.h"
+#include "tvc/states/default.h"
+
 #include <librnp/default_packets/simplecommandpacket.h>
 
 #include <libriccore/riccorelogging.h>
@@ -21,7 +23,8 @@
 
 TVC::TVC(RnpNetworkManager &networkManager):
         NRCRemoteActuatorBase(networkManager),
-        networkManager(networkManager) {}
+        networkManager(networkManager),
+        stateMachine(std::make_unique<Default>(odrv)) {}
 
 int TVC::requestControl(float xAxis, float yAxis) {
     odrv.commandAxisTurns(xAxis, yAxis);
