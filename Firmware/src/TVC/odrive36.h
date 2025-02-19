@@ -68,9 +68,7 @@ public:
 
     void update();
 
-    void start() {
-        executing = true;
-    }
+    void start();
 
     /**
      * @brief Lock the axis to it's current position.
@@ -79,7 +77,9 @@ public:
      */
     void lockAxis(MotorAxis motor);
 
-    void disarmAxis(void);
+    void disarmAxis(void) {
+        armed = false;
+    }
 
     /**
      * @brief Structure to hold error states from the ODrive.
@@ -124,6 +124,8 @@ public:
     inline const ODriveError& getError(void) {
         return error;
     }
+
+    void poll(std::string config);
 
 private:
     /// @brief The current error status of the ODrive (if hasError).

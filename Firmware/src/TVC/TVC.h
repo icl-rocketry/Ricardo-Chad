@@ -107,6 +107,8 @@ public:
      */
     void execute_base(int32_t arg);
 
+
+    Odrive36 odrv = Odrive36(10.0f);
 private:
     // state_t y_axis; // In body axis coordinates
     // state_t z_axis; // In body axis coordinates
@@ -121,5 +123,4 @@ private:
      */
     TVCTelemPacket telemPacket;
 
-    Odrive36 odrv = Odrive36(10.0f);
 };

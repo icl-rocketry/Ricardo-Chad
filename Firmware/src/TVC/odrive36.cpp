@@ -16,13 +16,15 @@
 #include "tvc/odriveEnums.h"
 #include "odrive36.h"
 
+#include "Config/pinmap_config.h"
+
 #define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
 
 /// @brief Board UART transmit pin.
-const int TX_PIN = 6;
+const int TX_PIN = PinMap::oDriveTx;
 
 /// @brief Board UART receive pin.
-const int RX_PIN = 5;
+const int RX_PIN = PinMap::oDriveRx;
 
 /// @brief UART baud rate.
 const int UART_BAUD = 115200;
@@ -33,8 +35,6 @@ Odrive36::Odrive36(float maxTurns):
         controlType(ControlType::TRAP_TRAJ) {
     Serial1.begin(UART_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
     delay(10);  // Wait for serial connection
-    configureAxis(MotorAxis::MOTOR_AXIS_ZERO);
-    // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
 }
 
 void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
@@ -57,21 +57,59 @@ void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
 }
 
 bool Odrive36::armAxis(MotorAxis motor) {
+    log("Arming!");
+
+    // Wait for the odrive
+    float voltage;
+    while ((voltage = readConfigFloat("vbus_voltage")) == 0) {
+        static int i = 0;
+        if (i % 100 == 0) {
+            log("[odrive36] ODrive not found");
+        }
+        i ++;
+    }
+
+    log("[odrive36]: Connected to the odrvie voltage : " + std::to_string(voltage));
+
+    command(SysCommand::CLEAR_ERR);
+
+    configureAxis(MotorAxis::MOTOR_AXIS_ZERO);
+    // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
+
     if (!configured) {
         log("[odrive36] Tried to arm unconfigured odrive!");
         return false;
     }
+
     log("[odrive36] Starting Motor Calibration.");
     runState(motor, AxisState::AXIS_STATE_MOTOR_CALIBRATION);
+
+    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+        log(error.toString());
+    }
+
     log("[odrive36] Starting Encoder Offset Calibration.");
     runState(motor, AxisState::AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
+
+    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+        log(error.toString());
+    }
+
     log("[odrive36] Starting Homing Calibration.");
     delay(100);
     runState(motor, AxisState::AXIS_STATE_HOMING, true, 10000);
     log("[odrive36] Calibration Complete.");
+    
+    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+        log(error.toString());
+    }
+
+    runState(MotorAxis::MOTOR_AXIS_ZERO, AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
+    writeConfig("axis0.controller.config.input_mode", static_cast<int>(InputMode::INPUT_MODE_TRAP_TRAJ));
+
     armed = true;
 
-    return true; // TODO
+    return !hasAnyError; // TODO
 }
 
 bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForIdle, float timeout) {
@@ -97,11 +135,11 @@ void Odrive36::configureAxis(MotorAxis motor) {
     writeConfig(axis + ".min_endstop.config.debounce_ms", 50);
     writeConfig(axis + ".min_endstop.config.gpio_num", 4);
     writeConfig(axis + ".min_endstop.config.is_active_high ", false);
-    writeConfig(axis + ".min_endstop.config.offset", -0.25f);
+    writeConfig(axis + ".min_endstop.config.offset", 3.0f);
     writeConfig(axis + ".min_endstop.config.enabled", true);
     writeConfig(axis + ".max_endstop.config.enabled", false);
     writeConfig("config.gpio4_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL_PULL_UP));
-    writeConfig(axis + ".controller.config.homing_speed", 0.25f);
+    writeConfig(axis + ".controller.config.homing_speed", 0.5f);
 
     // Motor Configs
     writeConfig(axis + ".motor.config.current_lim", 20);
@@ -233,14 +271,35 @@ bool Odrive36::checkErrorsAxis(MotorAxis axis) {
     } else {
         error.axis1 = axisErr;
     }
+
+    hasAnyError = main || axisMain || axisController || axisMotor || axisEncoder;
     
-    return main || axisMain || axisController || axisMotor || axisEncoder;
+    return hasAnyError;
 }
 
-void Odrive36::update() {
+void Odrive36::start(void)  {
+    log("[odrive36]: Starting execution.");
+    executing = true;
+}
+
+void Odrive36::poll(std::string config) {
+    static uint64_t prev = millis();
+    uint64_t time = millis();
+
+    // Only send commands at <= 10Hz
+    if (time - prev < 100) {
+        return;
+    }
+    prev = time;
+
+    log("[odrive36]: Read config " + config + " : " + std::to_string(readConfigInt(config)));
+}
+
+void Odrive36::update(void) {
     if (!executing) {
         return;
     }
+
     static uint64_t prev = millis();
     uint64_t time = millis();
 
@@ -251,12 +310,18 @@ void Odrive36::update() {
 
     prev = time;
 
+    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+        log(error.toString());
+        command(SysCommand::CLEAR_ERR);
+        return;
+    }
+
     static float i = 0;
     i += 0.2;
 
     float command = (sin(i) + 1.0f) / 2.0f;
 
-    commandAxisTurns(command * 10.0f, 0);
+    commandAxisTurns(command * 2.0, 0);
 }
 
 void Odrive36::lockAxis(MotorAxis motor) {

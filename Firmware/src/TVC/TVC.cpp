@@ -13,6 +13,11 @@
 
 #include "tvc/odrive36.h"
 #include "tvc.h"
+#include <librnp/default_packets/simplecommandpacket.h>
+
+#include <libriccore/riccorelogging.h>
+
+#define log(x) RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>(x)
 
 TVC::TVC(RnpNetworkManager &networkManager):
         NRCRemoteActuatorBase(networkManager),
@@ -24,9 +29,9 @@ int TVC::requestControl(float xAxis, float yAxis) {
 }
 
 int TVC::arm(void) {
-    odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
+    bool ax0 = odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
     // odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
-    return 0;
+    return ax0 ? 1 : 0;
 }
 
 int TVC::lock(void) {
@@ -47,7 +52,13 @@ void TVC::disarm(void) {
 }
 
 void TVC::arm_base(int32_t arg) {
-    arm();
+    if(arm()) {
+        this->_state.deleteFlag(LIBRRC::COMPONENT_STATUS_FLAGS::DISARMED);
+        this->_state.newFlag(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
+        log("[tvc]: arm good.");
+    } else {
+        log("[tvc]: FAILED TO ARM.");
+    }
 }
 
 void TVC::disarm_base() {

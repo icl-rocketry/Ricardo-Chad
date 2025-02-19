@@ -64,15 +64,18 @@ void System::systemSetup(){
 
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
+    pinMode(PinMap::oDriveGND,INPUT_PULLDOWN);
 
     delay(1000);
 
     // pinMode(7, INPUT_PULLDOWN);
     log("Initialising Serial!");
     tvcController = std::make_unique<TVC>(networkmanager);
+    networkmanager.registerService(servoservice0,tvcController->getThisNetworkCallback());
 }
 
 void System::systemUpdate(){
     Buck.update();
     tvcController->update();
+    // tvcController->odrv.poll("axis0.min_endstop.endstop_state");
 }
