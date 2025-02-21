@@ -15,10 +15,10 @@
 
 #include <librnp/rnp_networkmanager.h>
 
-#include "tvc/odrive36.h"
-#include "tvc/tvcTelemPacket.h"
+#include "TVC/odrive36.h"
+#include "TVC/tvcTelemPacket.h"
 
-#include "tvc/states/tvcTypes.h"
+#include "TVC/states/tvcTypes.h"
 
 class TVC : public NRCRemoteActuatorBase<TVC> {
 public:

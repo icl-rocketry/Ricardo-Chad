@@ -9,11 +9,11 @@
  *
  */
 
-#include "tvc/tvc.h"
-#include "tvc/odrive36.h"
+#include "TVC/tvc.h"
+#include "TVC/odrive36.h"
 
-#include "tvc/states/tvcTypes.h"
-#include "tvc/states/default.h"
+#include "TVC/states/tvcTypes.h"
+#include "TVC/states/default.h"
 
 #include <librnp/default_packets/simplecommandpacket.h>
 

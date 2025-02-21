@@ -12,7 +12,7 @@
 
 #include <Arduino.h>
 
-#include "tvc/odriveEnums.h"
+#include "TVC/odriveEnums.h"
 
 /**
  * @brief Driver component for the ODrive v3.6 board.
@@ -125,6 +125,17 @@ public:
         return error;
     }
 
+    /// @brief Odrive system commands.
+    enum class SysCommand {
+        REBOOT,
+        SAVE_CONF,
+        ERASE_CONF,
+        CLEAR_ERR
+    };
+
+    /// @brief Send a system command to the Odrive.
+    void command(SysCommand command);
+
     void poll(std::string config);
 
 private:
@@ -146,14 +157,6 @@ private:
     // Temp (should use state)
     bool armed = false;
     bool configured = false;
-
-    /// @brief Odrive system commands.
-    enum class SysCommand {
-        REBOOT,
-        SAVE_CONF,
-        ERASE_CONF,
-        CLEAR_ERR
-    };
 
     bool executing = false;
 
@@ -182,6 +185,4 @@ private:
     float readFloat();
 
     int readInt();
-
-    void command(SysCommand command);
 };

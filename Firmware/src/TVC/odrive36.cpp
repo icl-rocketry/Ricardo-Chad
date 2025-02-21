@@ -12,8 +12,8 @@
 
 #include <libriccore/riccorelogging.h>
 
-#include "tvc/odrive36.h"
-#include "tvc/odriveEnums.h"
+#include "TVC/odrive36.h"
+#include "TVC/odriveEnums.h"
 #include "odrive36.h"
 
 #include "Config/pinmap_config.h"

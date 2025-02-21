@@ -1,6 +1,6 @@
 /**
- * @file armed.h
- * @author Riley Horrix (rh1122@ic.ac.uk)
+ * @file error.h
+ * @author your name (you@domain.com)
  * @brief 
  * @version 0.1
  * @date 2025-02-17
@@ -10,33 +10,44 @@
  */
 #pragma once
 
-#include "../tvcTypes.h"
+#include "TVC/state/tvcTypes.h"
 
-class Executing : public TVCState {
+#include "TVC/odrive36.h"
+
+class Error : public TVCState {
 public:
     /**
-      * @brief Executing state constructor.
-      *
+      * @brief Error state constructor.
+      * 
       */
-    Executing();
+    Error(TVCStatus& tvcStatus, Odrive36& odrive): State(TVC_FLAGS::STATE_DEFAULT, tvcStatus), tvcStatus(tvcStatus), odrive(odrive) {}
 
     /**
       * @brief Perform any initialization required for the state
       * 
       */
-    void initialize() override;
+    void initialize() override {
+        TVCState::initialise(tvcStatus);
+    }
 
     /**
       * @brief Function called every update cycle, use to implement periodic actions such as checking sensors. If nullptr is returned, the statemachine will loop the state,
       * otherwise pass a new state ptr to transition to a new state.
       * 
+      * 
       * @return std::unique_ptr<State> 
       */
-    std::unique_ptr<TVCState> update() override;
+    std::unique_ptr<TVCState> update() override {
+
+    }
 
     /**
       * @brief Exit state actions, cleanup any files opened, save data that kinda thing.
       * 
       */
     void exit() override;
+
+private:
+    TVCStatus& tvcStatus;
+    Odrive36& odrive;
 };
