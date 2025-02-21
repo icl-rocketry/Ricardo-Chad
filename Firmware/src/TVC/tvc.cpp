@@ -100,7 +100,8 @@ void TVC::execute_base(int32_t arg) {
             lock();
             break;
         case EXECUTE:
-            odrv.start();
+            running = true;
+            time_execute = millis();
             break;
     }
 }

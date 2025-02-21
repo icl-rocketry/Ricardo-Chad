@@ -123,5 +123,5 @@ private:
 
     bool running = false;
 
-    uint64_t time_execute;
+    uint64_t time_execute = 0;
 };
