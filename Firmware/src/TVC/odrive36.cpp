@@ -12,8 +12,8 @@
 
 #include <libriccore/riccorelogging.h>
 
-#include "tvc/odrive36.h"
-#include "tvc/odriveEnums.h"
+#include "TVC/odrive36.h"
+#include "TVC/odriveEnums.h"
 #include "odrive36.h"
 
 #include "Config/pinmap_config.h"
@@ -135,7 +135,7 @@ void Odrive36::configureAxis(MotorAxis motor) {
     writeConfig(axis + ".min_endstop.config.debounce_ms", 50);
     writeConfig(axis + ".min_endstop.config.gpio_num", 4);
     writeConfig(axis + ".min_endstop.config.is_active_high ", false);
-    writeConfig(axis + ".min_endstop.config.offset", 3.0f);
+    writeConfig(axis + ".min_endstop.config.offset", 0.0f);
     writeConfig(axis + ".min_endstop.config.enabled", true);
     writeConfig(axis + ".max_endstop.config.enabled", false);
     writeConfig("config.gpio4_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL_PULL_UP));
@@ -293,35 +293,6 @@ void Odrive36::poll(std::string config) {
     prev = time;
 
     log("[odrive36]: Read config " + config + " : " + std::to_string(readConfigInt(config)));
-}
-
-void Odrive36::update(void) {
-    if (!executing) {
-        return;
-    }
-
-    static uint64_t prev = millis();
-    uint64_t time = millis();
-
-    // Only send commands at <= 60Hz
-    if (time - prev < 20) {
-        return;
-    }
-
-    prev = time;
-
-    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
-        log(error.toString());
-        command(SysCommand::CLEAR_ERR);
-        return;
-    }
-
-    static float i = 0;
-    i += 0.2;
-
-    float command = (sin(i) + 1.0f) / 2.0f;
-
-    commandAxisTurns(command * 2.0, 0);
 }
 
 void Odrive36::lockAxis(MotorAxis motor) {

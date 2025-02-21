@@ -12,7 +12,7 @@
 
 #include <Arduino.h>
 
-#include "tvc/odriveEnums.h"
+#include "TVC/odriveEnums.h"
 
 /**
  * @brief Driver component for the ODrive v3.6 board.

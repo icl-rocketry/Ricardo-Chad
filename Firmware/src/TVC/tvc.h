@@ -15,8 +15,8 @@
 
 #include <librnp/rnp_networkmanager.h>
 
-#include "tvc/odrive36.h"
-#include "tvc/tvcTelemPacket.h"
+#include "TVC/odrive36.h"
+#include "TVC/tvcTelemPacket.h"
 
 class TVC : public NRCRemoteActuatorBase<TVC> {
 public:
@@ -68,9 +68,7 @@ public:
      */
     void disarm(void);
 
-    void update(void) {
-        odrv.update();
-    }
+    void update(void);
 
     /**
      * @brief Request a control signal [0, 1] for each motor.
@@ -107,8 +105,8 @@ public:
      */
     void execute_base(int32_t arg);
 
-
-    Odrive36 odrv = Odrive36(10.0f);
+    const float maxTurns = 20.0f;
+    Odrive36 odrv = Odrive36(maxTurns);
 private:
     // state_t y_axis; // In body axis coordinates
     // state_t z_axis; // In body axis coordinates
@@ -123,4 +121,7 @@ private:
      */
     TVCTelemPacket telemPacket;
 
+    bool running = false;
+
+    uint64_t time_execute;
 };
