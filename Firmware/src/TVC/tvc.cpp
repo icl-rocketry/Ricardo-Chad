@@ -33,20 +33,23 @@ int TVC::requestControl(float xAxis, float yAxis) {
 
 int TVC::arm(void) {
     bool ax0 = odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    // odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
-    return ax0 ? 1 : 0;
+    bool ax1 = odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    bool res = ax0 && ax1;
+    if (res) {
+        odrv.commandAxisTurns(10.0, 10.0);
+    }
+    return res ? 1 : 0;
 }
 
 int TVC::lock(void) {
     odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    // odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
-int TVC::idle(void)
-{
+int TVC::idle(void) {
     odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    // odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
@@ -71,13 +74,38 @@ void TVC::disarm_base() {
 #define LOCK 0x0
 #define EXECUTE 0x1
 
+void program(uint64_t time_ms, float& x, float& y) {
+    const float amplitude = 1.0;
+
+    // Normalise to [0, 1] * amplitude. 
+    x = sin(time_ms / 1000.0) + 1.0 * (amplitude / 2.0);
+
+    // Initially dont move y.
+    if (time_ms / 1000.0 < (3.14159266 / 2.0)) { 
+        y = 0;
+    }
+    y = cos(time_ms / 1000.0) + 1.0 * (amplitude / 2.0);
+}
+
+void TVC::update() {
+    if (running) {
+        float x;
+        float y;
+        uint64_t time_ms = millis();
+        program(time_ms - time_execute, x, y);
+        odrv.commandAxisTurns(x, y);
+    }
+}
+
+
 void TVC::execute_base(int32_t arg) {
     switch (arg) {
         case LOCK:
             lock();
             break;
         case EXECUTE:
-            odrv.start();
+            running = true;
+            time_execute = millis();
             break;
     }
 }

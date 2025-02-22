@@ -70,9 +70,7 @@ public:
      */
     void disarm(void);
 
-    void update(void) {
-        odrv.update();
-    }
+    void update(void);
 
     /**
      * @brief Request a control signal [0, 1] for each motor.
@@ -109,9 +107,10 @@ public:
      */
     void execute_base(int32_t arg);
 
+    static constexpr float maxTurns = 20.0f;
+    
     /// @brief The underlying TVC driver.
-    Odrive36 odrv;
-
+    Odrive36 odrv = Odrive36(maxTurns);
 private:
     /// @brief Network manager reference.
     RnpNetworkManager& networkManager;
@@ -121,4 +120,7 @@ private:
 
     /// @brief Unique pointer to the current state machine.
     TVCStateMachine stateMachine;
+    bool running = false;
+
+    uint64_t time_execute = 0;
 };
