@@ -72,7 +72,7 @@ void TVC::disarm_base() {
 #define EXECUTE 0x1
 
 void program(uint64_t time_ms, float& x, float& y) {
-    const float amplitude = 1.0
+    const float amplitude = 1.0;
 
     // Normalise to [0, 1] * amplitude. 
     x = sin(time_ms / 1000.0) + 1.0 * (amplitude / 2.0);

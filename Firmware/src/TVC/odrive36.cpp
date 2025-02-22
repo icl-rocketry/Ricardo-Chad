@@ -42,13 +42,14 @@ void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
         log("[odrive36] Odrive motor not armed!");
         return;
     }
+
     axisZero = constrain(axisZero, 0, maxTurns);
     axisOne = constrain(axisOne, 0, maxTurns);
 
     switch (controlType) {
         case ControlType::TRAP_TRAJ:
             serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ZERO), axisZero);
-            // serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
+            serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
             break;
         
         default:
@@ -73,7 +74,7 @@ bool Odrive36::armAxis(MotorAxis motor) {
 
     command(SysCommand::CLEAR_ERR);
 
-    configureAxis(MotorAxis::MOTOR_AXIS_ZERO);
+    configureAxis(motor);
     // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
 
     if (!configured) {
@@ -84,27 +85,27 @@ bool Odrive36::armAxis(MotorAxis motor) {
     log("[odrive36] Starting Motor Calibration.");
     runState(motor, AxisState::AXIS_STATE_MOTOR_CALIBRATION);
 
-    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+    if (checkErrorsAxis(motor)) {
         log(error.toString());
     }
 
     log("[odrive36] Starting Encoder Offset Calibration.");
     runState(motor, AxisState::AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
 
-    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+    if (checkErrorsAxis(motor)) {
         log(error.toString());
     }
 
     log("[odrive36] Starting Homing Calibration.");
     delay(100);
-    runState(motor, AxisState::AXIS_STATE_HOMING, true, 10000);
+    runState(motor, AxisState::AXIS_STATE_HOMING, true, 100000);
     log("[odrive36] Calibration Complete.");
     
-    if (checkErrorsAxis(MotorAxis::MOTOR_AXIS_ZERO)) {
+    if (checkErrorsAxis(motor)) {
         log(error.toString());
     }
 
-    runState(MotorAxis::MOTOR_AXIS_ZERO, AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
+    runState(motor, AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
     writeConfig("axis0.controller.config.input_mode", static_cast<int>(InputMode::INPUT_MODE_TRAP_TRAJ));
 
     armed = true;
@@ -129,17 +130,18 @@ bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForId
 // (doesnt really matter because it is only done once but i still hate it)
 void Odrive36::configureAxis(MotorAxis motor) {
     const std::string axis = motor == MotorAxis::MOTOR_AXIS_ZERO ? "axis0" : "axis1";
+    const int endstopGpio = motor == MotorAxis::MOTOR_AXIS_ZERO ? 4 : 3;
 
     // Endstop Configs
-    writeConfig("config.gpio4_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL));
+    writeConfig("config.gpio" + std::to_string(endstopGpio) + "_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL));
     writeConfig(axis + ".min_endstop.config.debounce_ms", 50);
-    writeConfig(axis + ".min_endstop.config.gpio_num", 4);
+    writeConfig(axis + ".min_endstop.config.gpio_num", endstopGpio);
     writeConfig(axis + ".min_endstop.config.is_active_high ", false);
     writeConfig(axis + ".min_endstop.config.offset", 0.0f);
     writeConfig(axis + ".min_endstop.config.enabled", true);
     writeConfig(axis + ".max_endstop.config.enabled", false);
-    writeConfig("config.gpio4_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL_PULL_UP));
-    writeConfig(axis + ".controller.config.homing_speed", 0.5f);
+    writeConfig("config.gpio" + std::to_string(endstopGpio) + "_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL_PULL_UP));
+    writeConfig(axis + ".controller.config.homing_speed", 1.0f);
 
     // Motor Configs
     writeConfig(axis + ".motor.config.current_lim", 20);
@@ -152,10 +154,10 @@ void Odrive36::configureAxis(MotorAxis motor) {
     writeConfig(axis + ".encoder.config.cpr", 8192);
 
     // Controller Setup
-    writeConfig(axis + ".trap_traj.config.vel_limit", 100);
-    writeConfig(axis + ".trap_traj.config.accel_limit", 1000);
-    writeConfig(axis + ".trap_traj.config.decel_limit", 1000);
-    writeConfig(axis + ".controller.config.vel_limit", 110); // 10% more than the trap_traj setting 
+    writeConfig(axis + ".trap_traj.config.vel_limit", 90);
+    writeConfig(axis + ".trap_traj.config.accel_limit", 500);
+    writeConfig(axis + ".trap_traj.config.decel_limit", 500);
+    writeConfig(axis + ".controller.config.vel_limit", 100); // 10% more than the trap_traj setting 
     writeConfig(axis + ".controller.config.vel_ramp_rate", 1);
     writeConfig(axis + ".controller.config.vel_gain", 0.02f);
     writeConfig(axis + ".controller.config.pos_gain", 5);
