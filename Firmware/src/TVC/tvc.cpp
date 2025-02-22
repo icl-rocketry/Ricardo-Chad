@@ -12,7 +12,6 @@
 #include "TVC/tvc.h"
 
 #include "TVC/odrive36.h"
-#include "TVC.h"
 #include <librnp/default_packets/simplecommandpacket.h>
 
 #include <libriccore/riccorelogging.h>
@@ -71,17 +70,27 @@ void TVC::disarm_base() {
 #define LOCK 0x0
 #define EXECUTE 0x1
 
-void program(uint64_t time_ms, float& x, float& y) {
-    const float amplitude = 1.0;
+void circle_program(uint64_t time_ms, float& x, float& y) {
+    static const float a = 0.6;
+    // at22 = a * (time / 1000 - 2) + 1 = a * time - b
+    static const float a = 0.0006;
+    static const float b = -0.2;
+    const float at22 = a * time_ms + b;
 
     // Normalise to [0, 1] * amplitude. 
-    x = sin(time_ms / 1000.0) + 1.0 * (amplitude / 2.0);
+    x = time_ms < 2000 ? 0.5 :
+        time_ms < 12000 ? 0.5 * sin(PI * at22 * at22) + 0.5 :
+            0.5;
 
-    // Initially dont move y.
-    if (time_ms / 1000.0 < (3.14159266 / 2.0)) { 
-        y = 0;
-    }
-    y = cos(time_ms / 1000.0) + 1.0 * (amplitude / 2.0);
+    y = time_ms < 1000 ? 0.5 : 
+        time_ms < 2000 ? 0.0005 * time_ms :
+        time_ms < 12000 ? -0.5 * cos(PI * at22 * at22) + 0.5 :
+            0.5;
+}
+
+void square_program(uint64_t time_ms, float& x, float& y) {
+    // {a = time_s} x = mod2(floor(0.8a^2 -6a - 80))
+    // {a = time_s - 5} y = mod2(floor(0.8a^2 -6a - 80))
 }
 
 void TVC::update() {
@@ -89,8 +98,8 @@ void TVC::update() {
         float x;
         float y;
         uint64_t time_ms = millis();
-        program(time_ms - time_execute, x, y);
-        odrv.commandAxisTurns(x, y);
+        circle_program(time_ms - time_execute, x, y);
+        odrv.commandAxisTurns(x * maxTurns, y * maxTurns);
     }
 }
 

@@ -130,7 +130,9 @@ bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForId
 // (doesnt really matter because it is only done once but i still hate it)
 void Odrive36::configureAxis(MotorAxis motor) {
     const std::string axis = motor == MotorAxis::MOTOR_AXIS_ZERO ? "axis0" : "axis1";
-    const int endstopGpio = motor == MotorAxis::MOTOR_AXIS_ZERO ? 4 : 3;
+    const int endstopGpio = motor == MotorAxis::MOTOR_AXIS_ZERO ? 3 : 4;
+
+    log(std::string("[odrive]: Arming ").append(motor == MotorAxis::MOTOR_AXIS_ZERO ? "0" : "1"));
 
     // Endstop Configs
     writeConfig("config.gpio" + std::to_string(endstopGpio) + "_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL));
