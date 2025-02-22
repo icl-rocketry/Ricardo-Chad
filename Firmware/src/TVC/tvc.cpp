@@ -23,38 +23,44 @@
 
 TVC::TVC(RnpNetworkManager &networkManager):
         NRCRemoteActuatorBase(networkManager),
-        networkManager(networkManager),
-        stateMachine(std::make_unique<Default>(odrv)) {}
+        networkManager(networkManager) {
+    // Initialise state machine to default
+    stateMachine.initalize(std::make_unique<TVCDefault>(tvcStatus));
+
+    // Set both internal states to show none.
+    tvcArmedStatus.newFlag(ARMED_STATUS_FLAGS::NONE);
+    tvcExecutingStatus.newFlag(EXECUTING_STATUS_FLAGS::NONE);
+}
 
 int TVC::requestControl(float xAxis, float yAxis) {
-    odrv.commandAxisTurns(xAxis, yAxis);
+    odrive.commandAxisTurns(xAxis, yAxis);
     return 0;
 }
 
 int TVC::arm(void) {
-    bool ax0 = odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    bool ax1 = odrv.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    bool ax0 = odrive.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
+    bool ax1 = odrive.armAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     bool res = ax0 && ax1;
     if (res) {
-        odrv.commandAxisTurns(10.0, 10.0);
+        odrive.commandAxisTurns(maxTurns / 2.0, maxTurns / 2.0);
     }
     return res ? 1 : 0;
 }
 
 int TVC::lock(void) {
-    odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    odrv.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    odrive.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
+    odrive.lockAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
 int TVC::idle(void) {
-    odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
-    odrv.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
+    odrive.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ZERO);
+    odrive.idleAxis(Odrive36::MotorAxis::MOTOR_AXIS_ONE);
     return 0;
 }
 
 void TVC::disarm(void) {
-    odrv.disarmAxis();
+    odrive.disarmAxis();
 }
 
 void TVC::arm_base(int32_t arg) {
@@ -93,7 +99,7 @@ void TVC::update() {
         float y;
         uint64_t time_ms = millis();
         program(time_ms - time_execute, x, y);
-        odrv.commandAxisTurns(x, y);
+        odrive.commandAxisTurns(x, y);
     }
 }
 

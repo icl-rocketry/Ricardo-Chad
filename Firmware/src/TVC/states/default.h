@@ -14,20 +14,20 @@
 
 #include "TVC/odrive36.h"
 
-class Default : public TVCState {
+class TVCDefault : public TVCState {
 public:
     /**
       * @brief Default state constructor.
       * 
       */
-    Default(TVCStatus& tvcStatus): State(TVC_FLAGS::STATE_DEFAULT, tvcStatus), tvcStatus(tvcStatus) {}
+    TVCDefault(TVCStatus& tvcStatus): State(TVC_FLAGS::STATE_DEFAULT, tvcStatus), tvcStatus(tvcStatus) {}
 
     /**
       * @brief Perform any initialization required for the state.
       * 
       */
     void initialize() override {
-        TVCState::initialise();
+        TVCState::initialize();
     }
 
     /**

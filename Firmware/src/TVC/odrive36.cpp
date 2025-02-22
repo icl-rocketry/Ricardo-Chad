@@ -29,7 +29,7 @@ const int RX_PIN = PinMap::oDriveRx;
 /// @brief UART baud rate.
 const int UART_BAUD = 115200;
 
-Odrive36::Odrive36(): 
+Odrive36::Odrive36(float maxTurns): 
         maxTurns(maxTurns),
         serial(Serial1),
         controlType(ControlType::TRAP_TRAJ) {
@@ -75,18 +75,13 @@ bool Odrive36::armAxis(MotorAxis motor) {
     command(SysCommand::CLEAR_ERR);
 
     configureAxis(motor);
-    // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
-
-    if (!configured) {
-        log("[odrive36] Tried to arm unconfigured odrive!");
-        return false;
-    }
 
     log("[odrive36] Starting Motor Calibration.");
     runState(motor, AxisState::AXIS_STATE_MOTOR_CALIBRATION);
 
     if (checkErrorsAxis(motor)) {
         log(error.toString());
+        return false;
     }
 
     log("[odrive36] Starting Encoder Offset Calibration.");
@@ -94,6 +89,7 @@ bool Odrive36::armAxis(MotorAxis motor) {
 
     if (checkErrorsAxis(motor)) {
         log(error.toString());
+        return false;
     }
 
     log("[odrive36] Starting Homing Calibration.");
@@ -103,14 +99,20 @@ bool Odrive36::armAxis(MotorAxis motor) {
     
     if (checkErrorsAxis(motor)) {
         log(error.toString());
+        return false;
     }
 
     runState(motor, AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
     writeConfig("axis0.controller.config.input_mode", static_cast<int>(InputMode::INPUT_MODE_TRAP_TRAJ));
 
+    if (checkErrorsAxis(motor)) {
+        log(error.toString());
+        return false;
+    }
+
     armed = true;
 
-    return !hasAnyError; // TODO
+    return true;
 }
 
 bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForIdle, float timeout) {

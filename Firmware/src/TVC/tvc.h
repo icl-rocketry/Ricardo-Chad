@@ -20,6 +20,35 @@
 
 #include "TVC/states/tvcTypes.h"
 
+#define FLAG(n) (0x1 << n)
+
+/// @brief Possible status flags available in armed state.
+enum class ARMED_STATUS_FLAGS: uint32_t {
+    NONE =                  FLAG(0),
+    CONFIGURED =            FLAG(1),
+    CLOSED_LOOP_CONTROL =   FLAG(2)
+};
+
+using TVC_ARMED_STATUS = SystemStatus<ARMED_STATUS_FLAGS>;
+
+/**
+ * @brief Possible status flags available in executing state.
+ * 
+ * The TVC will have state::NONE when the armed status is not in 
+ * state::CLOSED_LOOP_CONTROL.
+ */
+enum class EXECUTING_STATUS_FLAGS: uint32_t {
+    NONE =      FLAG(0),
+    IDLE =      FLAG(1),
+    LOCKED =    FLAG(2),
+    PROGRAM_0 = FLAG(3),
+    PROGRAM_1 = FLAG(4),
+    PROGRAM_2 = FLAG(5)
+};
+
+using TVC_EXECUTING_STATUS = SystemStatus<EXECUTING_STATUS_FLAGS>;
+
+
 class TVC : public NRCRemoteActuatorBase<TVC> {
 public:
     /**
@@ -108,19 +137,32 @@ public:
     void execute_base(int32_t arg);
 
     static constexpr float maxTurns = 20.0f;
-    
-    /// @brief The underlying TVC driver.
-    Odrive36 odrv = Odrive36(maxTurns);
+
 private:
+    /// @brief The underlying TVC driver.
+    Odrive36 odrive = Odrive36(maxTurns);
+
     /// @brief Network manager reference.
     RnpNetworkManager& networkManager;
 
     /// @brief Telemetry packet instance.
     TVCTelemPacket telemPacket;
 
+    /// @brief Current status of the TVC
+    TVCStatus tvcStatus;
+
+    /// @brief Current armed status of the TVC.
+    TVC_ARMED_STATUS tvcArmedStatus;
+
+    /// @brief Current executing status of the TVC.
+    TVC_EXECUTING_STATUS tvcExecutingStatus;
+
     /// @brief Unique pointer to the current state machine.
     TVCStateMachine stateMachine;
     bool running = false;
+
+    bool isConfigured = false;
+    
 
     uint64_t time_execute = 0;
 };
