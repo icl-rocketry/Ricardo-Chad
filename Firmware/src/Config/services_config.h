@@ -20,10 +20,10 @@ namespace Services{
      */
     enum class ID:uint8_t{
         Motor1 = 10,
-        PID = 3,
+        PicklePID = 3,
         Motor2 = 11,
         Pot0 = 12,
-        Pot1 = 13
+        Pot1 = 13   
     };
 
 };

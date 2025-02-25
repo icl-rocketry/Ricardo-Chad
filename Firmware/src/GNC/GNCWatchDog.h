@@ -40,7 +40,7 @@ private:
 
     
     double requestTime;
-    double timeInterval = 1;
+    double timeInterval = 1000;
 
     double timeElapsed; 
     //equal to one to force pickle poll

@@ -52,11 +52,14 @@ void System::systemSetup(){
     // Defining these so the methods following are less ugly
     uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
     uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
+    uint8_t PIDservice = static_cast<uint8_t>(Services::ID::PicklePID);
 
     networkmanager.addInterface(&canbus);
 
     networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
     networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
+    //networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
+    networkmanager.registerService(PIDservice,[this](packetptr_t packetptr){clifford.PIDcheck.networkCallback(std::move(packetptr));});
     
 };
 
