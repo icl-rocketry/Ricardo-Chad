@@ -22,9 +22,8 @@ RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus, PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 Motor1(PinMap::ServoPWM0, 0, networkmanager),
-Motor2(PinMap::ServoPWM1, 1, networkmanager)
-// gnc(networkmanager,PinMap::ServoPWM1, 0, PinMap::ServoPWM2, 1, networkmanager.getAddress())
-// GNCWatchDog(1000, networkmanager, Motor1, Motor2)
+Motor2(PinMap::ServoPWM1, 1, networkmanager),
+clifford(networkmanager, Motor1, Motor2)
 {};
 
 
@@ -40,11 +39,11 @@ void System::systemSetup(){
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
     
     //any other setup goes here
-    
+    clifford.setup();
     Buck.setup();
     Motor1.setup();
     Motor2.setup();
-
+    
     canbus.setup();
     
     networkmanager.setNodeType(NODETYPE::HUB);
@@ -64,4 +63,5 @@ void System::systemSetup(){
 void System::systemUpdate(){
     Buck.update();
     // WatchDog.update();
+    clifford.update();
 };

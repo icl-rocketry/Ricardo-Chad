@@ -31,6 +31,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         
         NRCRemoteProp Motor1;
         NRCRemoteProp Motor2;
+        GNCWatchDog clifford;//🐶
 
     protected: 
 
