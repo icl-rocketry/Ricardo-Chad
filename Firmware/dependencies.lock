@@ -120,11 +120,11 @@ dependencies:
       type: service
     version: 1.0.20~1
   espressif/mdns:
-    component_hash: af6306fe65d637a3683d1cf671508fcedd6b05f9ca029a8815abeab64001fb8d
+    component_hash: 7fd79958fd0b9a4917ee4f50141fe29c902c02d1a1feb1d6751276049b186d6b
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 1.4.0
+    version: 1.8.0
   espressif/network_provisioning:
     component_hash: ef2e10182fd1861e68b821491916327c25416ca7ae70e5a6e43313dbc71fe993
     source:
@@ -154,6 +154,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.14.8
-manifest_hash: d50fc705e8d9ae8d7b419f71cab66705bc8ec639c43e36295e5b495773ebb602
+manifest_hash: 17ab34723276fffe7be5dbcd182b486484db61d8546c0b2fbebbf8bc5028da74
 target: esp32s3
 version: 1.0.0
