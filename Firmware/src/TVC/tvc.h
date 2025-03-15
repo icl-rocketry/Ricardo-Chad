@@ -27,60 +27,8 @@ public:
      */
     TVC(RnpNetworkManager& networkManager);
 
-    /**
-     * @brief Request a force output from the TVC.
-     * 
-     * If one of the motors has an error, then the no commands will be sent to either motor.
-     * 
-     * @param x Force through x axis (N).
-     * @param y Force through y axis (N).
-     * @param z Force through z axis (N).
-     * 
-     * @return int An integer error code, 0 for success.
-     */
-    int requestForce(float x, float y, float z);
-
-    /**
-     * @brief Arm the TVC.
-     * 
-     * This will arm both TVC axes.
-     * 
-     * @return int An integer error code, 0 for success.
-     */
-    int arm(void);
-
-    /**
-     * @brief Lock the TVC in its current position.
-     * 
-     * @return int An integer error code, 0 for success.
-     */
-    int lock(void);
-
-    /**
-     * @brief Set the TVC into un-powered, idle mode.
-     * 
-     * @return int An integer error code, 0 for success.
-     */
-    int idle(void);
-
-    /**
-     * @brief Disarm the TVC.
-     */
-    void disarm(void);
-
-    void update(void);
-
-    /**
-     * @brief Request a control signal [0, 1] for each motor.
-     * 
-     * This is used for testing the motors easily.
-     * 
-     * @param yAxis Control signal for the y-axis.
-     * @param zAxis Control signal for the z-axis.
-     * 
-     * @return int An integer error code, 0 for success.
-     */
-    int requestControl(float xAxis, float yAxis);
+    /// @brief Main update loop.
+    void update();
 
     /**
      * @brief Override of arm implementation for remote actuator.
@@ -104,24 +52,40 @@ public:
      * @param arg The command.
      */
     void execute_base(int32_t arg);
-
-    const float maxTurns = 20.0f;
-    Odrive36 odrv = Odrive36(maxTurns);
-private:
-    // state_t y_axis; // In body axis coordinates
-    // state_t z_axis; // In body axis coordinates
-
+    
+    private:
     /**
      * @brief Network manager reference.
      */
     RnpNetworkManager& networkManager;
-
+    
+    /// @brief The current running program.
+    uint32_t currentProgram = 0x0;
+    
     /**
      * @brief Telemetry packet instance;
      */
     TVCTelemPacket telemPacket;
-
-    bool running = false;
-
+    
+    /// @brief The time that the current execute command started running.
     uint64_t time_execute = 0;
+    
+    /// @brief Software end stop for the odrive.
+    const float softwareMinEndstop = 1.0;
+    
+    /// @brief Software maximal turns from the endstop for the odrive.
+    const float softwareMaxTurns = 10.0;
+    
+    /// @brief The odrive.
+    Odrive36 odrv = Odrive36(softwareMaxTurns, softwareMinEndstop);
+    
+    /// @brief Request a telemetry packet from the TVC.
+    void requestTelem();
+
+    /**
+     * @brief Lock the TVC in its current position.
+     * 
+     * @return int An integer error code, 0 for success.
+     */
+    int lock(void);
 };

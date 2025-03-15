@@ -32,9 +32,13 @@ private:
     {
         auto ret = RnpSerializer(
             &TVCTelemPacket::time,
+            &TVCTelemPacket::vbusVoltage,
+            &TVCTelemPacket::state,
+            &TVCTelemPacket::axis0Requested,
             &TVCTelemPacket::axis0Turns,
             &TVCTelemPacket::axis0Velocity,
             &TVCTelemPacket::axis0Current,
+            &TVCTelemPacket::axis1Requested,
             &TVCTelemPacket::axis1Turns,
             &TVCTelemPacket::axis1Velocity,
             &TVCTelemPacket::axis1Current
@@ -61,7 +65,11 @@ public:
      */
     void serialize(std::vector<uint8_t>& buf) override;
 
+    float axis0Requested;
+    float axis1Requested;
     uint32_t time;
+    float vbusVoltage;
+    uint32_t state;
     float axis0Turns;
     float axis0Velocity;
     float axis0Current;

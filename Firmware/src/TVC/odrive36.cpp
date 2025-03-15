@@ -29,96 +29,85 @@ const int RX_PIN = PinMap::oDriveRx;
 /// @brief UART baud rate.
 const int UART_BAUD = 115200;
 
-Odrive36::Odrive36(float maxTurns): 
+Odrive36::Odrive36(float maxTurns, float minEndstop): 
         maxTurns(maxTurns),
-        serial(Serial1),
-        controlType(ControlType::TRAP_TRAJ) {
+        minEndstop(minEndstop),
+        serial(Serial1) {
     Serial1.begin(UART_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
-    delay(10);  // Wait for serial connection
 }
 
 void Odrive36::commandAxisTurns(float axisZero, float axisOne) {
-    if (!armed) {
-        log("[odrive36] Odrive motor not armed!");
-        return;
-    }
+    axisZero = constrain(axisZero, minEndstop, minEndstop + maxTurns);
+    axisOne = constrain(axisOne, minEndstop, minEndstop + maxTurns);
 
-    axisZero = constrain(axisZero, 0, maxTurns);
-    axisOne = constrain(axisOne, 0, maxTurns);
+    axis0Requested = axisZero;
+    axis1Requested = axisOne;
 
-    switch (controlType) {
-        case ControlType::TRAP_TRAJ:
-            serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ZERO), axisZero);
-            serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
-            break;
-        
-        default:
-            break;
-    }
+    serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ZERO), axisZero);
+    serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
+}
+
+void Odrive36::commandAxisControl(float axisZero, float axisOne) {
+    axisZero = constrain(axisZero * maxTurns + minEndstop, minEndstop, minEndstop + maxTurns);
+    axisOne = constrain(axisOne * maxTurns + minEndstop, minEndstop, minEndstop + maxTurns);
+
+    axis0Requested = axisZero;
+    axis1Requested = axisOne;
+
+    serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ZERO), axisZero);
+    serial.printf("t %d %.4f\n", static_cast<int>(MotorAxis::MOTOR_AXIS_ONE), axisOne);
 }
 
 bool Odrive36::armAxis(MotorAxis motor) {
-    log("Arming!");
-
     // Wait for the odrive
-    float voltage;
-    while ((voltage = readConfigFloat("vbus_voltage")) == 0) {
-        static int i = 0;
-        if (i % 100 == 0) {
-            log("[odrive36] ODrive not found");
-        }
-        i ++;
-    }
+    log("[odrive36]: Arming!");
+    waitForOdrive();
 
-    log("[odrive36]: Connected to the odrvie voltage : " + std::to_string(voltage));
-
+    // Clear errors
     command(SysCommand::CLEAR_ERR);
+    const std::string axis = motor == MotorAxis::MOTOR_AXIS_ZERO ? "axis0" : "axis1";
 
-    configureAxis(motor);
-    // configureAxis(MotorAxis::MOTOR_AXIS_ONE);
-
-    if (!configured) {
-        log("[odrive36] Tried to arm unconfigured odrive!");
-        return false;
-    }
-
-    log("[odrive36] Starting Motor Calibration.");
-    runState(motor, AxisState::AXIS_STATE_MOTOR_CALIBRATION);
-
-    if (checkErrorsAxis(motor)) {
-        log(error.toString());
-    }
-
-    log("[odrive36] Starting Encoder Offset Calibration.");
-    runState(motor, AxisState::AXIS_STATE_ENCODER_OFFSET_CALIBRATION);
-
-    if (checkErrorsAxis(motor)) {
-        log(error.toString());
-    }
-
-    log("[odrive36] Starting Homing Calibration.");
-    delay(100);
-    runState(motor, AxisState::AXIS_STATE_HOMING, true, 100000);
-    log("[odrive36] Calibration Complete.");
+    // If already armed then skip
+    if (!readConfigBool(axis + ".motor.is_armed")) {
+        log("[odrive36] Starting Motor and Encoder Calibration.");
+        runState(motor, AxisState::AXIS_STATE_FULL_CALIBRATION_SEQUENCE);
     
-    if (checkErrorsAxis(motor)) {
-        log(error.toString());
+        if (checkErrorsAxis(motor)) {
+            log(error.toString());
+            return false;
+        }
+    } else {
+        log("[odrive36] Already armed, skipping arming.");
     }
 
-    runState(motor, AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
-    writeConfig("axis0.controller.config.input_mode", static_cast<int>(InputMode::INPUT_MODE_TRAP_TRAJ));
+    // If already homed then skip
+    if (!readConfigBool(axis + ".is_homed")) {
+        log("[odrive36] Starting Homing Calibration.");
+        runState(motor, AxisState::AXIS_STATE_HOMING, true, 100000);
+        
+        if (checkErrorsAxis(motor)) {
+            log(error.toString());
+            return false;
+        }
+    } else {
+        log("[odrive36] Already homed, skipping homing.");
+    }
 
-    armed = true;
+    log("[odrive36] Calibration Complete.");
+    return true;
+}
 
-    return !hasAnyError; // TODO
+bool Odrive36::idleAxis(MotorAxis motor) {
+    return runState(motor, AxisState::AXIS_STATE_IDLE);
 }
 
 bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForIdle, float timeout) {
-    int timeoutCtr = static_cast<int>(timeout / 50.0f);
+    const int delay_ms = 10;
+    int timeoutCtr = static_cast<int>(timeout / delay_ms);
     serial.printf("w axis%d.requested_state %d\n", static_cast<int>(axis), static_cast<int>(requestedState));
     if (waitForIdle) {
         do {
-            delay(50);
+            delay(delay_ms);
             serial.printf("r axis%d.current_state\n", static_cast<int>(axis));
         } while (readInt() != static_cast<int>(AxisState::AXIS_STATE_IDLE) && --timeoutCtr > 0);
     }
@@ -126,44 +115,73 @@ bool Odrive36::runState(MotorAxis axis, AxisState requestedState, bool waitForId
     return timeoutCtr > 0;
 }
 
+void Odrive36::getMotorCurrent(float & zero, float & one) {
+    zero = readConfigFloat("axis0.motor.current_control.Iq_measured");
+    one = readConfigFloat("axis1.motor.current_control.Iq_measured");
+}
+
+void Odrive36::getVoltage(float & voltage) {
+    voltage = readConfigFloat("vbus_voltage");
+}
+
+bool Odrive36::isAlive() {
+    return readConfigFloat("vbus_voltage") != 0.0;
+}
+
+void Odrive36::waitForOdrive() {
+    while (!isAlive()) {
+        static int i = 0;
+        if (i % 50 == 0) {
+            log("[odrive36] ODrive not found");
+        }
+        i ++;
+    }
+    log("[odrive36] Connected");
+}
+
 // TODO : This is hilariously slow with the string additions
-// (doesnt really matter because it is only done once but i still hate it)
+// (doesnt really matter because it is only done once but I still hate it)
 void Odrive36::configureAxis(MotorAxis motor) {
     const std::string axis = motor == MotorAxis::MOTOR_AXIS_ZERO ? "axis0" : "axis1";
     const int endstopGpio = motor == MotorAxis::MOTOR_AXIS_ZERO ? 3 : 4;
+    log("[odrive]: Arming " + axis);
 
-    log(std::string("[odrive]: Arming ").append(motor == MotorAxis::MOTOR_AXIS_ZERO ? "0" : "1"));
+    // Brake resistor configs
+    writeConfig("config.enable_brake_resistor", true);
+    writeConfig("config.brake_resistance", 5.0f);
 
-    // Endstop Configs
+    // Set controller mode
+    writeConfig(axis + ".controller.config.input_mode", static_cast<int>(InputMode::INPUT_MODE_TRAP_TRAJ));
+
+    // Endstop configs
     writeConfig("config.gpio" + std::to_string(endstopGpio) + "_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL));
-    writeConfig(axis + ".min_endstop.config.debounce_ms", 50);
     writeConfig(axis + ".min_endstop.config.gpio_num", endstopGpio);
     writeConfig(axis + ".min_endstop.config.is_active_high ", false);
     writeConfig(axis + ".min_endstop.config.offset", 0.0f);
     writeConfig(axis + ".min_endstop.config.enabled", true);
     writeConfig(axis + ".max_endstop.config.enabled", false);
     writeConfig("config.gpio" + std::to_string(endstopGpio) + "_mode", static_cast<int>(GpioMode::GPIO_MODE_DIGITAL_PULL_UP));
-    writeConfig(axis + ".controller.config.homing_speed", 1.0f);
 
-    // Motor Configs
+    // Motor configs
     writeConfig(axis + ".motor.config.current_lim", 20);
     writeConfig(axis + ".motor.config.current_lim_margin", 2);
     writeConfig(axis + ".motor.config.pole_pairs", 11);
     writeConfig(axis + ".motor.config.torque_constant", 0.01333871f);
 
-    // Encoder Setup
-    writeConfig(axis + ".encoder.config.calib_scan_distance", 20);
+    // Encoder setup
     writeConfig(axis + ".encoder.config.cpr", 8192);
 
-    // Controller Setup
+    // Controller setup
     writeConfig(axis + ".trap_traj.config.vel_limit", 90);
     writeConfig(axis + ".trap_traj.config.accel_limit", 500);
     writeConfig(axis + ".trap_traj.config.decel_limit", 500);
     writeConfig(axis + ".controller.config.vel_limit", 100); // 10% more than the trap_traj setting 
-    writeConfig(axis + ".controller.config.vel_ramp_rate", 1);
-    writeConfig(axis + ".controller.config.vel_gain", 0.02f);
+    writeConfig(axis + ".controller.config.vel_gain", 0.03f);
     writeConfig(axis + ".controller.config.pos_gain", 5);
-    configured = true;
+
+    // Save the configuration & wait for it to reboot
+    command(SysCommand::SAVE_CONF);
+    waitForOdrive();
 }
 
 void Odrive36::writeConfig(const std::string& config, const float value) {
@@ -209,6 +227,10 @@ int Odrive36::readInt() {
 float Odrive36::readConfigFloat(const std::string& config) {
     serial.printf("r %s\n", config.c_str());
     return readFloat();
+}
+
+bool Odrive36::readConfigBool(const std::string& config) {
+    return readConfigInt(config) != 0;
 }
 
 int Odrive36::readConfigInt(const std::string& config) {
@@ -276,14 +298,21 @@ bool Odrive36::checkErrorsAxis(MotorAxis axis) {
         error.axis1 = axisErr;
     }
 
-    hasAnyError = main || axisMain || axisController || axisMotor || axisEncoder;
-    
-    return hasAnyError;
+    return main || axisMain || axisController || axisMotor || axisEncoder;
 }
 
-void Odrive36::start(void)  {
-    log("[odrive36]: Starting execution.");
-    executing = true;
+// void Odrive36::idleAxis(MotorAxis motor) {
+//     runState(MotorAxis::MOTOR_AXIS_ZERO, AxisState::AXIS_STATE_IDLE);
+//     runState(MotorAxis::MOTOR_AXIS_ONE, AxisState::AXIS_STATE_IDLE);
+// }
+
+
+void Odrive36::getPosition(MotorAxis motor, float& requested, float& position, float& velocity) {
+    const int motorId = motor == MotorAxis::MOTOR_AXIS_ZERO ? 0 : 1;
+    serial.printf("f %d\n", motorId);
+    position = readFloat();
+    velocity = readFloat();
+    requested = motor == MotorAxis::MOTOR_AXIS_ZERO ? axis0Requested : axis1Requested;
 }
 
 void Odrive36::poll(std::string config) {
@@ -299,6 +328,3 @@ void Odrive36::poll(std::string config) {
     log("[odrive36]: Read config " + config + " : " + std::to_string(readConfigInt(config)));
 }
 
-void Odrive36::lockAxis(MotorAxis motor) {
-    executing = false;
-}

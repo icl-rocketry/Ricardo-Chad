@@ -26,7 +26,7 @@ public:
      * @param maxTurns The upper bound number of turns the actuator is able to
      * turn from the endstop.
      */
-    Odrive36(float maxTurns);
+    Odrive36(float maxTurns, float commandOffset);
 
     /**
      * @brief Enum for selecting the motor axis.
@@ -44,12 +44,20 @@ public:
     };
 
     /**
-     * @brief Request a position in turns from the endstop position.
+     * @brief Request a position in turns from the software endstop position.
      * 
      * @param axisZero Turns for motor axis zero.
      * @param axisOne Turns for motor axis one.
      */
     void commandAxisTurns(float axisZero, float axisOne);
+
+    /**
+     * @brief Request a position in command signal.
+     * 
+     * @param axisZero Command signal [0, 1] for axis 0.
+     * @param axisOne Command signal [0, 1] for axis 1.
+     */
+    void commandAxisControl(float axisZero, float axisOne);
 
     /**
      * @brief Arm the ODrive controller for an axis.
@@ -64,22 +72,18 @@ public:
      * 
      * @param motor The motor axis.
      */
-    void idleAxis(MotorAxis motor);
-
-    void update();
-
-    void start();
+    bool idleAxis(MotorAxis motor);
 
     /**
-     * @brief Lock the axis to it's current position.
+     * Request position information from the Odrive.
      * 
      * @param motor The motor axis.
+     * 
+     * @param requested Returns the requested position (turns).
+     * @param position Returns the actual actuator position (turns).
+     * @param velocity Returns the actuator velocity (turns / s).
      */
-    void lockAxis(MotorAxis motor);
-
-    void disarmAxis(void) {
-        armed = false;
-    }
+    void getPosition(MotorAxis motor, float& requested, float& position, float& velocity);
 
     /**
      * @brief Structure to hold error states from the ODrive.
@@ -125,27 +129,41 @@ public:
         return error;
     }
 
+    /**
+     * @brief Read and print a configuration from the odrive.
+     * 
+     * @param config The config to read.
+     */
     void poll(std::string config);
 
+    void getMotorCurrent(float& zero, float& one);
+    void getVoltage(float& voltage);
+
+    void waitForOdrive();
+
+    bool isAlive();
+
+    /**
+     * Re-configure a certain axis.
+     * 
+     * This should NOT need to be done since configurations are saved
+     * on ODrive in persistent memory.
+     * 
+     * @param axis The axis to configure.
+     */
+    void configureAxis(MotorAxis axis);
 private:
     /// @brief The current error status of the ODrive (if hasError).
     ODriveError error;
 
-    /// @brief Any of the error fields are set
-    bool hasAnyError; 
-    
     /// @brief Number of turns from 0 until the maximal extension of the actuator.
-    int maxTurns = 0;
+    const float maxTurns;
+
+    /// @brief Software min endstop
+    const float minEndstop;
 
     /// @brief The Serial connection to the ODrive.
     Stream& serial;
-
-    /// @brief Current method of control.
-    ControlType controlType;
-
-    // Temp (should use state)
-    bool armed = false;
-    bool configured = false;
 
     /// @brief Odrive system commands.
     enum class SysCommand {
@@ -155,7 +173,66 @@ private:
         CLEAR_ERR
     };
 
-    bool executing = false;
+    /// @brief Last requested command for axis 0
+    float axis0Requested = minEndstop;
+
+    /// @brief Last requested command for axis 1
+    float axis1Requested = minEndstop;
+
+    /**
+     * @brief Write a floating point config to the Odrive.
+     * 
+     * @param config String config to write, UART connection means odrv0.<>
+     *               does not need to be specified, and the string should
+     *               start after this, i.e. axis0.motor.config...
+     * @param value The value to set the configuration to.
+     */
+    void writeConfig(const std::string& config, const float value);
+
+    /**
+     * @brief Write an integer config to the Odrive.
+     * 
+     * @param config String config to write, UART connection means odrv0.<>
+     *               does not need to be specified, and the string should
+     *               start after this, i.e. axis0.motor.config...
+     * @param value The value to set the configuration to.
+     */
+    void writeConfig(const std::string& config, const int value);
+    
+    /**
+     * @brief Write a boolean config to the Odrive.
+     * 
+     * @param config String config to write, UART connection means odrv0.<>
+     *               does not need to be specified, and the string should
+     *               start after this, i.e. axis0.motor.config...
+     * @param value The value to set the configuration to.
+     */
+    void writeConfig(const std::string& config, const bool value);
+
+    /// @brief Read an integer configuration from the Odrive.
+    int readConfigInt(const std::string& config);
+
+    /// @brief Read a floating point configuration from the Odrive.
+    float readConfigFloat(const std::string& config);
+
+    /// @brief Read a boolean configuration from the Odrive.
+    bool readConfigBool(const std::string& config);
+
+    /// @brief Read a string from the serial port.
+    String readString();
+    
+    /// @brief Read a float from the serial port.
+    float readFloat();
+
+    /// @brief Read an integer from the serial port.
+    int readInt();
+
+    /**
+     * @brief Send a system command to the odrive.
+     * 
+     * @param command The command to send.
+     */
+    void command(SysCommand command);
 
     /**
      * @brief Run an axis state.
@@ -167,21 +244,4 @@ private:
      * @return bool Whether or not the state successfully ran.
      */
     bool runState(MotorAxis axis, AxisState requestedState, bool waitForIdle = true, float timeout = 5000);
-
-    void configureAxis(MotorAxis axis);
-
-    void writeConfig(const std::string& config, const float value);
-    void writeConfig(const std::string& config, const int value);
-    void writeConfig(const std::string& config, const bool value);
-
-    int readConfigInt(const std::string& config);
-    float readConfigFloat(const std::string& config);
-
-    String readString();
-    
-    float readFloat();
-
-    int readInt();
-
-    void command(SysCommand command);
 };
