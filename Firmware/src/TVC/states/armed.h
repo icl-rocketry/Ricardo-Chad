@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include "TVC/state/tvcTypes.h"
+#include "TVC/states/tvcTypes.h"
 
 #include "TVC/odrive36.h"
 
