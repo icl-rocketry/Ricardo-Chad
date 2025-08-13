@@ -14,6 +14,8 @@
 #include "Commands/commands.h"
 
 #include "SiC43x.h"
+#include "GNC/NTRIPConnector.h"
+
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
     public:
@@ -24,15 +26,18 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         void systemUpdate();
 
+        void sendCommand();
+
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
+        
+        NTRIPConnector ntrip;
     private:
         
         NRCRemoteProp Motor1;
         NRCRemoteProp Motor2;
         GNCWatchDog clifford;//🐶
-
     protected: 
 
         

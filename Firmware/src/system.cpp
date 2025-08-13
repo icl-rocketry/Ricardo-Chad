@@ -21,6 +21,7 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus, PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
+ntrip(networkmanager),
 Motor1(PinMap::ServoPWM0, 0, networkmanager),
 Motor2(PinMap::ServoPWM1, 1, networkmanager),
 clifford(networkmanager, Motor1, Motor2)
@@ -45,26 +46,25 @@ void System::systemSetup(){
     Motor2.setup();
     
     canbus.setup();
-    
+    ntrip.setup();
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
     // Defining these so the methods following are less ugly
     uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
     uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
-    uint8_t PIDservice = static_cast<uint8_t>(Services::ID::PicklePID);
+    uint8_t controllerservice = static_cast<uint8_t>(Services::ID::PickleController);
 
     networkmanager.addInterface(&canbus);
 
     networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
     networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
-    //networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
-    networkmanager.registerService(PIDservice,[this](packetptr_t packetptr){clifford.PIDcheck.networkCallback(std::move(packetptr));});
+    networkmanager.registerService(controllerservice,[this](packetptr_t packetptr){clifford.PIDcheck.networkCallback(std::move(packetptr));});
     
 };
 
 void System::systemUpdate(){
     Buck.update();
-    // WatchDog.update();
     clifford.update();
+    // ntrip.update();
 };

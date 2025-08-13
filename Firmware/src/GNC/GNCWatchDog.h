@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Arduino.h"
 #include <libriccore/riccoresystem.h>
 #include <libriccore/networkinterfaces/can/canbus.h>
 #include <libriccore/platform/esp32/ADC.h>

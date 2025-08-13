@@ -18,6 +18,8 @@ namespace PinMap{
     static constexpr uint8_t BuckPGOOD = 47;
     static constexpr uint8_t BuckOutputV = 4;
 
+    static constexpr uint8_t NTRIP_RX = 8; // green wire
+    static constexpr uint8_t NTRIP_TX = 5; // blue wire
 };
 
 
