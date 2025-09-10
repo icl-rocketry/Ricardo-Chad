@@ -7,30 +7,29 @@
 
 //shamelessly copied from pickle rick's telemetry packet
 
-class ChadTelemPacket : public RnpPacket{
+class FTSChadTelemPacket : public RnpPacket{
     private:
     //serializer framework
         static constexpr auto getSerializer()
         {
             auto ret = RnpSerializer(
-                &ChadTelemPacket::servoVoltage,
-                &ChadTelemPacket::system_status,
-                &ChadTelemPacket::system_time
+                &FTSChadTelemPacket::fts_deployed,
+                &FTSChadTelemPacket::system_time
             );
 
             return ret;
         }
         
     public:
-        ~ChadTelemPacket();
+        ~FTSChadTelemPacket();
 
-        ChadTelemPacket();
+        FTSChadTelemPacket();
         /**
          * @brief Deserialize Telemetry Packet
          * 
          * @param data 
          */
-        ChadTelemPacket(const RnpPacketSerialized& packet);
+        FTSChadTelemPacket(const RnpPacketSerialized& packet);
 
         /**
          * @brief Serialize Telemetry Packet
@@ -39,8 +38,7 @@ class ChadTelemPacket : public RnpPacket{
          */
         void serialize(std::vector<uint8_t>& buf) override;
 
-        float servoVoltage;
-        uint32_t system_status;
+        bool fts_deployed;
         uint64_t system_time;
 
         static constexpr size_t size(){

@@ -23,16 +23,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         void systemUpdate();
 
-        SiC43x Buck;
-
         CanBus<SYSTEM_FLAG> canbus;
         
-        
-    private:
-
-        LocalPWM m_servo0_pwm;
-        LocalPWM m_servo1_pwm;
-
-        NRCRemoteServo<LocalPWM> m_servo0;
-        NRCRemoteServo<LocalPWM> m_servo1;
+        bool ftsDeployed = false;
 };

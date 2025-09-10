@@ -16,18 +16,10 @@
 
 #include "States/idle.h"
 
-
-
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
-Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
-canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-m_servo0_pwm(PinMap::ServoPWM0),
-m_servo1_pwm(PinMap::ServoPWM1),
-m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
+canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3)
 {};
-
 
 void System::systemSetup(){
     
@@ -40,29 +32,64 @@ void System::systemSetup(){
     //initialize statemachine with idle state
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
     
-    //any other setup goes here
-    
-    Buck.setup();
-
-    m_servo0.setup();
-    m_servo1.setup();
     canbus.setup(); 
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
-    //Defining these so the methods following are less ugly
-    uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
-    uint8_t servoservice1 = static_cast<uint8_t>(Services::ID::Servo1);
-
     networkmanager.addInterface(&canbus);
 
-    networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
-    networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
-    
+    // FTSSignal pin is default low, so need a pulldown
+    pinMode(PinMap::FTSSignal, INPUT_PULLDOWN);
+
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("FTS Active");
 };
 
 void System::systemUpdate(){
-    Buck.update();
+    // Do some basic debouncing here
+    static int ftsSignal = LOW;
+    static int pinSignal = LOW;
+    static const int debounceMs = 20;
+    static int debounceStart = 0;
 
+    // Read the cable into pinSignal.
+    pinSignal = digitalRead(PinMap::FTSSignal);
+
+    // If the read signal is different than the saved and it hasn't already
+    // been detected then start a timer.
+    if (pinSignal != ftsSignal && debounceStart == 0) {
+        debounceStart = millis();
+
+    // Else if the read signal is back to the same then clear the timeout.
+    } else if (pinSignal == ftsSignal) {
+        debounceStart = 0;
+    }
+
+    // If the timer is set and it has run out then swap saved pin signal.
+    if (debounceStart != 0 && millis() - debounceStart > debounceMs) {
+        ftsSignal = pinSignal;
+        debounceStart = 0;
+    }
+
+    // FTS Active
+    // Ensure CAN is not spammed
+    static int lastTime = std::numeric_limits<int>::min();
+    static const int commandTimeoutMs = 100;
+
+    if (ftsSignal == HIGH && millis() - lastTime > commandTimeoutMs) {
+        ftsDeployed = true;
+
+        RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("FTS Deployed");
+
+        SimpleCommandPacket ftsCommand(static_cast<uint8_t>(Commands::ID::FTSActive), 0);
+        ftsCommand.header.type = static_cast<uint8_t>(NRCPacket::TYPES::NRC_COMMAND);
+        ftsCommand.header.source = networkmanager.getAddress();
+        ftsCommand.header.source_service = 2;       // Command Service
+        ftsCommand.header.destination = 2;          // Pickle Address
+        ftsCommand.header.destination_service = 2;  // Command Service
+
+        networkmanager.sendPacket(ftsCommand);
+
+        lastTime = millis();
+    }
 }

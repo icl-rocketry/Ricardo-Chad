@@ -57,7 +57,7 @@ void Commands::ChadTelemCommand(System& sm, const RnpPacketSerialized& packet)
 {	
 	SimpleCommandPacket commandpacket(packet);
 
-	ChadTelemPacket chadtelem;
+	FTSChadTelemPacket chadtelem;
 
 	chadtelem.header.type = static_cast<uint8_t>(103);
 	chadtelem.header.source = sm.networkmanager.getAddress();
@@ -65,18 +65,8 @@ void Commands::ChadTelemCommand(System& sm, const RnpPacketSerialized& packet)
 	chadtelem.header.destination = commandpacket.header.source;
 	chadtelem.header.destination_service = commandpacket.header.source_service;
 	chadtelem.header.uid = commandpacket.header.uid; 
-	chadtelem.servoVoltage = sm.Buck.getOutputV();
-	chadtelem.system_status = sm.systemstatus.getStatus();
+	chadtelem.fts_deployed = sm.ftsDeployed;
 	chadtelem.system_time = millis();
 	
 	sm.networkmanager.sendPacket(chadtelem);
-	
-}
-
-void Commands::BuckRestartCommand(System& sm, const RnpPacketSerialized& packet)
-{	
-	SimpleCommandPacket receivedpacket(packet);
-
-	sm.Buck.restart(receivedpacket.arg); //Arg should be the time the buck is held off before startup is called again 
-
 }

@@ -18,14 +18,12 @@ namespace Commands
     {
         NoCommand = 0,
         ChadTelem = 8,
-        BuckRestart = 44,
+        FTSActive = 49,
         Free_Ram = 250
     };
 
     inline std::initializer_list<ID> defaultEnabledCommands = {ID::Free_Ram, ID::ChadTelem};
 
     inline std::unordered_map<ID, std::function<void(ForwardDecl_SystemClass &, const RnpPacketSerialized &)>> command_map{
-        {ID::Free_Ram, FreeRamCommand}, {ID::ChadTelem, ChadTelemCommand}, {ID::BuckRestart, BuckRestartCommand}};
-
-
+        {ID::Free_Ram, FreeRamCommand}, {ID::ChadTelem, ChadTelemCommand}};
 };

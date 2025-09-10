@@ -5,24 +5,22 @@
 
 #include <vector>
 
-
-
-ChadTelemPacket::~ChadTelemPacket()
+FTSChadTelemPacket::~FTSChadTelemPacket()
 {};
 
-ChadTelemPacket::ChadTelemPacket():
+FTSChadTelemPacket::FTSChadTelemPacket():
 RnpPacket(0,
           104,
           size())
 {};
 
-ChadTelemPacket::ChadTelemPacket(const RnpPacketSerialized& packet):
+FTSChadTelemPacket::FTSChadTelemPacket(const RnpPacketSerialized& packet):
 RnpPacket(packet,size())
 {
     getSerializer().deserialize(*this,packet.getBody());
 };
 
-void ChadTelemPacket::serialize(std::vector<uint8_t>& buf){
+void FTSChadTelemPacket::serialize(std::vector<uint8_t>& buf){
     RnpPacket::serialize(buf);
 	size_t bufsize = buf.size();
 	buf.resize(bufsize + size());
