@@ -74,7 +74,7 @@ void System::systemUpdate(){
     // FTS Active
     // Ensure CAN is not spammed
     static int lastTime = std::numeric_limits<int>::min();
-    static const int commandTimeoutMs = 100;
+    static const int commandTimeoutMs = 50;
 
     if (ftsSignal == HIGH && millis() - lastTime > commandTimeoutMs) {
         ftsDeployed = true;
