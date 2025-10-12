@@ -22,61 +22,44 @@ canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3)
 {};
 
 void System::systemSetup(){
-    
+
     Serial.setRxBufferSize(GeneralConfig::SerialRxSize);
     Serial.begin(GeneralConfig::SerialBaud);
-   
+
     //intialize rnp message logger
     loggerhandler.retrieve_logger<RicCoreLoggingConfig::LOGGERS::SYS>().initialize(networkmanager);
 
     //initialize statemachine with idle state
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
-    
-    canbus.setup(); 
+
+    canbus.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
     networkmanager.addInterface(&canbus);
 
-    // FTSSignal pin is default low, so need a pulldown
-    pinMode(PinMap::FTSSignal, INPUT_PULLDOWN);
+    // The FTS signal lines are pulled up externally so these should also be pullups
+    pinMode(PinMap::FTSSignal0, INPUT_PULLUP);
+    pinMode(PinMap::FTSSignal1, INPUT_PULLUP);
 
-    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("FTS Active");
+    // Delay to allow inputs to normalize
+    delay(1000);
+
+    RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("\n\n----- FTS Active -----\n\n");
 };
 
 void System::systemUpdate(){
-    // Do some basic debouncing here
-    static int ftsSignal = LOW;
-    static int pinSignal = LOW;
-    static const int debounceMs = 20;
-    static int debounceStart = 0;
-
     // Read the cable into pinSignal.
-    pinSignal = digitalRead(PinMap::FTSSignal);
-
-    // If the read signal is different than the saved and it hasn't already
-    // been detected then start a timer.
-    if (pinSignal != ftsSignal && debounceStart == 0) {
-        debounceStart = millis();
-
-    // Else if the read signal is back to the same then clear the timeout.
-    } else if (pinSignal == ftsSignal) {
-        debounceStart = 0;
-    }
-
-    // If the timer is set and it has run out then swap saved pin signal.
-    if (debounceStart != 0 && millis() - debounceStart > debounceMs) {
-        ftsSignal = pinSignal;
-        debounceStart = 0;
-    }
+    int ftsSignal0 = digitalRead(PinMap::FTSSignal0);
+    int ftsSignal1 = digitalRead(PinMap::FTSSignal1);
 
     // FTS Active
     // Ensure CAN is not spammed
-    static int lastTime = std::numeric_limits<int>::min();
+    static int lastTime = 0;
     static const int commandTimeoutMs = 50;
 
-    if (ftsSignal == HIGH && millis() - lastTime > commandTimeoutMs) {
+    if (ftsSignal0 == LOW && ftsSignal1 == LOW && millis() - lastTime > commandTimeoutMs) {
         ftsDeployed = true;
 
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("FTS Deployed");

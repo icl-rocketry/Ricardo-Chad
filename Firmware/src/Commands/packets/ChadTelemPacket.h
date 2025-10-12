@@ -13,28 +13,28 @@ class FTSChadTelemPacket : public RnpPacket{
         static constexpr auto getSerializer()
         {
             auto ret = RnpSerializer(
-                &FTSChadTelemPacket::fts_deployed,
-                &FTSChadTelemPacket::system_time
+                &FTSChadTelemPacket::system_time,
+                &FTSChadTelemPacket::fts_deployed
             );
 
             return ret;
         }
-        
+
     public:
         ~FTSChadTelemPacket();
 
         FTSChadTelemPacket();
         /**
          * @brief Deserialize Telemetry Packet
-         * 
-         * @param data 
+         *
+         * @param data
          */
         FTSChadTelemPacket(const RnpPacketSerialized& packet);
 
         /**
          * @brief Serialize Telemetry Packet
-         * 
-         * @param buf 
+         *
+         * @param buf
          */
         void serialize(std::vector<uint8_t>& buf) override;
 

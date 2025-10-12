@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 namespace PinMap{
-    
+
     static constexpr uint8_t TxCan = 33;
     static constexpr uint8_t RxCan = 34;
 
@@ -18,7 +18,8 @@ namespace PinMap{
     static constexpr uint8_t BuckPGOOD = 47;
     static constexpr uint8_t BuckOutputV = 4;
 
-    static constexpr uint8_t FTSSignal = 5;
+    static constexpr uint8_t FTSSignal0 = 7;
+    static constexpr uint8_t FTSSignal1 = 6;
 
 };
 
