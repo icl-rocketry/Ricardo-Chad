@@ -43,8 +43,14 @@ void System::systemSetup(){
     pinMode(PinMap::FTSSignal0, INPUT_PULLUP);
     pinMode(PinMap::FTSSignal1, INPUT_PULLUP);
 
+    pinMode(PinMap::FTSGND0, OUTPUT);
+    pinMode(PinMap::FTSGND1, OUTPUT);
+
+    digitalWrite(PinMap::FTSGND0, LOW);
+    digitalWrite(PinMap::FTSGND1, LOW);
+
     // Delay to allow inputs to normalize
-    delay(1000);
+    delay(2000);
 
     RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("\n\n----- FTS Active -----\n\n");
 };
@@ -59,7 +65,7 @@ void System::systemUpdate(){
     static int lastTime = 0;
     static const int commandTimeoutMs = 50;
 
-    if (ftsSignal0 == LOW && ftsSignal1 == LOW && millis() - lastTime > commandTimeoutMs) {
+    if (ftsSignal0 == HIGH && ftsSignal1 == HIGH && millis() - lastTime > commandTimeoutMs) {
         ftsDeployed = true;
 
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("FTS Deployed");

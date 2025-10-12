@@ -21,6 +21,8 @@ namespace PinMap{
     static constexpr uint8_t FTSSignal0 = 7;
     static constexpr uint8_t FTSSignal1 = 6;
 
+    static constexpr uint8_t FTSGND0 = 10;
+    static constexpr uint8_t FTSGND1 = 9;
 };
 
 
