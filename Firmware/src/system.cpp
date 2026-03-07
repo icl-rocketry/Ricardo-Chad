@@ -28,8 +28,9 @@ m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
 m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
 pot0("Potentiometer0", PinMap::Pot0Control, 0, 1),
 pot1("Potentiometer1", PinMap::Pot1Control, 0, 1),
-i2cBus(1)
+i2cBus(1),
 //lcd(0x27,16,2)
+display(128, 32, &Wire, -1)
 {};
 
 
@@ -53,14 +54,33 @@ void System::systemSetup(){
     canbus.setup(); 
 
     //Setup for Potentiometers and Switches
-
     pot0.setup(3300, 0, 0);
     pot0.setSampleRate(PotSampleRate);
     pot1.setup(3300, 0, 0);
     pot1.setSampleRate(PotSampleRate);
 
     //Setup for display
-    i2cBus.begin(PinMap::sdaPin, PinMap::sclPin, uint32_t(100000)); // Default I2C frequency is 100kHz
+    //i2cBus.begin(PinMap::sdaPin, PinMap::sclPin, uint32_t(100000)); // Default I2C frequency is 100kHz
+    Wire.begin(PinMap::sdaPin, PinMap::sclPin, 100000);
+
+    // Initialize with the I2C addr 0x3C
+    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+    }
+
+    display.clearDisplay();
+  
+    // Set text properties
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+  
+    // Print "Hello, ESP32!"
+    display.setCursor(0, 0);
+    display.println("Potentiometer:");
+  
+    // IMPORTANT: You must call display() to actually show the buffer on the screen
+    display.display();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
@@ -78,6 +98,7 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
+    
     pot0.update(Pot0OutputV);
 
     if (Pot0OutputV < PotLowerVThreshhold) {
@@ -93,6 +114,10 @@ void System::systemUpdate(){
     if (Pot0Percentage != Pot0PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
         //lcd.setCursor(0,0); lcd.print("P0: "); lcd.print(Pot0Percentage); lcd.print("%   ");
+        display.setCursor(0,15);
+        display.fillRect(0,10,64,15, SSD1306_BLACK);
+        display.print(Pot0Percentage);
+        display.display();
         Pot0PercentageOld = Pot0Percentage;
     }
     

@@ -18,6 +18,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
     public:
@@ -45,6 +46,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         ADC_VRailMonitor pot1;
         TwoWire i2cBus;
         //LiquidCrystal_I2C lcd;
+        Adafruit_SSD1306 display;
 
         int PotLowerVThreshhold = 100;
         int PotUpperVThreshhold = 3100;
