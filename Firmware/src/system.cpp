@@ -25,7 +25,11 @@ canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
 m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
+pot0("Potentiometer0", PinMap::Pot0Control, 0, 1),
+pot1("Potentiometer1", PinMap::Pot1Control, 0, 1),
+i2cBus(1),
+lcd(0x27,16,2)
 {};
 
 
@@ -48,6 +52,24 @@ void System::systemSetup(){
     m_servo1.setup();
     canbus.setup(); 
 
+    //Setup for Potentiometers and Switches
+
+    pot0.setup(3300, 0, 0);
+    pot0.setSampleRate(PotSampleRate);
+    pot1.setup(3300, 0, 0);
+    pot1.setSampleRate(PotSampleRate);
+
+    //Setup for display
+    i2cBus.begin(PinMap::sdaPin, PinMap::sclPin, uint32_t(100000)); // Default I2C frequency is 100kHz
+    delay(500);
+    lcd.init();
+    delay(500);
+    lcd.backlight();
+
+    // Check if LCD working
+    lcd.setCursor(0,0);
+    lcd.print("Hello, world!");
+
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
@@ -64,5 +86,22 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
+    pot0.update(Pot0OutputV);
 
+    if (Pot0OutputV < PotLowerVThreshhold) {
+        Pot0Percentage = 0;
+    }
+    else if (Pot0OutputV > PotUpperVThreshhold) {
+        Pot0Percentage = 100;
+    }
+    else {
+        Pot0Percentage = static_cast<int>(((Pot0OutputV-PotLowerVThreshhold)/(PotUpperVThreshhold-PotLowerVThreshhold))*100);
+    }    
+    
+    if (Pot0Percentage != Pot0PercentageOld) {
+        RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
+        lcd.setCursor(0,0); lcd.print("P0: "); lcd.print(Pot0Percentage); lcd.print("%   ");
+        Pot0PercentageOld = Pot0Percentage;
+    }
+    
 }

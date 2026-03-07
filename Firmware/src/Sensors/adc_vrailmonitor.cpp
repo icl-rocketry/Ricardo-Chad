@@ -59,6 +59,11 @@ void ADC_VRailMonitor::setup(int maxVoltage, int lowVoltage,int minVoltage){
     
 }
 
+void ADC_VRailMonitor::setSampleRate(uint16_t rate)
+{
+    sampleDelta = 1000/rate; // Convert frequency in Hz to period in ms
+}
+
 void ADC_VRailMonitor::update(float& OutputV)
 {
     if(!_adcInitialized)
@@ -68,6 +73,8 @@ void ADC_VRailMonitor::update(float& OutputV)
 
     if (millis() - prevSampleTime >= sampleDelta)
     {   
+        prevSampleTime = millis();
+
         int raw_reading;
         if (_unit == ADC_UNIT_1)
         {
@@ -95,5 +102,3 @@ void ADC_VRailMonitor::update(float& OutputV)
         
     }
 }
-
-

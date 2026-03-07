@@ -3,13 +3,13 @@
 	url = https://github.com/bblanchon/ArduinoJson.git
 [submodule "Firmware/components/libriccore"]
 	path = Firmware/components/libriccore
-	url = git@github.com:icl-rocketry/libriccore.git
+	url = https://github.com/icl-rocketry/libriccore.git
 [submodule "Firmware/components/librnp"]
 	path = Firmware/components/librnp
-	url = git@github.com:icl-rocketry/librnp.git
+	url = https://github.com/icl-rocketry/librnp.git
 [submodule "Firmware/components/arduino"]
 	path = Firmware/components/arduino
 	url = https://github.com/espressif/arduino-esp32.git
 [submodule "Firmware/components/librrc"]
 	path = Firmware/components/librrc
-	url = git@github.com:icl-rocketry/librrc.git
+	url = https://github.com/icl-rocketry/librrc.git

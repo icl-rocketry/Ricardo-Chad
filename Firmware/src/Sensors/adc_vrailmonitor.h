@@ -31,6 +31,7 @@ public:
      * 
      * @param data 
      */
+    void setSampleRate(uint16_t rate);
     void update(float &data);
 
 private:
@@ -91,7 +92,7 @@ private:
 
     bool _lowVoltageTriggered;
 
-    uint16_t sampleDelta = 20; // sample the voltage rail at 5hz
+    uint16_t sampleDelta = 200; // Sample the voltage rail at default 5hz (unless specified otherwise)
     uint32_t prevSampleTime = 0;
 };
 
