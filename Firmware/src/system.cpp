@@ -28,8 +28,8 @@ m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
 m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
 pot0("Potentiometer0", PinMap::Pot0Control, 0, 1),
 pot1("Potentiometer1", PinMap::Pot1Control, 0, 1),
-i2cBus(1),
-lcd(0x27,16,2)
+i2cBus(1)
+//lcd(0x27,16,2)
 {};
 
 
@@ -61,14 +61,6 @@ void System::systemSetup(){
 
     //Setup for display
     i2cBus.begin(PinMap::sdaPin, PinMap::sclPin, uint32_t(100000)); // Default I2C frequency is 100kHz
-    delay(500);
-    lcd.init();
-    delay(500);
-    lcd.backlight();
-
-    // Check if LCD working
-    lcd.setCursor(0,0);
-    lcd.print("Hello, world!");
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
@@ -100,7 +92,7 @@ void System::systemUpdate(){
     
     if (Pot0Percentage != Pot0PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
-        lcd.setCursor(0,0); lcd.print("P0: "); lcd.print(Pot0Percentage); lcd.print("%   ");
+        //lcd.setCursor(0,0); lcd.print("P0: "); lcd.print(Pot0Percentage); lcd.print("%   ");
         Pot0PercentageOld = Pot0Percentage;
     }
     

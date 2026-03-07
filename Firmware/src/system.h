@@ -13,7 +13,10 @@
 
 #include "SiC43x.h"
 #include <Wire.h>
-#include <Display\LiquidCrystal_I2C.h>
+//#include <Display\LiquidCrystal_I2C.h>
+#include <Arduino.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
@@ -41,7 +44,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         ADC_VRailMonitor pot0;
         ADC_VRailMonitor pot1;
         TwoWire i2cBus;
-        LiquidCrystal_I2C lcd;
+        //LiquidCrystal_I2C lcd;
 
         int PotLowerVThreshhold = 100;
         int PotUpperVThreshhold = 3100;
