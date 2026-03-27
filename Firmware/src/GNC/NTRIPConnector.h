@@ -15,8 +15,10 @@ class NTRIPConnector {
         void update();
 
     private:
-        const char* m_ssid = "Jack";
-        const char* m_password = "password1";
+        const char* m_ssid = "McNaughty";
+        // const char* m_ssid = "Jack";
+        const char* m_password = "harveyhouse25";
+        // const char* m_password = "password1";
         const char* m_casterHost = "3.143.243.81";
         const int   m_casterPort = 2101;
         const char* m_mountpoint = "ICLR_GNC";
@@ -24,7 +26,7 @@ class NTRIPConnector {
         const char* m_ntripPass  = "WEEK2374";
         String m_lastGPGGA = "";
 
-        const int m_dataDelta = 2000;
+        const int m_dataDelta = 1000;
         const int m_GPGGADelta = 5000;
 
         unsigned long m_prev_timestamp_1 = 0;
@@ -59,4 +61,8 @@ class NTRIPConnector {
 
         char lineBuf[128];
         uint8_t linePos = 0;
+
+        float m_x = 1.0f; // North offset
+        float m_y = 2.0f; // East  offset
+        float m_z = 3.0f; // Up    offset
 };

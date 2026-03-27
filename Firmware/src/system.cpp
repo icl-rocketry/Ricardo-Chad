@@ -65,6 +65,6 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
-    clifford.update();
-    // ntrip.update();
+    // clifford.update();
+    ntrip.update();
 };

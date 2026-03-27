@@ -3,10 +3,10 @@
 void NTRIPConnector::setup()
 {
 	// // Initialize WiFi
-	connectWIFI();
+	// connectWIFI();
 
 	// // Connect to NTRIP caster
-	connectNTRIP();
+	// connectNTRIP();
 
 	// Set up UART for UM980 Receiver
 	connectUART();
@@ -18,9 +18,9 @@ void NTRIPConnector::setup()
 
 void NTRIPConnector::update() {
 
-	getNewData();
-	
-	// sendData();
+	// getNewData();
+	getGPNTR();
+	// getGNGGA();
 
 } 
 
@@ -36,9 +36,11 @@ void NTRIPConnector::connectWIFI()
 {
 	Serial.println("Connecting to WiFi...");
 	WiFi.begin(m_ssid, m_password);
-	esp_wifi_set_ps(WIFI_PS_NONE);
-	WiFi.setAutoReconnect(true);
 	WiFi.persistent(false);
+	WiFi.setAutoReconnect(true);
+	WiFi.setSleep(false);                  // disable modem sleep
+	esp_wifi_set_ps(WIFI_PS_NONE);         // IDF API, no power-save
+	esp_wifi_set_max_tx_power(78); 
 };
 
 void NTRIPConnector::connectNTRIP()
@@ -226,7 +228,10 @@ void NTRIPConnector::parseGPNTR(char *nmea) {
 	qual, hh, mm, ss,
 	north_m, east_m, up_m
 	);
-
+	m_x = north_m; // Update offsets
+	m_y = east_m;
+	m_z = up_m;
+	sendData();
     // Yield to Wi-Fi/RTOS so we don't starve the stack
     yield();
 }
@@ -421,9 +426,9 @@ void NTRIPConnector::sendData() {
 	telemetry.header.destination = 2;
 	telemetry.header.destination_service = 6;
 	telemetry.header.uid = 1;
-    telemetry.x_input = 1;
-    telemetry.y_input = 2;
-    telemetry.z_input = 3;
+    telemetry.x_input = m_x;
+    telemetry.y_input = m_y;
+    telemetry.z_input = m_z;
     telemetry.u_input = 4;
     telemetry.v_input = 5;
     telemetry.w_input = 6;
