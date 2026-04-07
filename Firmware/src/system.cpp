@@ -22,10 +22,9 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-m_servo0_pwm(PinMap::ServoPWM0),
-m_servo1_pwm(PinMap::ServoPWM1),
-m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
+Motor1(PinMap::ServoPWM0, 0, networkmanager),
+Motor2(PinMap::ServoPWM1, 1, networkmanager),
+clifford(networkmanager, Motor1, Motor2)
 {};
 
 
@@ -44,25 +43,28 @@ void System::systemSetup(){
     
     Buck.setup();
 
-    m_servo0.setup();
-    m_servo1.setup();
-    canbus.setup(); 
+    //any other setup goes here
+    clifford.setup();
+    Motor1.setup();
+    Motor2.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
-    //Defining these so the methods following are less ugly
-    uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
-    uint8_t servoservice1 = static_cast<uint8_t>(Services::ID::Servo1);
+    // Defining these so the methods following are less ugly
+    uint8_t motorservice1 = (uint8_t) Services::ID::Motor1;
+    uint8_t motorservice2 = (uint8_t) Services::ID::Motor2;
+    uint8_t controllerservice = static_cast<uint8_t>(Services::ID::PickleController);
 
     networkmanager.addInterface(&canbus);
 
-    networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
-    networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
+    networkmanager.registerService(motorservice1,Motor1.getThisNetworkCallback());
+    networkmanager.registerService(motorservice2,Motor2.getThisNetworkCallback());
+    networkmanager.registerService(controllerservice,[this](packetptr_t packetptr){clifford.PIDcheck.networkCallback(std::move(packetptr));});
     
 };
 
 void System::systemUpdate(){
     Buck.update();
-
+    // clifford.update();
 }

@@ -9,6 +9,8 @@ namespace GeneralConfig{
 
     //I2C frequrency - 4Khz
     static constexpr int I2C_FREQUENCY = 400000;
+
+    static constexpr int pickleAddr = 2;
 };
 
 

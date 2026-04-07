@@ -12,6 +12,8 @@
 #include "Commands/commands.h"
 
 #include "SiC43x.h"
+#include "GNC/GNCWatchDog.h"
+#include "GNC/nrcremoteprop.h"
 
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
@@ -30,9 +32,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         
     private:
 
-        LocalPWM m_servo0_pwm;
-        LocalPWM m_servo1_pwm;
-
-        NRCRemoteServo<LocalPWM> m_servo0;
-        NRCRemoteServo<LocalPWM> m_servo1;
+        NRCRemoteProp Motor1;
+        NRCRemoteProp Motor2;
+        GNCWatchDog clifford;//🐶
 };

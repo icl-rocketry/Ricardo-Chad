@@ -19,10 +19,9 @@ namespace Services{
      * 
      */
     enum class ID:uint8_t{
-        Servo0 = 10,
-        Servo1 = 11,
-        Pot0 = 12,
-        Pot1 = 13
+        PickleController = 5,
+        Motor1 = 10,
+        Motor2 = 11,
     };
 
 };
