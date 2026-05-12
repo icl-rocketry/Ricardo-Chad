@@ -92,7 +92,7 @@ private:
 
     bool _lowVoltageTriggered;
 
-    uint16_t sampleDelta = 200; // Sample the voltage rail at default 5hz (unless specified otherwise)
+    uint16_t sampleDelta; // Sample the voltage rail at default 5hz (unless specified otherwise)
     uint32_t prevSampleTime = 0;
 };
 

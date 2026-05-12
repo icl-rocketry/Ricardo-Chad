@@ -29,8 +29,7 @@ m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
 pot0("Potentiometer0", PinMap::Pot0Control, 0, 1),
 pot1("Potentiometer1", PinMap::Pot1Control, 0, 1),
 i2cBus(1),
-//lcd(0x27,16,2)
-display(128, 32, &Wire, -1)
+display(U8G2_R0, PinMap::sclPin, PinMap::sdaPin, U8X8_PIN_NONE, PinMap::dcPin, PinMap::resetPin)
 {};
 
 
@@ -58,29 +57,31 @@ void System::systemSetup(){
     pot0.setSampleRate(PotSampleRate);
     pot1.setup(3300, 0, 0);
     pot1.setSampleRate(PotSampleRate);
+    //RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Samplerate:" + std::to_string(PotSampleRate));
 
     //Setup for display
-    //i2cBus.begin(PinMap::sdaPin, PinMap::sclPin, uint32_t(100000)); // Default I2C frequency is 100kHz
-    Wire.begin(PinMap::sdaPin, PinMap::sclPin, 100000);
-
-    // Initialize with the I2C addr 0x3C
-    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;);
-    }
-
-    display.clearDisplay();
+    display.begin();
+    display.clearBuffer();
   
     // Set text properties
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
+    display.setFont(u8g2_font_10x20_tf);
   
-    // Print "Hello, ESP32!"
-    display.setCursor(0, 0);
-    display.println("Potentiometer:");
+    // Print Base display
+    display.setDrawColor(10);
+    display.drawLine(0,32,255,32);
+    display.drawLine(64,0,64,63);
+    display.drawLine(128,0,128,63);
+    display.drawLine(192,0,192,63);
+    display.setDrawColor(15);
+
+    display.drawStr(10, 20, "POT1");
+    display.drawStr(74, 20, "POT2");
+    display.drawStr(138, 20, "POT3");
+    display.drawStr(202, 20, "POT4");
+
   
-    // IMPORTANT: You must call display() to actually show the buffer on the screen
-    display.display();
+    // IMPORTANT: You must call .sendBeffer() to actually show the buffer on the screen
+    display.sendBuffer();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
@@ -113,11 +114,15 @@ void System::systemUpdate(){
     
     if (Pot0Percentage != Pot0PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
-        //lcd.setCursor(0,0); lcd.print("P0: "); lcd.print(Pot0Percentage); lcd.print("%   ");
-        display.setCursor(0,15);
-        display.fillRect(0,10,64,15, SSD1306_BLACK);
+        
+        display.setDrawColor(0);
+        display.drawBox(0,33, 64, 30);
+        display.setDrawColor(15);
+
+        display.setCursor(10,52);
         display.print(Pot0Percentage);
-        display.display();
+        display.print("%");
+        display.sendBuffer();
         Pot0PercentageOld = Pot0Percentage;
     }
     

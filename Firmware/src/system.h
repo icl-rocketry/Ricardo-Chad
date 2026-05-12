@@ -13,11 +13,11 @@
 
 #include "SiC43x.h"
 #include <Wire.h>
-//#include <Display\LiquidCrystal_I2C.h>
 #include <Arduino.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
+// #include <Adafruit_GFX.h>
+// #include <Adafruit_SSD1306.h>
+#include <U8g2lib.h>
+#include <SPI.h>
 
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
@@ -45,12 +45,11 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         ADC_VRailMonitor pot0;
         ADC_VRailMonitor pot1;
         TwoWire i2cBus;
-        //LiquidCrystal_I2C lcd;
-        Adafruit_SSD1306 display;
+        U8G2_SSD1322_ZJY_256X64_F_4W_SW_SPI display;
 
         int PotLowerVThreshhold = 100;
         int PotUpperVThreshhold = 3100;
-        uint32_t PotSampleRate = 10; // Sample the potentiometer at 10hz by default
+        uint16_t PotSampleRate = 20; // Sample the potentiometer at 10hz by default
 
         float Pot0OutputV = 0;
         int Pot0Percentage = 0;
