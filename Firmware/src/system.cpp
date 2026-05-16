@@ -101,28 +101,31 @@ void System::systemUpdate(){
     Buck.update();
     
     pot0.update(Pot0OutputV);
+    Pot0OutputV = static_cast<float> (alpha*Pot0OutputV + (1-alpha)*Pot0OutputVOld); // Simple low pass filter to smooth out voltage readings
+    Pot0OutputVOld = Pot0OutputV;
 
-    if (Pot0OutputV < PotLowerVThreshhold) {
+    if (Pot0OutputV <= PotLowerVThreshhold) {
         Pot0Percentage = 0;
     }
-    else if (Pot0OutputV > PotUpperVThreshhold) {
+    else if (Pot0OutputV >= PotUpperVThreshhold) {
         Pot0Percentage = 100;
     }
     else {
-        Pot0Percentage = static_cast<int>(((Pot0OutputV-PotLowerVThreshhold)/(PotUpperVThreshhold-PotLowerVThreshhold))*100);
+        Pot0PercentageRaw = ((Pot0OutputV-PotLowerVThreshhold)/(PotUpperVThreshhold-PotLowerVThreshhold))*100;
+        Pot0Percentage = std::min(std::max(static_cast<int>(Pot0PercentageRaw), 0), 100);
     }    
-    
+   
     if (Pot0Percentage != Pot0PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
         
-        display.setDrawColor(0);
-        display.drawBox(0,33, 64, 30);
-        display.setDrawColor(15);
+        // display.setDrawColor(0);
+        // display.drawBox(0,33, 64, 30);
+        // display.setDrawColor(15);
 
-        display.setCursor(10,52);
-        display.print(Pot0Percentage);
-        display.print("%");
-        display.sendBuffer();
+        // display.setCursor(10,52);
+        // display.print(Pot0Percentage);
+        // display.print("%");
+        // display.sendBuffer();
         Pot0PercentageOld = Pot0Percentage;
     }
     

@@ -52,8 +52,10 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         uint16_t PotSampleRate = 20; // Sample the potentiometer at 10hz by default
 
         float Pot0OutputV = 0;
+        float Pot0OutputVOld = 0;
+        float Pot0PercentageRaw = 0;
         int Pot0Percentage = 0;
         int Pot0PercentageOld = 0;
-        
+        double alpha = 0.6;
 
 };
