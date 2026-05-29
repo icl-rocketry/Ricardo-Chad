@@ -24,8 +24,9 @@ Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
-m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
+m_servo0(m_servo0_pwm, networkmanager, "Srvo0", 0,0,100,1100,1940,0,100), //bottom servo
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1", 0,0,100,1100,1940,0,100) //top servo
+
 {};
 
 
@@ -44,25 +45,25 @@ void System::systemSetup(){
     
     Buck.setup();
 
-    m_servo0.setup();
-    m_servo1.setup();
+    m_servo0.setup(false);
+    m_servo1.setup(false);
     canbus.setup(); 
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
-    //Defining these so the methods following are less ugly
-    uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
-    uint8_t servoservice1 = static_cast<uint8_t>(Services::ID::Servo1);
+    // Defining these so the methods following are less ugly
+    uint8_t servo0service = static_cast<uint8_t>(Services::ID::Servo0);
+    uint8_t servo1service = static_cast<uint8_t>(Services::ID::Servo1);
 
     networkmanager.addInterface(&canbus);
 
-    networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
-    networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
+    networkmanager.registerService(servo0service,m_servo0.getThisNetworkCallback());
+    networkmanager.registerService(servo1service,m_servo1.getThisNetworkCallback());
     
 };
 
 void System::systemUpdate(){
     Buck.update();
-
+    // clifford.update();
 }
