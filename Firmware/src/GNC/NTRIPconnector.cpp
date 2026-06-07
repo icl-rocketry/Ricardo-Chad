@@ -262,12 +262,23 @@ void NTRIPConnector::updateCorrectionData()
 
         bool hasRecentRtcm = (m_lastRtcmRxMs != 0) && (ageMs < 2000);
 
-        Serial.printf("RTK: correction=%s, rtcm=%lu B/s, last=%lu ms, fix=%u (%s)\n",
+        float speedMs = m_hasVelocity
+            ? sqrtf((m_velocityEastMs * m_velocityEastMs) +
+                    (m_velocityNorthMs * m_velocityNorthMs) +
+                    (m_velocityUpMs * m_velocityUpMs))
+            : 0.0f;
+
+        Serial.printf("RTK: correction=%s, rtcm=%lu B/s, last=%lu ms, fix=%u (%s), vel=%s, speed=%.3f m/s, east=%.3f m/s, north=%.3f m/s, up=%.3f m/s\n",
                       hasRecentRtcm ? "yes" : "no",
                       (unsigned long)m_rtcmBytesSec,
                       (unsigned long)((ageMs == 0xFFFFFFFF) ? 0 : ageMs),
                       m_fixQuality,
-                      fixQualityLabel(m_fixQuality));
+                      fixQualityLabel(m_fixQuality),
+                      m_hasVelocity ? "yes" : "no",
+                      speedMs,
+                      m_hasVelocity ? m_velocityEastMs : 0.0f,
+                      m_hasVelocity ? m_velocityNorthMs : 0.0f,
+                      m_hasVelocity ? m_velocityUpMs : 0.0f);
 
         m_lastStatMs = now;
     }
