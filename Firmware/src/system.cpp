@@ -24,9 +24,9 @@ Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
-m_servo0(m_servo0_pwm, networkmanager, "Srvo0", 0,0,100,1100,1940,0,100), //bottom servo
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1", 0,0,100,1100,1940,0,100) //top servo
-
+m_servo0(m_servo0_pwm, networkmanager, "Srvo0",740, 0, 1800, 500, 2500, 10, 1790), //bottom servo
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1", 930, 0, 1800, 500, 2500, 10, 1790), //top servo
+ntrip(networkmanager)
 {};
 
 
@@ -34,6 +34,10 @@ void System::systemSetup(){
     
     Serial.setRxBufferSize(GeneralConfig::SerialRxSize);
     Serial.begin(GeneralConfig::SerialBaud);
+    delay(1500);
+    Serial.println();
+    Serial.println("BOOT: Chad firmware started");
+    Serial.printf("BOOT: Serial baud %d\n", GeneralConfig::SerialBaud);
    
     //intialize rnp message logger
     loggerhandler.retrieve_logger<RicCoreLoggingConfig::LOGGERS::SYS>().initialize(networkmanager);
@@ -48,6 +52,7 @@ void System::systemSetup(){
     m_servo0.setup(false);
     m_servo1.setup(false);
     canbus.setup(); 
+    ntrip.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
@@ -65,5 +70,5 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
-    // clifford.update();
+    ntrip.update();
 }

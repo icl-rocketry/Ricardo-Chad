@@ -8,6 +8,7 @@
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
 #include <librrc/HAL/localpwm.h>
+#include "src/GNC/NTRIPconnector.h"
 
 #include "Commands/commands.h"
 
@@ -35,4 +36,6 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         NRCRemoteServo<LocalPWM> m_servo0;
         NRCRemoteServo<LocalPWM> m_servo1;
+
+        NTRIPConnector ntrip;
 };
