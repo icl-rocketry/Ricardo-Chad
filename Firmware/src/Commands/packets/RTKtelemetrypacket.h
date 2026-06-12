@@ -18,7 +18,8 @@ class RTKTelemetryPacket : public RnpPacket{
                 &RTKTelemetryPacket::u_input,
                 &RTKTelemetryPacket::v_input,
                 &RTKTelemetryPacket::w_input,
-                &RTKTelemetryPacket::fix_quality
+                &RTKTelemetryPacket::fix_quality,
+                &RTKTelemetryPacket::wifi_connected
             );
 
             return ret;
@@ -42,6 +43,7 @@ class RTKTelemetryPacket : public RnpPacket{
         float v_input;
         float w_input;
         uint8_t fix_quality;
+        uint8_t wifi_connected;
 
         static constexpr size_t size(){
             return getSerializer().member_size();

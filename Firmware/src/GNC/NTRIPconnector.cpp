@@ -31,6 +31,81 @@ float nmeaPositionToDecimal(float raw, char hemi)
     return decimal;
 }
 
+void geodeticToNed(float latitudeDeg,
+                   float longitudeDeg,
+                   float altitudeM,
+                   float originLatitudeDeg,
+                   float originLongitudeDeg,
+                   float originAltitudeM,
+                   float &northM,
+                   float &eastM,
+                   float &downM)
+{
+    static constexpr double wgs84SemiMajorAxisM = 6378137.0;
+    static constexpr double wgs84Flattening = 1.0 / 298.257223563;
+    static constexpr double wgs84EccentricitySquared =
+        wgs84Flattening * (2.0 - wgs84Flattening);
+
+    auto geodeticToEcef = [](double latDeg,
+                             double lonDeg,
+                             double altM,
+                             double &xM,
+                             double &yM,
+                             double &zM) {
+        double latRad = latDeg * DEG_TO_RAD;
+        double lonRad = lonDeg * DEG_TO_RAD;
+        double sinLat = sin(latRad);
+        double cosLat = cos(latRad);
+        double sinLon = sin(lonRad);
+        double cosLon = cos(lonRad);
+        double primeVerticalRadiusM =
+            wgs84SemiMajorAxisM / sqrt(1.0 - wgs84EccentricitySquared * sinLat * sinLat);
+
+        xM = (primeVerticalRadiusM + altM) * cosLat * cosLon;
+        yM = (primeVerticalRadiusM + altM) * cosLat * sinLon;
+        zM = (primeVerticalRadiusM * (1.0 - wgs84EccentricitySquared) + altM) * sinLat;
+    };
+
+    double originXM = 0.0;
+    double originYM = 0.0;
+    double originZM = 0.0;
+    double currentXM = 0.0;
+    double currentYM = 0.0;
+    double currentZM = 0.0;
+
+    geodeticToEcef(originLatitudeDeg,
+                   originLongitudeDeg,
+                   originAltitudeM,
+                   originXM,
+                   originYM,
+                   originZM);
+    geodeticToEcef(latitudeDeg,
+                   longitudeDeg,
+                   altitudeM,
+                   currentXM,
+                   currentYM,
+                   currentZM);
+
+    double dxM = currentXM - originXM;
+    double dyM = currentYM - originYM;
+    double dzM = currentZM - originZM;
+
+    double originLatitudeRad = originLatitudeDeg * DEG_TO_RAD;
+    double originLongitudeRad = originLongitudeDeg * DEG_TO_RAD;
+    double sinLat = sin(originLatitudeRad);
+    double cosLat = cos(originLatitudeRad);
+    double sinLon = sin(originLongitudeRad);
+    double cosLon = cos(originLongitudeRad);
+
+    northM = static_cast<float>((-sinLat * cosLon * dxM) +
+                                (-sinLat * sinLon * dyM) +
+                                (cosLat * dzM));
+    eastM = static_cast<float>((-sinLon * dxM) + (cosLon * dyM));
+    downM = static_cast<float>((-cosLat * cosLon * dxM) +
+                               (-cosLat * sinLon * dyM) +
+                               (-sinLat * dzM));
+}
+
 const char *fixQualityLabel(uint8_t fixQuality)
 {
     switch (fixQuality) {
@@ -69,6 +144,15 @@ const char *wifiEncryptionLabel(wifi_auth_mode_t encryptionType)
         case WIFI_AUTH_WPA2_WPA3_PSK: return "wpa2/wpa3";
         default: return "unknown";
     }
+}
+
+[[maybe_unused]] void printPacketHex(const std::vector<uint8_t> &bytes)
+{
+    Serial.print("RTK packet bytes:");
+    for (uint8_t byte : bytes) {
+        Serial.printf(" %02X", byte);
+    }
+    Serial.println();
 }
 
 }
@@ -595,6 +679,14 @@ void NTRIPConnector::parseGPGGA(char *nmea) {
 	m_latitudeDeg = nmeaPositionToDecimal(latRaw, latHemi);
 	m_longitudeDeg = nmeaPositionToDecimal(lonRaw, lonHemi);
 	m_altitudeM = altitude;
+
+	if (!m_hasNedOrigin) {
+		m_originLatitudeDeg = m_latitudeDeg;
+		m_originLongitudeDeg = m_longitudeDeg;
+		m_originAltitudeM = m_altitudeM;
+		m_hasNedOrigin = true;
+	}
+
 	m_hasPosition = true;
 }
 
@@ -644,11 +736,21 @@ void NTRIPConnector::sendGPGGA() {
 }
 
 void NTRIPConnector::sendData() {
-	if (!m_hasPosition) return;
-
 	uint32_t now = millis();
 	if (now - m_lastTelemetrySentMs < m_telemetryDelta) return;
 	m_lastTelemetrySentMs = now;
+
+	// if (!m_hasPosition) {
+	// 	Serial.printf(
+	// 		"RTK packet sending without valid position, fix=%u (%s), has_velocity=%s, "
+	// 		"lat=%.8f deg, lon=%.8f deg, alt=%.3f m\n",
+	// 		m_fixQuality,
+	// 		fixQualityLabel(m_fixQuality),
+	// 		m_hasVelocity ? "yes" : "no",
+	// 		m_latitudeDeg,
+	// 		m_longitudeDeg,
+	// 		m_altitudeM);
+	// }
 
 	RTKTelemetryPacket telemetry;
 
@@ -658,13 +760,66 @@ void NTRIPConnector::sendData() {
 	telemetry.header.destination = 2;
 	telemetry.header.destination_service = 6;
 	telemetry.header.uid = 1;
-    telemetry.x_input = m_latitudeDeg;
-    telemetry.y_input = m_longitudeDeg;
-    telemetry.z_input = m_altitudeM;
-    telemetry.u_input = m_hasVelocity ? m_velocityEastMs : 0.0f;
-    telemetry.v_input = m_hasVelocity ? m_velocityNorthMs : 0.0f;
-    telemetry.w_input = m_hasVelocity ? m_velocityUpMs : 0.0f;
+
+    float northM = 0.0f;
+    float eastM = 0.0f;
+    float downM = 0.0f;
+    if (m_hasNedOrigin) {
+        geodeticToNed(m_latitudeDeg,
+                      m_longitudeDeg,
+                      m_altitudeM,
+                      m_originLatitudeDeg,
+                      m_originLongitudeDeg,
+                      m_originAltitudeM,
+                      northM,
+                      eastM,
+                      downM);
+    }
+
+    telemetry.x_input = northM;
+    telemetry.y_input = eastM;
+    telemetry.z_input = downM;
+    telemetry.u_input = m_hasVelocity ? m_velocityNorthMs : 0.0f;
+    telemetry.v_input = m_hasVelocity ? m_velocityEastMs : 0.0f;
+    telemetry.w_input = m_hasVelocity ? -m_velocityUpMs : 0.0f;
     telemetry.fix_quality = m_fixQuality;
+    telemetry.wifi_connected = (WiFi.status() == WL_CONNECTED) ? 1 : 0;
+
+    // Uncomment this block to print RTK packet metadata, including this board's
+    // network address, header routing fields, NED position and velocity,
+    // fix quality, WiFi connection state, and serialized packet bytes.
+    // std::vector<uint8_t> serializedTelemetry;
+    // telemetry.serialize(serializedTelemetry);
+    
+    // Serial.printf(
+    //     "RTK packet network: node_addr=%u, start=0x%02X, type=%u, uid=%u, "
+    //     "payload_len=%u B, serialized_len=%u B, src_addr=%u, src_service=%u, "
+    //     "dst_addr=%u, dst_service=%u, hops=%u\n",
+    //     m_networkmanager.getAddress(),
+    //     telemetry.header.start_byte,
+    //     telemetry.header.type,
+    //     telemetry.header.uid,
+    //     telemetry.header.packet_len,
+    //     static_cast<unsigned int>(serializedTelemetry.size()),
+    //     telemetry.header.source,
+    //     telemetry.header.source_service,
+    //     telemetry.header.destination,
+    //     telemetry.header.destination_service,
+    //     telemetry.header.hops);
+    //
+    // Serial.printf(
+    //     "RTK packet fields: north=%.3f m, east=%.3f m, down=%.3f m, "
+    //     "vel=%s, north=%.3f m/s, east=%.3f m/s, down=%.3f m/s, fix=%u, wifi=%u\n",
+    //     telemetry.x_input,
+    //     telemetry.y_input,
+    //     telemetry.z_input,
+    //     m_hasVelocity ? "yes" : "no",
+    //     telemetry.u_input,
+    //     telemetry.v_input,
+    //     telemetry.w_input,
+    //     telemetry.fix_quality,
+    //     telemetry.wifi_connected);
+    // printPacketHex(serializedTelemetry);
 
     m_networkmanager.sendPacket(telemetry);
 }

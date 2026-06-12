@@ -16,10 +16,12 @@ class NTRIPConnector {
         void update();
 
     private:
-        const char* m_ssid = "Olis phone ";
-        // const char* m_ssid = "Jack";
-        const char* m_password = "Oliver1234";
-        // const char* m_password = "password1";
+        // const char* m_ssid = "Olis phone ";
+        // const char* m_password = "Oliver1234";
+
+        const char* m_ssid = "McNaughty";
+        const char* m_password = "harveyhouse25";
+        
 
         //connection to imperial RTK base station
         const char* m_casterHost = "euref-ip.net";
@@ -38,7 +40,7 @@ class NTRIPConnector {
         String m_lastGPGGA = "";
 
         const int m_dataDelta = 2000;
-        const int m_GPGGADelta = 5000;
+        const int m_GPGGADelta = 1000;
         const int m_GNSSPollDelta = 1000;
         const int m_telemetryDelta = 1000;
 
@@ -64,11 +66,15 @@ class NTRIPConnector {
         float m_latitudeDeg = 0.0f;
         float m_longitudeDeg = 0.0f;
         float m_altitudeM = 0.0f;
+        float m_originLatitudeDeg = 0.0f;
+        float m_originLongitudeDeg = 0.0f;
+        float m_originAltitudeM = 0.0f;
         float m_velocityEastMs = 0.0f;
         float m_velocityNorthMs = 0.0f;
         float m_velocityUpMs = 0.0f;
         uint8_t m_fixQuality = 0;
         bool m_hasPosition = false;
+        bool m_hasNedOrigin = false;
         bool m_hasVelocity = false;
 
         void connectWIFI();
