@@ -19,7 +19,8 @@ class RTKTelemetryPacket : public RnpPacket{
                 &RTKTelemetryPacket::v_input,
                 &RTKTelemetryPacket::w_input,
                 &RTKTelemetryPacket::fix_quality,
-                &RTKTelemetryPacket::wifi_connected
+                &RTKTelemetryPacket::wifi_connected,
+                &RTKTelemetryPacket::gnss_time_of_day_ms
             );
 
             return ret;
@@ -44,6 +45,7 @@ class RTKTelemetryPacket : public RnpPacket{
         float w_input;
         uint8_t fix_quality;
         uint8_t wifi_connected;
+        uint32_t gnss_time_of_day_ms;
 
         static constexpr size_t size(){
             return getSerializer().member_size();

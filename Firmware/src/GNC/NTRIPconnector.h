@@ -39,10 +39,14 @@ class NTRIPConnector {
         // const char* m_ntripPass  = "WEEK2374";
         String m_lastGPGGA = "";
 
+        static constexpr int kRTKSampleRateHz = 20;
+        static constexpr int kRTKSampleDeltaMs = 1000 / kRTKSampleRateHz;
+        static constexpr size_t kGNSSRxBufferSize = 4096;
+
         const int m_dataDelta = 2000;
         const int m_GPGGADelta = 1000;
-        const int m_GNSSPollDelta = 1000;
-        const int m_telemetryDelta = 1000;
+        const int m_GNSSPollDelta = kRTKSampleDeltaMs;
+        const int m_telemetryDelta = kRTKSampleDeltaMs;
 
         unsigned long m_prev_timestamp_1 = 0;
         unsigned long m_prev_timestamp_2 = 0;
@@ -58,32 +62,41 @@ class NTRIPConnector {
         uint32_t m_rtcmBytesAcc = 0;
         uint32_t m_lastReconnectAttemptMs = 0;
         uint32_t m_lastWifiStatMs = 0;
+        uint32_t m_lastPacketDebugMs = 0;
         
         WiFiClient client;
         HardwareSerial GNSSserial = HardwareSerial(1);
         RnpNetworkManager& m_networkmanager;
 
-        float m_latitudeDeg = 0.0f;
-        float m_longitudeDeg = 0.0f;
-        float m_altitudeM = 0.0f;
-        float m_originLatitudeDeg = 0.0f;
-        float m_originLongitudeDeg = 0.0f;
-        float m_originAltitudeM = 0.0f;
-        float m_velocityEastMs = 0.0f;
-        float m_velocityNorthMs = 0.0f;
-        float m_velocityUpMs = 0.0f;
+        double m_latitudeDeg = 0.0;
+        double m_longitudeDeg = 0.0;
+        double m_altitudeM = 0.0;
+        double m_originLatitudeDeg = 0.0;
+        double m_originLongitudeDeg = 0.0;
+        double m_originAltitudeM = 0.0;
+        double m_velocityEastMs = 0.0;
+        double m_velocityNorthMs = 0.0;
+        double m_velocityUpMs = 0.0;
         uint8_t m_fixQuality = 0;
+        uint32_t m_gnssTimeOfDayMs = 0;
         bool m_hasPosition = false;
         bool m_hasNedOrigin = false;
         bool m_hasVelocity = false;
+        bool m_hasGNSSTime = false;
+        uint32_t m_lastVTGParseMs = 0;
+        char m_lastVTGParseStatus[32] = "none";
+        char m_lastRawGGA[256] = "";
+        char m_lastRawVTG[256] = "";
+        char m_lastRawNTR[256] = "";
 
         void connectWIFI();
         void connectNTRIP();
         void updateCorrectionData();
         void connectUART();
         void requestGPGGA();
-        void requestGPVTG();
+        void requestVTG();
         void readGNSSData();
+        void printTelemetryStatus();
         void parseNMEALine(char *nmea);
         void getGPNTR();
         void parseGPNTR(char *nmea);
@@ -92,11 +105,11 @@ class NTRIPConnector {
         void getNewData();
         void getGPGGA();
         void parseGPGGA(char *nmea);
-        void parseGPVTG(char *nmea);
+        void parseVTG(char *nmea);
         void sendGPGGA();
         void sendData();
         void printWiFiScan();
 
-        char lineBuf[128];
+        char lineBuf[256];
         uint8_t linePos = 0;
 };
