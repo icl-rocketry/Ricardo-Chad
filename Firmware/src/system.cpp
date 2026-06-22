@@ -24,8 +24,8 @@ Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
-m_servo0(m_servo0_pwm, networkmanager, "Srvo0",740, 0, 1800, 500, 2500, 10, 1790), //bottom servo
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1", 860, 0, 1800, 500, 2500, 10, 1790), //top servo
+m_servo0(m_servo0_pwm, networkmanager, "Srvo0",960, 0, 1800, 500, 2500, 10, 1790), //bottom servo
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1", 880, 0, 1800, 500, 2500, 10, 1790), //top servo
 ntrip(networkmanager)
 {};
 
