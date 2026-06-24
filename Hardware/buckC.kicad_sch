@@ -6153,7 +6153,7 @@
 				)
 			)
 		)
-		(property "Value" "SiC437AED-T1"
+		(property "Value" "SIC437AED-T1-GE3"
 			(at 92.71 45.72 0)
 			(effects
 				(font
@@ -6543,7 +6543,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "iclr:SOT-723"
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-723"
 			(at 146.05 110.49 0)
 			(effects
 				(font

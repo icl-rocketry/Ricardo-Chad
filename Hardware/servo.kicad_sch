@@ -1240,7 +1240,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "CPDV5_3V3UP_HF"
+		(property "Value" "CPDV5-3V3UP-HF"
 			(at 127.9717 89.17 0)
 			(effects
 				(font
@@ -1724,7 +1724,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "CPDV5_3V3UP_HF"
+		(property "Value" "CPDV5-3V3UP-HF"
 			(at 115.57 88.9 0)
 			(effects
 				(font
