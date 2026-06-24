@@ -1,7 +1,7 @@
 (kicad_sch
-	(version 20231120)
+	(version 20250114)
 	(generator "eeschema")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(uuid "cba0b52e-7d50-483f-8acd-18eb94994dac")
 	(paper "A4")
 	(lib_symbols
@@ -55,31 +55,7 @@
 			(symbol "CPDV5-3V3UP_1_0_1"
 				(polyline
 					(pts
-						(xy 0 -12.938) (xy 0 -16.51)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
 						(xy -1.03 -13.9125) (xy -0.014 -12.3885) (xy 1.002 -13.9125) (xy -1.03 -13.9125)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.0339 -16.5776) (xy 0.0179 -18.1016) (xy -0.9981 -16.5776) (xy 1.0339 -16.5776)
 					)
 					(stroke
 						(width 0.254)
@@ -104,6 +80,18 @@
 				)
 				(polyline
 					(pts
+						(xy 0 -12.938) (xy 0 -16.51)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
 						(xy 0.748 -11.8805) (xy 1.002 -11.8805) (xy 1.002 -12.3885) (xy -1.03 -12.3885) (xy -1.03 -12.8965)
 						(xy -0.776 -12.8965)
 					)
@@ -113,6 +101,18 @@
 					)
 					(fill
 						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.0339 -16.5776) (xy 0.0179 -18.1016) (xy -0.9981 -16.5776) (xy 1.0339 -16.5776)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 			)
@@ -128,24 +128,6 @@
 						)
 					)
 					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 -15.24 180)
-					(length 3.7)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -171,8 +153,6 @@
 						)
 					)
 				)
-			)
-			(symbol "CPDV5-3V3UP_1_2_1"
 				(pin passive line
 					(at 3.81 -15.24 180)
 					(length 3.7)
@@ -184,6 +164,26 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "CPDV5-3V3UP_1_2_1"
+				(pin passive line
+					(at 0 -8.89 270)
+					(length 4)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -210,8 +210,8 @@
 					)
 				)
 				(pin passive line
-					(at 0 -8.89 270)
-					(length 4)
+					(at 3.81 -15.24 180)
+					(length 3.7)
 					(name ""
 						(effects
 							(font
@@ -219,7 +219,7 @@
 							)
 						)
 					)
-					(number "4"
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -228,10 +228,13 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Connector:Conn_01x03_Male"
 			(pin_names
-				(offset 1.016) hide)
+				(offset 1.016)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -297,9 +300,42 @@
 				)
 			)
 			(symbol "Conn_01x03_Male_1_1"
+				(rectangle
+					(start 0.8636 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
 				(polyline
 					(pts
-						(xy 1.27 -2.54) (xy 0.8636 -2.54)
+						(xy 1.27 2.54) (xy 0.8636 2.54)
 					)
 					(stroke
 						(width 0.1524)
@@ -323,7 +359,7 @@
 				)
 				(polyline
 					(pts
-						(xy 1.27 2.54) (xy 0.8636 2.54)
+						(xy 1.27 -2.54) (xy 0.8636 -2.54)
 					)
 					(stroke
 						(width 0.1524)
@@ -331,39 +367,6 @@
 					)
 					(fill
 						(type none)
-					)
-				)
-				(rectangle
-					(start 0.8636 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
 					)
 				)
 				(pin passive line
@@ -421,11 +424,16 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Device:R_Small"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0.254) hide)
+				(offset 0.254)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -543,6 +551,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "iclr:CPDV5-3V3UP"
 			(exclude_from_sim no)
@@ -594,31 +603,7 @@
 			(symbol "CPDV5-3V3UP_0_1"
 				(polyline
 					(pts
-						(xy 0 -12.938) (xy 0 -16.51)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
 						(xy -1.03 -13.9125) (xy -0.014 -12.3885) (xy 1.002 -13.9125) (xy -1.03 -13.9125)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.0339 -16.5776) (xy 0.0179 -18.1016) (xy -0.9981 -16.5776) (xy 1.0339 -16.5776)
 					)
 					(stroke
 						(width 0.254)
@@ -643,6 +628,18 @@
 				)
 				(polyline
 					(pts
+						(xy 0 -12.938) (xy 0 -16.51)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
 						(xy 0.748 -11.8805) (xy 1.002 -11.8805) (xy 1.002 -12.3885) (xy -1.03 -12.3885) (xy -1.03 -12.8965)
 						(xy -0.776 -12.8965)
 					)
@@ -652,6 +649,18 @@
 					)
 					(fill
 						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.0339 -16.5776) (xy 0.0179 -18.1016) (xy -0.9981 -16.5776) (xy 1.0339 -16.5776)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 			)
@@ -667,24 +676,6 @@
 						)
 					)
 					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 -15.24 180)
-					(length 3.7)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -710,8 +701,6 @@
 						)
 					)
 				)
-			)
-			(symbol "CPDV5-3V3UP_2_1"
 				(pin passive line
 					(at 3.81 -15.24 180)
 					(length 3.7)
@@ -723,6 +712,26 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "CPDV5-3V3UP_2_1"
+				(pin passive line
+					(at 0 -8.89 270)
+					(length 4)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -749,8 +758,8 @@
 					)
 				)
 				(pin passive line
-					(at 0 -8.89 270)
-					(length 4)
+					(at 3.81 -15.24 180)
+					(length 3.7)
 					(name ""
 						(effects
 							(font
@@ -758,7 +767,7 @@
 							)
 						)
 					)
-					(number "4"
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -767,6 +776,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "power:+6V"
 			(power)
@@ -844,7 +854,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 0) (xy 0 2.54)
+						(xy 0 2.54) (xy 0.762 1.27)
 					)
 					(stroke
 						(width 0)
@@ -856,7 +866,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
+						(xy 0 0) (xy 0 2.54)
 					)
 					(stroke
 						(width 0)
@@ -870,7 +880,8 @@
 			(symbol "+6V_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
+					(length 0)
+					(hide yes)
 					(name "+6V"
 						(effects
 							(font
@@ -887,6 +898,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "power:GND"
 			(power)
@@ -966,7 +978,8 @@
 			(symbol "GND_1_1"
 				(pin power_in line
 					(at 0 0 270)
-					(length 0) hide
+					(length 0)
+					(hide yes)
 					(name "GND"
 						(effects
 							(font
@@ -983,6 +996,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 	)
 	(wire
@@ -1088,7 +1102,6 @@
 	(hierarchical_label "Servo_0_PWM"
 		(shape input)
 		(at 125.73 81.28 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1100,7 +1113,6 @@
 	(hierarchical_label "Servo_1_PWM"
 		(shape input)
 		(at 118.11 81.28 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1112,7 +1124,6 @@
 	(hierarchical_label "Servo_0_PWM"
 		(shape input)
 		(at 152.4 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1124,7 +1135,6 @@
 	(hierarchical_label "Servo_1_PWM"
 		(shape input)
 		(at 152.4 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1143,7 +1153,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "23337e2a-e3de-4d54-baf4-25f3218fdf3a")
-		(property "Reference" "R41"
+		(property "Reference" "R602"
 			(at 158.75 91.44 90)
 			(effects
 				(font
@@ -1151,7 +1161,7 @@
 				)
 			)
 		)
-		(property "Value" "165R"
+		(property "Value" "165Ω"
 			(at 158.75 93.98 90)
 			(effects
 				(font
@@ -1204,7 +1214,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "R41")
+					(reference "R602")
 					(unit 1)
 				)
 			)
@@ -1221,7 +1231,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2bd42514-f780-4474-b302-2d15e93bf358")
-		(property "Reference" "D3"
+		(property "Reference" "D601"
 			(at 127.9717 87.2649 0)
 			(effects
 				(font
@@ -1230,7 +1240,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "CPDV5_3V3UP_HF"
 			(at 127.9717 89.17 0)
 			(effects
 				(font
@@ -1287,7 +1297,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "D3")
+					(reference "D601")
 					(unit 2)
 				)
 			)
@@ -1302,7 +1312,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "39b446f9-aa77-40c2-9640-75859ee70dcd")
-		(property "Reference" "#PWR024"
+		(property "Reference" "#PWR0602"
 			(at 125.73 100.33 0)
 			(effects
 				(font
@@ -1353,7 +1363,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR024")
+					(reference "#PWR0602")
 					(unit 1)
 				)
 			)
@@ -1368,7 +1378,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6a4fbd38-467d-4422-8a9b-0656a65ef99b")
-		(property "Reference" "#PWR028"
+		(property "Reference" "#PWR0603"
 			(at 149.86 87.63 0)
 			(effects
 				(font
@@ -1418,7 +1428,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR028")
+					(reference "#PWR0603")
 					(unit 1)
 				)
 			)
@@ -1433,7 +1443,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7d6c81b8-1c11-432c-b271-d47f55977dbb")
-		(property "Reference" "#PWR087"
+		(property "Reference" "#PWR0606"
 			(at 157.48 101.6 0)
 			(effects
 				(font
@@ -1484,7 +1494,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR087")
+					(reference "#PWR0606")
 					(unit 1)
 				)
 			)
@@ -1499,7 +1509,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8a90742a-8a36-4f2d-a217-2d9c16c0d923")
-		(property "Reference" "#PWR086"
+		(property "Reference" "#PWR0605"
 			(at 157.48 86.36 0)
 			(effects
 				(font
@@ -1550,7 +1560,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR086")
+					(reference "#PWR0605")
 					(unit 1)
 				)
 			)
@@ -1565,7 +1575,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9dcf4fc5-8165-4e87-8afc-425a8c9baa3b")
-		(property "Reference" "J3"
+		(property "Reference" "J601"
 			(at 166.37 77.47 0)
 			(effects
 				(font
@@ -1620,7 +1630,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "J3")
+					(reference "J601")
 					(unit 1)
 				)
 			)
@@ -1635,7 +1645,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a0bead06-02c3-445a-8c55-afc051d83204")
-		(property "Reference" "J4"
+		(property "Reference" "J602"
 			(at 166.37 92.71 0)
 			(effects
 				(font
@@ -1690,7 +1700,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "J4")
+					(reference "J602")
 					(unit 1)
 				)
 			)
@@ -1705,7 +1715,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bc19a0fd-2dad-44bd-b8e7-ab2a2d3ff38e")
-		(property "Reference" "D3"
+		(property "Reference" "D601"
 			(at 116.078 87.63 0)
 			(effects
 				(font
@@ -1714,7 +1724,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "CPDV5_3V3UP_HF"
 			(at 115.57 88.9 0)
 			(effects
 				(font
@@ -1771,7 +1781,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "D3")
+					(reference "D601")
 					(unit 1)
 				)
 			)
@@ -1786,7 +1796,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c9c5969e-4038-41ab-9a0b-c5e1b53ade87")
-		(property "Reference" "R40"
+		(property "Reference" "R601"
 			(at 158.496 76.454 90)
 			(effects
 				(font
@@ -1794,7 +1804,7 @@
 				)
 			)
 		)
-		(property "Value" "165R"
+		(property "Value" "165Ω"
 			(at 158.496 78.994 90)
 			(effects
 				(font
@@ -1847,7 +1857,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "R40")
+					(reference "R601")
 					(unit 1)
 				)
 			)
@@ -1862,7 +1872,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e620aac7-f1cd-4192-8f30-92905d05ddbe")
-		(property "Reference" "#PWR023"
+		(property "Reference" "#PWR0601"
 			(at 118.11 100.33 0)
 			(effects
 				(font
@@ -1913,7 +1923,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR023")
+					(reference "#PWR0601")
 					(unit 1)
 				)
 			)
@@ -1928,7 +1938,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ed744522-71a8-4b47-ac9c-b002403ce21f")
-		(property "Reference" "#PWR029"
+		(property "Reference" "#PWR0604"
 			(at 152.4 102.87 0)
 			(effects
 				(font
@@ -1978,7 +1988,7 @@
 		(instances
 			(project "Chad"
 				(path "/7db990e4-92e1-4f99-b4d2-435bbec1ba83/4bc189a8-fc0b-4b23-bb81-ec8cc2a0e30d"
-					(reference "#PWR029")
+					(reference "#PWR0604")
 					(unit 1)
 				)
 			)
