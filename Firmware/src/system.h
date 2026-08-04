@@ -12,12 +12,6 @@
 #include "Commands/commands.h"
 
 #include "SiC43x.h"
-#include <Wire.h>
-#include <Arduino.h>
-// #include <Adafruit_GFX.h>
-// #include <Adafruit_SSD1306.h>
-#include <U8g2lib.h>
-#include <SPI.h>
 
 class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 {
@@ -44,8 +38,8 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         
         ADC_VRailMonitor pot0;
         ADC_VRailMonitor pot1;
-        TwoWire i2cBus;
-        U8G2_SSD1322_ZJY_256X64_F_4W_SW_SPI display;
+        ADC_VRailMonitor pot2;
+        ADC_VRailMonitor pot3;
 
         int PotLowerVThreshhold = 100;
         int PotUpperVThreshhold = 3100;
@@ -56,6 +50,25 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         float Pot0PercentageRaw = 0;
         int Pot0Percentage = 0;
         int Pot0PercentageOld = 0;
+
+        float Pot1OutputV = 0;
+        float Pot1OutputVOld = 0;
+        float Pot1PercentageRaw = 0;
+        int Pot1Percentage = 0;
+        int Pot1PercentageOld = 0;
+
+        float Pot2OutputV = 0;
+        float Pot2OutputVOld = 0;
+        float Pot2PercentageRaw = 0;
+        int Pot2Percentage = 0;
+        int Pot2PercentageOld = 0;
+
+        float Pot3OutputV = 0;
+        float Pot3OutputVOld = 0;
+        float Pot3PercentageRaw = 0;
+        int Pot3Percentage = 0;
+        int Pot3PercentageOld = 0;
+        
         double alpha = 0.6;
 
 };
