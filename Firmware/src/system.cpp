@@ -13,6 +13,7 @@
 #include "Config/services_config.h"
 
 #include "Commands/commands.h"
+#include "Commands/packets/ChadPotsPacket.h"
 
 #include "States/idle.h"
 
@@ -79,8 +80,10 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
+    sendInfoPacket = false;
     
     // Get potentiometer readings
+
     pot0.update(Pot0OutputV);
     Pot0OutputV = static_cast<float> (alpha*Pot0OutputV + (1-alpha)*Pot0OutputVOld); // Simple low pass filter to smooth out voltage readings
     Pot0OutputVOld = Pot0OutputV;
@@ -111,10 +114,17 @@ void System::systemUpdate(){
     }    
     if (Pot0Percentage != Pot0PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
-        
-        // Send to Master via CanBus
-
         Pot0PercentageOld = Pot0Percentage;
+        sendInfoPacket = true;
+
+        // Send command packet to self for servo actuation
+        SimpleCommandPacket actuate_servo(2, Pot0Percentage);
+	    actuate_servo.header.source = networkmanager.getAddress();
+	    actuate_servo.header.source_service = static_cast<uint8_t>(Services::ID::Potentiometers);
+	    actuate_servo.header.destination = networkmanager.getAddress();
+	    actuate_servo.header.destination_service = static_cast<uint8_t>(Services::ID::Servo0);
+	    actuate_servo.header.uid = static_cast<uint8_t>(68);
+        networkmanager.sendPacket(actuate_servo);
     }
     
     if (Pot1OutputV <= PotLowerVThreshhold) {
@@ -129,10 +139,17 @@ void System::systemUpdate(){
     }    
     if (Pot1Percentage != Pot1PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot1 Voltage: " + std::to_string(Pot1OutputV) + "mV, " + std::to_string(Pot1Percentage) + "%\n");
-        
-        // Send to Master via CanBus
-        
         Pot1PercentageOld = Pot1Percentage;
+        sendInfoPacket = true;
+        
+        // Send command packet to self for servo actuation
+        SimpleCommandPacket actuate_servo(2, Pot0Percentage);
+	    actuate_servo.header.source = networkmanager.getAddress();
+	    actuate_servo.header.source_service = static_cast<uint8_t>(Services::ID::Potentiometers);
+	    actuate_servo.header.destination = networkmanager.getAddress();
+	    actuate_servo.header.destination_service = static_cast<uint8_t>(Services::ID::Servo1);
+	    actuate_servo.header.uid = static_cast<uint8_t>(69);
+        networkmanager.sendPacket(actuate_servo);
     }
 
     if (Pot2OutputV <= PotLowerVThreshhold) {
@@ -147,10 +164,17 @@ void System::systemUpdate(){
     }    
     if (Pot2Percentage != Pot2PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot2 Voltage: " + std::to_string(Pot2OutputV) + "mV, " + std::to_string(Pot2Percentage) + "%\n");
-        
-        // Send to Master via CanBus
-        
         Pot2PercentageOld = Pot2Percentage;
+        sendInfoPacket = true;
+
+        // Send command packet to Masters Servo for actuation
+        SimpleCommandPacket actuate_servo(2, Pot2Percentage);
+        actuate_servo.header.source = networkmanager.getAddress();
+        actuate_servo.header.source_service = static_cast<uint8_t>(Services::ID::Potentiometers);
+        actuate_servo.header.destination = static_cast<uint8_t>(101);
+        actuate_servo.header.destination_service = static_cast<uint8_t>(10);
+        actuate_servo.header.uid = static_cast<uint8_t>(70);
+        networkmanager.sendPacket(actuate_servo);
     }
 
     if (Pot3OutputV <= PotLowerVThreshhold) {
@@ -165,9 +189,36 @@ void System::systemUpdate(){
     }    
     if (Pot3Percentage != Pot3PercentageOld) {
         RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot3 Voltage: " + std::to_string(Pot3OutputV) + "mV, " + std::to_string(Pot3Percentage) + "%\n");
-        
-        // Send to Master via CanBus
-        
         Pot3PercentageOld = Pot3Percentage;
+        sendInfoPacket = true;
+
+        // Send command packet to Masters Servo for actuation
+        SimpleCommandPacket actuate_servo(2, Pot3Percentage);
+        actuate_servo.header.source = networkmanager.getAddress();
+        actuate_servo.header.source_service = static_cast<uint8_t>(Services::ID::Potentiometers);
+        actuate_servo.header.destination = static_cast<uint8_t>(101);
+        actuate_servo.header.destination_service = static_cast<uint8_t>(11);
+        actuate_servo.header.uid = static_cast<uint8_t>(71);
+        networkmanager.sendPacket(actuate_servo);
     }
+
+    // Send potentiometer packet if any of the percentages have changed
+    if (sendInfoPacket) {
+        RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Sending Potentiometer Packet\n");
+        ChadPotsPacket chadpots;
+        
+        chadpots.header.type = static_cast<uint8_t>(103);
+	    chadpots.header.source = networkmanager.getAddress();
+	    chadpots.header.source_service = static_cast<uint8_t>(Services::ID::Potentiometers);
+	    chadpots.header.destination = static_cast<uint8_t>(101);
+	    chadpots.header.destination_service = static_cast<uint8_t>(2);
+	    chadpots.header.uid = static_cast<uint8_t>(67);
+        chadpots.Pot0Percentage = Pot0Percentage;
+        chadpots.Pot1Percentage = Pot1Percentage;
+        chadpots.Pot2Percentage = Pot2Percentage;
+        chadpots.Pot3Percentage = Pot3Percentage;
+
+        networkmanager.sendPacket(chadpots);
+    }
+
 }

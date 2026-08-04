@@ -41,6 +41,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         ADC_VRailMonitor pot2;
         ADC_VRailMonitor pot3;
 
+        bool sendInfoPacket = false;
         int PotLowerVThreshhold = 100;
         int PotUpperVThreshhold = 3100;
         uint16_t PotSampleRate = 20; // Sample the potentiometer at 10hz by default
