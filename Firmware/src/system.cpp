@@ -17,7 +17,6 @@
 #include "States/idle.h"
 
 
-
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
@@ -26,10 +25,8 @@ m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
 m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
 m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
-pot0("Potentiometer0", PinMap::Pot0Control, 0, 1),
-pot1("Potentiometer1", PinMap::Pot1Control, 0, 1),
 i2cBus(1),
-display(U8G2_R0, PinMap::sclPin, PinMap::sdaPin, U8X8_PIN_NONE, PinMap::dcPin, PinMap::resetPin)
+display(U8G2_R0, PinMap::sclPin, PinMap::sdaPin, PinMap::csPin, PinMap::dcPin, PinMap::resetPin)
 {};
 
 
@@ -51,13 +48,6 @@ void System::systemSetup(){
     m_servo0.setup();
     m_servo1.setup();
     canbus.setup(); 
-
-    //Setup for Potentiometers and Switches
-    pot0.setup(3300, 0, 0);
-    pot0.setSampleRate(PotSampleRate);
-    pot1.setup(3300, 0, 0);
-    pot1.setSampleRate(PotSampleRate);
-    //RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Samplerate:" + std::to_string(PotSampleRate));
 
     //Setup for display
     display.begin();
@@ -99,34 +89,62 @@ void System::systemSetup(){
 
 void System::systemUpdate(){
     Buck.update();
-    
-    pot0.update(Pot0OutputV);
-    Pot0OutputV = static_cast<float> (alpha*Pot0OutputV + (1-alpha)*Pot0OutputVOld); // Simple low pass filter to smooth out voltage readings
-    Pot0OutputVOld = Pot0OutputV;
 
-    if (Pot0OutputV <= PotLowerVThreshhold) {
-        Pot0Percentage = 0;
-    }
-    else if (Pot0OutputV >= PotUpperVThreshhold) {
-        Pot0Percentage = 100;
-    }
-    else {
-        Pot0PercentageRaw = ((Pot0OutputV-PotLowerVThreshhold)/(PotUpperVThreshhold-PotLowerVThreshhold))*100;
-        Pot0Percentage = std::min(std::max(static_cast<int>(Pot0PercentageRaw), 0), 100);
-    }    
-   
-    if (Pot0Percentage != Pot0PercentageOld) {
-        RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot0 Voltage: " + std::to_string(Pot0OutputV) + "mV, " + std::to_string(Pot0Percentage) + "%\n");
+    // Get potentiometer percentage values from CanBus
+    
+    // Display values on screen
+
+    if (Pot1Percentage != Pot1PercentageOld) {
+        // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot1 Voltage: " + std::to_string(Pot1OutputV) + "mV, " + std::to_string(Pot1Percentage) + "%\n");
         
-        // display.setDrawColor(0);
-        // display.drawBox(0,33, 64, 30);
-        // display.setDrawColor(15);
+        display.setDrawColor(0);
+        display.drawBox(0,33, 64,30);
+        display.setDrawColor(15);
 
-        // display.setCursor(10,52);
-        // display.print(Pot0Percentage);
-        // display.print("%");
-        // display.sendBuffer();
-        Pot0PercentageOld = Pot0Percentage;
+        display.setCursor(10,52);
+        display.print(Pot1Percentage);
+        display.print("%");
+        Pot1PercentageOld = Pot1Percentage;
+    }
+
+    if (Pot2Percentage != Pot2PercentageOld) {
+        // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot2 Voltage: " + std::to_string(Pot2OutputV) + "mV, " + std::to_string(Pot2Percentage) + "%\n");
+        
+        display.setDrawColor(0);
+        display.drawBox(65,33, 63,30);
+        display.setDrawColor(15);
+
+        display.setCursor(75,52);
+        display.print(Pot2Percentage);
+        display.print("%");
+        Pot2PercentageOld = Pot2Percentage;
     }
     
+    if (Pot3Percentage != Pot3PercentageOld) {
+        // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot3 Voltage: " + std::to_string(Pot3OutputV) + "mV, " + std::to_string(Pot3Percentage) + "%\n");
+        
+        display.setDrawColor(0);
+        display.drawBox(129,33, 63,30);
+        display.setDrawColor(15);
+
+        display.setCursor(139,52);
+        display.print(Pot3Percentage);
+        display.print("%");
+        Pot3PercentageOld = Pot3Percentage;
+    }
+
+    if (Pot4Percentage != Pot4PercentageOld) {
+        // RicCoreLogging::log<RicCoreLoggingConfig::LOGGERS::SYS>("Pot4 Voltage: " + std::to_string(Pot4OutputV) + "mV, " + std::to_string(Pot4Percentage) + "%\n");
+        
+        display.setDrawColor(0);
+        display.drawBox(193,33, 63,30);
+        display.setDrawColor(15);
+
+        display.setCursor(203,52);
+        display.print(Pot4Percentage);
+        display.print("%");
+        Pot4PercentageOld = Pot4Percentage;
+    }
+
+    display.sendBuffer();
 }

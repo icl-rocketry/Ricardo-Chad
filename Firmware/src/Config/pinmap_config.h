@@ -18,12 +18,11 @@ namespace PinMap{
     static constexpr uint8_t BuckPGOOD = 47;
     static constexpr uint8_t BuckOutputV = 4;
 
-    static constexpr uint8_t Pot0Control = 5;
-    static constexpr uint8_t Pot1Control = 8;
     static constexpr uint8_t sclPin = 10;
     static constexpr uint8_t sdaPin = 9;
     static constexpr uint8_t resetPin = 7;
     static constexpr uint8_t dcPin = 6;    
+    static constexpr uint8_t csPin = 5;
 };
 
 
