@@ -67,16 +67,14 @@ void System::systemUpdate(){
         // Get the armed status of each of the servos
         bool ch0_armed = m_servo0.getStatus() == static_cast<LIBRRC::component_status_flags_t>(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
         bool ch1_armed = m_servo1.getStatus() == static_cast<LIBRRC::component_status_flags_t>(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
+        bool should_enable_buck = ch0_armed || ch1_armed;
 
         // Only enable the buck if either of the servos are armed
         static bool buck_enabled { false };
 
-        if (!buck_enabled && (ch0_armed || ch1_armed)) {
-            buck_enabled = true;
-            Buck.setEN(buck_enabled);
-        } else if (buck_enabled && (!ch0_armed && !ch1_armed)) {
-            buck_enabled = false;
-            Buck.setEN(buck_enabled);
+        if (should_enable_buck != buck_enabled) {
+            buck_enabled = should_enable_buck;
+            Buck.setEN(should_enable_buck);
         }
     }
 
