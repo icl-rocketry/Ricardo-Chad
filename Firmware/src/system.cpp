@@ -63,10 +63,10 @@ void System::systemSetup(){
 };
 
 void System::systemUpdate(){
-    if contexpr (m_buck_idle_powerdown) {
+    if constexpr (m_buck_idle_powerdown) {
         // Get the armed status of each of the servos
-        bool ch0_armed = m_servo0.getState().flagSet(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
-        bool ch1_armed = m_servo1.getState().flagSet(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
+        bool ch0_armed = m_servo0.getStatus() == static_cast<LIBRRC::component_status_flags_t>(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
+        bool ch1_armed = m_servo1.getStatus() == static_cast<LIBRRC::component_status_flags_t>(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
 
         // Only enable the buck if either of the servos are armed
         static bool buck_enabled { false };
