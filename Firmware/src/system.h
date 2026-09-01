@@ -18,7 +18,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
     public:
 
         System();
-        
+
         void systemSetup();
 
         void systemUpdate();
@@ -26,9 +26,10 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
-        
-        
+
+
     private:
+        static constexpr bool m_buck_idle_powerdown { true };
 
         LocalPWM m_servo0_pwm;
         LocalPWM m_servo1_pwm;

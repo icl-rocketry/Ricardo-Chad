@@ -20,7 +20,7 @@
 
 System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
-Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 1, 1, PinMap::BuckOutputV, 1500, 470),
+Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 0, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
@@ -30,23 +30,23 @@ m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
 
 
 void System::systemSetup(){
-    
+
     Serial.setRxBufferSize(GeneralConfig::SerialRxSize);
     Serial.begin(GeneralConfig::SerialBaud);
-   
+
     //intialize rnp message logger
     loggerhandler.retrieve_logger<RicCoreLoggingConfig::LOGGERS::SYS>().initialize(networkmanager);
 
     //initialize statemachine with idle state
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
-    
+
     //any other setup goes here
-    
+
     Buck.setup();
 
     m_servo0.setup();
     m_servo1.setup();
-    canbus.setup(); 
+    canbus.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
     networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
@@ -59,10 +59,26 @@ void System::systemSetup(){
 
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
-    
+
 };
 
 void System::systemUpdate(){
-    Buck.update();
+    if contexpr (m_buck_idle_powerdown) {
+        // Get the armed status of each of the servos
+        bool ch0_armed = m_servo0.getState().flagSet(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
+        bool ch1_armed = m_servo1.getState().flagSet(LIBRRC::COMPONENT_STATUS_FLAGS::NOMINAL);
 
+        // Only enable the buck if either of the servos are armed
+        static bool buck_enabled { false };
+
+        if (!buck_enabled && (ch0_armed || ch1_armed)) {
+            buck_enabled = true;
+            Buck.setEN(buck_enabled);
+        } else if (buck_enabled && (!ch0_armed && !ch1_armed)) {
+            buck_enabled = false;
+            Buck.setEN(buck_enabled);
+        }
+    }
+
+    Buck.update();
 }
