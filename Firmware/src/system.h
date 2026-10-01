@@ -9,6 +9,8 @@
 #include <libriccore/networkinterfaces/can/canbus.h>
 #include <librrc/HAL/localpwm.h>
 
+#include "TMC2209/tmc2209.h"
+
 #include "Commands/commands.h"
 
 #include "SiC43x.h"
@@ -27,6 +29,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
 
         CanBus<SYSTEM_FLAG> canbus;
 
+        TMC2209 tmc;
 
     private:
         static constexpr bool m_buck_idle_powerdown { true };

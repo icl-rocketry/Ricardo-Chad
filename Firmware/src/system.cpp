@@ -25,7 +25,8 @@ canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
 m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
-m_servo1(m_servo1_pwm, networkmanager, "Srvo1")
+m_servo1(m_servo1_pwm, networkmanager, "Srvo1"),
+tmc(*this, networkmanager, PinMap::StepperStep, PinMap::StepperDir)
 {};
 
 
@@ -41,6 +42,7 @@ void System::systemSetup(){
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
 
     //any other setup goes here
+    tmc.setup();
 
     Buck.setup();
 
@@ -55,11 +57,14 @@ void System::systemSetup(){
     uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
     uint8_t servoservice1 = static_cast<uint8_t>(Services::ID::Servo1);
 
+    uint8_t tmcService = static_cast<uint8_t>(Services::ID::TMC);
+
     networkmanager.addInterface(&canbus);
 
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
 
+    networkmanager.registerService(tmcService, tmc.getThisNetworkCallback());
 };
 
 void System::systemUpdate(){
@@ -78,5 +83,6 @@ void System::systemUpdate(){
         }
     }
 
+    tmc.update();
     Buck.update();
 }
