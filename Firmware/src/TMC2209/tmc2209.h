@@ -11,6 +11,8 @@
 #include <libriccore/riccorelogging.h>
 // #include <SoftwareSerial.h>
 
+#include "tmcTelemPacket.h"
+
 class System;
 
 class TMC2209 : public NRCRemoteActuatorBase<TMC2209> {

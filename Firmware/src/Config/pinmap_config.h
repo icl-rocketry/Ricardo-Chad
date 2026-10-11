@@ -23,6 +23,11 @@ namespace PinMap{
     static constexpr uint8_t StepperTx = 8;
     static constexpr uint8_t StepperDiag = 9;
     static constexpr uint8_t StepperIndex = 10;
+
+    static constexpr uint8_t ABUS_TX = 9;
+    static constexpr uint8_t ABUS_RX = 10;
+
+
 };
 
 

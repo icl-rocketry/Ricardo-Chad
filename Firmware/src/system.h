@@ -7,6 +7,7 @@
 #include "Config/commands_config.h"
 #include "Config/pinmap_config.h"
 #include <libriccore/networkinterfaces/can/canbus.h>
+#include <libriccore/networkinterfaces/serial/streamserial.h>
 #include <librrc/HAL/localpwm.h>
 
 #include "TMC2209/tmc2209.h"
@@ -28,6 +29,7 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
+        StreamSerial<SYSTEM_FLAG> abus;
 
         TMC2209 tmc;
 
