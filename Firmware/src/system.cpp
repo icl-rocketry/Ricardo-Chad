@@ -35,9 +35,9 @@ void System::systemSetup(){
 
     Serial.setRxBufferSize(GeneralConfig::SerialRxSize);
     Serial.begin(GeneralConfig::SerialBaud);
-    //Serial1.setRxBufferSize(GeneralConfig::SerialRxSize);
-    //Serial1.begin(GeneralConfig::SerialBaud,SERIAL_8N1,
-    //    PinMap::ABUS_RX, PinMap::ABUS_TX);
+    Serial1.setRxBufferSize(GeneralConfig::SerialRxSize);
+    Serial1.begin(GeneralConfig::SerialBaud,SERIAL_8N1,
+        PinMap::ABUS_RX, PinMap::ABUS_TX);
 
     //intialize rnp message logger
     loggerhandler.retrieve_logger<RicCoreLoggingConfig::LOGGERS::SYS>().initialize(networkmanager);
