@@ -29,9 +29,9 @@ class System : public RicCoreSystem<System,SYSTEM_FLAG,Commands::ID>
         SiC43x Buck;
 
         CanBus<SYSTEM_FLAG> canbus;
-        //StreamSerial<SYSTEM_FLAG> abus;
+        StreamSerial<SYSTEM_FLAG> abus;
 
-        TMC2209 tmc;
+        //TMC2209 tmc;
 
     private:
         static constexpr bool m_buck_idle_powerdown { true };

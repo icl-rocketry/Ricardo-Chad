@@ -22,8 +22,8 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 0, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-//abus(Serial1, systemstatus, 4, "abus0"),
-tmc(*this, networkmanager, PinMap::StepperStep, PinMap::StepperDir),
+abus(Serial1, systemstatus, 4, "abus0"),
+//tmc(*this, networkmanager, PinMap::StepperStep, PinMap::StepperDir),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
 m_servo0(m_servo0_pwm, networkmanager, "Srvo0"),
@@ -46,7 +46,7 @@ void System::systemSetup(){
     statemachine.initalize(std::make_unique<Idle>(systemstatus,commandhandler));
 
     //any other setup goes here
-    tmc.setup();
+    //tmc.setup();
 
     Buck.setup();
 
@@ -55,7 +55,7 @@ void System::systemSetup(){
     canbus.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
-    networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
+    networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3,4});
 
     //Defining these so the methods following are less ugly
     uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
@@ -64,12 +64,12 @@ void System::systemSetup(){
     uint8_t tmcService = static_cast<uint8_t>(Services::ID::TMC);
 
     networkmanager.addInterface(&canbus);
-    //networkmanager.addInterface(&abus);
+    networkmanager.addInterface(&abus);
 
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
 
-    networkmanager.registerService(tmcService, tmc.getThisNetworkCallback());
+    //networkmanager.registerService(tmcService, tmc.getThisNetworkCallback());
 };
 
 void System::systemUpdate(){
@@ -88,6 +88,6 @@ void System::systemUpdate(){
         }
     }
 
-    tmc.update();
+    //tmc.update();
     Buck.update();
 }
