@@ -22,7 +22,7 @@ System::System():
 RicCoreSystem(Commands::command_map,Commands::defaultEnabledCommands,Serial),
 Buck(systemstatus,PinMap::BuckPGOOD, PinMap::BuckEN, 0, 1, PinMap::BuckOutputV, 1500, 470),
 canbus(systemstatus,PinMap::TxCan,PinMap::RxCan,3),
-abus(Serial1, systemstatus, 4, "abus0"),
+//abus(Serial1, systemstatus, 4, "abus0"),
 tmc(*this, networkmanager, PinMap::StepperStep, PinMap::StepperDir),
 m_servo0_pwm(PinMap::ServoPWM0),
 m_servo1_pwm(PinMap::ServoPWM1),
@@ -35,9 +35,9 @@ void System::systemSetup(){
 
     Serial.setRxBufferSize(GeneralConfig::SerialRxSize);
     Serial.begin(GeneralConfig::SerialBaud);
-    Serial1.setRxBufferSize(GeneralConfig::SerialRxSize);
-    Serial1.begin(GeneralConfig::SerialBaud,SERIAL_8N1,
-        PinMap::ABUS_RX, PinMap::ABUS_TX);
+    //Serial1.setRxBufferSize(GeneralConfig::SerialRxSize);
+    //Serial1.begin(GeneralConfig::SerialBaud,SERIAL_8N1,
+    //    PinMap::ABUS_RX, PinMap::ABUS_TX);
 
     //intialize rnp message logger
     loggerhandler.retrieve_logger<RicCoreLoggingConfig::LOGGERS::SYS>().initialize(networkmanager);
@@ -55,7 +55,7 @@ void System::systemSetup(){
     canbus.setup();
 
     networkmanager.setNodeType(NODETYPE::HUB);
-    networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3,4});
+    networkmanager.setNoRouteAction(NOROUTE_ACTION::BROADCAST,{1,3});
 
     //Defining these so the methods following are less ugly
     uint8_t servoservice0 = static_cast<uint8_t>(Services::ID::Servo0);
@@ -64,7 +64,7 @@ void System::systemSetup(){
     uint8_t tmcService = static_cast<uint8_t>(Services::ID::TMC);
 
     networkmanager.addInterface(&canbus);
-    networkmanager.addInterface(&abus);
+    //networkmanager.addInterface(&abus);
 
     networkmanager.registerService(servoservice0,m_servo0.getThisNetworkCallback());
     networkmanager.registerService(servoservice1,m_servo1.getThisNetworkCallback());
