@@ -54,7 +54,7 @@ private:
     System& m_system;
     RnpNetworkManager& m_networkmanager;
 
-    static constexpr uint64_t HalfStepDelayMs = 2;
+    static constexpr uint64_t HalfStepDelayUs = 187;
 
     static constexpr uint32_t STEPPER_COMMAND_TYPE = 51;
 
@@ -73,7 +73,7 @@ private:
 
     bool m_armed = false;
 
-    uint64_t m_lastStepTimeMs = 0;
+    uint64_t m_lastStepTimeUs = 0;
 
     bool m_currentStepState = 0;
 

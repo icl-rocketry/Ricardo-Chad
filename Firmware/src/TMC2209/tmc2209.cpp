@@ -28,10 +28,10 @@ void TMC2209::update() {
         return;
     }
 
-    uint64_t currentTimeMs = millis();
+    uint64_t currentTimeUs = micros();
 
-    if (m_stepperCommand != StepperCommandPayload::HOLD && (currentTimeMs - m_lastStepTimeMs > HalfStepDelayMs)) {
-        m_lastStepTimeMs = currentTimeMs;
+    if (m_stepperCommand != StepperCommandPayload::HOLD && (currentTimeUs - m_lastStepTimeUs > HalfStepDelayUs)) {
+        m_lastStepTimeUs = currentTimeUs;
 
         digitalWrite(m_stepperStepPin, m_currentStepState);
         m_currentStepState = !m_currentStepState;
