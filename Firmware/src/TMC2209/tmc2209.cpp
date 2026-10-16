@@ -12,6 +12,9 @@ void TMC2209::setup() {
     pinMode(m_stepperStepPin, OUTPUT);
     pinMode(m_stepperDirPin, OUTPUT);
 
+    ledcAttach(m_stepperStepPin, 5500, 8);
+    ledcWrite(m_stepperStepPin, 0);
+
     // pinMode(PinMap::StepperRx, INPUT);
     // pinMode(PinMap::StepperTx, OUTPUT);
 
@@ -25,16 +28,16 @@ void TMC2209::update() {
     m_log.state = static_cast<uint32_t>(m_stepperCommand);
 
     if (m_stepperCommand == StepperCommandPayload::HOLD) {
+        ledcWrite(m_stepperStepPin, 0);
         return;
     }
 
-    uint64_t currentTimeUs = micros();
+    uint64_t currentTimeMs = millis();
 
-    if (m_stepperCommand != StepperCommandPayload::HOLD && (currentTimeUs - m_lastStepTimeUs > HalfStepDelayUs)) {
-        m_lastStepTimeUs = currentTimeUs;
+    if (m_stepperCommand != StepperCommandPayload::HOLD && (currentTimeMs - m_lastStepTimeMs > HalfStepDelayMs)) {
+        m_lastStepTimeMs = currentTimeMs;
 
-        digitalWrite(m_stepperStepPin, m_currentStepState);
-        m_currentStepState = !m_currentStepState;
+        ledcWrite(m_stepperStepPin, 128);
     }
 }
 
